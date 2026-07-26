@@ -37,6 +37,8 @@ const I = {
   logout: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>',
   user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>',
   keyIc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4.5"/><path d="m11.2 11.8 8.3-8.3M17 6l2.5 2.5M14 9l2.5 2.5"/></svg>',
+  reset: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 4v4h4"/></svg>',
+  sparkle: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 5.7a2 2 0 0 0 1.3 1.3L21 11l-5.8 2a2 2 0 0 0-1.3 1.3L12 20l-1.9-5.7a2 2 0 0 0-1.3-1.3L3 11l5.8-2a2 2 0 0 0 1.3-1.3L12 2Z"/><circle cx="19" cy="5" r="1.6"/><circle cx="5" cy="19" r="1.3"/></svg>',
 };
 
 /* Flower logo (brand mark used across the app, as in the recordings) */
@@ -219,6 +221,7 @@ function header(title, { home = false, backTo = null } = {}) {
       ? `<span class="brand-flower">${flowerSVG(34)}</span>`
       : `<button class="back" data-act="back" data-to="${backTo || ''}" aria-label="Back">${I.back}</button>`}
     <h1>${esc(title)}</h1>
+    ${home ? `<button class="hdr-reset" data-act="reset" aria-label="Reset demo" title="Reset demo">${I.reset}</button>` : ''}
     <button class="help-pill" data-act="help"><span class="q">?</span>Help</button>
   </header>`;
 }
@@ -237,7 +240,7 @@ function updateTabbar(name) {
   }
   app.classList.remove('no-nav');
   bar.classList.remove('hidden');
-  const activeMap = { pre: 'home', post: 'home', instructions: 'home' };
+  const activeMap = { pre: 'home', post: 'home', instructions: 'home', spark: 'home' };
   const active = activeMap[name] || name;
   bar.innerHTML = TABS.map(t => {
     const locked = t.gated && !artOpen();
@@ -260,7 +263,62 @@ app.addEventListener('click', e => {
   const act = el.dataset.act;
   if (act === 'back') el.dataset.to ? nav(el.dataset.to) : back();
   if (act === 'help') nav('#/help');
+  if (act === 'reset') resetModal();
 });
+
+/* Demo reset — choose your study group, then land on Home */
+function resetModal() {
+  const groups = [
+    { id: 1, emoji: '\uD83D\uDCCB', name: 'Group 1 — Fresh start', desc: 'Everything cleared. Begin at the Pre-Survey, as on day one.' },
+    { id: 2, emoji: '\uD83C\uDFA8', name: 'Group 2 — Journey underway', desc: 'Pre-Survey done. Art Activities & Chat unlocked, week 3 of 8.' },
+    { id: 3, emoji: '\uD83C\uDF1F', name: 'Group 3 — Final stretch', desc: 'All 8 activities done, week 8 — Post-Survey open.' },
+  ];
+  const m = modal(`
+    <h3>Reset demo — choose a group</h3>
+    <p style="font-size:12.6px;line-height:1.6;color:#5c4f73;text-align:center;margin:-6px 0 14px">Your sign-in and details stay. Progress is replaced with the chosen group\u2019s state.</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${groups.map(g => `
+        <button class="opt-choice" data-group="${g.id}">
+          <span class="oc-radio"></span>
+          <span class="grow">
+            <h5><span class="oc-emoji">${g.emoji}</span>${esc(g.name)}</h5>
+            <p>${esc(g.desc)}</p>
+          </span>
+        </button>`).join('')}
+    </div>
+    <div class="modal-btns"><button class="btn btn-ghost" id="rst-cancel">Cancel</button></div>
+  `);
+  m.querySelector('#rst-cancel').onclick = () => closeModal();
+  m.querySelectorAll('[data-group]').forEach(b => b.addEventListener('click', () => {
+    applyGroupReset(+b.dataset.group);
+    closeModal();
+    toast(`Reset to ${groups.find(g => g.id === +b.dataset.group).name} \u2728`);
+    nav('#/home');
+    if (location.hash === '#/home') route();
+  }));
+}
+
+function applyGroupReset(group) {
+  const keep = { auth: S.auth, consented: S.consented, onboarded: S.onboarded, demographics: S.demographics };
+  S = Object.assign(blankState(), keep);
+  S.lastMoodPrompt = Date.now(); // don't instantly re-prompt mood after reset
+  const wk = ms => Date.now() - ms * 7 * 864e5;
+  if (group === 1) {
+    S.startedAt = Date.now();
+  } else if (group === 2) {
+    S.startedAt = wk(2); // week 3
+    MM.PRE_SURVEYS.forEach(id => S.surveys.pre[id] = { answers: {}, completedAt: wk(2), demo: true });
+    S.artAboutSeen = true;
+  } else {
+    S.startedAt = wk(7.5); // week 8
+    MM.PRE_SURVEYS.forEach(id => S.surveys.pre[id] = { answers: {}, completedAt: wk(7), demo: true });
+    S.artAboutSeen = true;
+    MM.ACTIVITIES.forEach((a, i) => {
+      S.activities[a.id] = { option: i % 5, uploads: [], reflections: { 0: 'A moment from my journey.' }, startedAt: wk(7) + i * 6 * 864e5, submittedAt: wk(7) + i * 6.5 * 864e5 };
+    });
+  }
+  save();
+}
 
 function render(html, { theme = 'theme-home', backAnim = false } = {}) {
   app.innerHTML = `<div class="screen ${theme} ${backAnim ? 'back-anim' : ''}">${html}</div>`;
@@ -282,7 +340,7 @@ routes.signin = () => {
         <button class="link" id="f-forgot">Forgot Password</button>
       </div>
       <button class="btn btn-primary btn-block" id="f-login">Login</button>
-      <p class="auth-foot">${MM.APP_NAME} · Creative Resilience Intervention<br/>Crafted with ❤ by <b>IONITY GLOBAL (PTY) LTD</b></p>
+      <p class="auth-foot">${MM.APP_NAME} · Creative Resilience Intervention<br/>Crafted with ❤ by <a href="https://www.ionity.co.za" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a><br/><a class="io-url" href="https://www.ionity.co.za" target="_blank" rel="noopener">www.ionity.co.za</a></p>
     </div>
   `, { theme: 'theme-auth' });
   $('#f-forgot').onclick = () => modal(`
@@ -332,7 +390,7 @@ routes.welcome = () => {
       <p class="sub" style="line-height:1.7;margin-top:10px">${esc(MM.ONBOARD.body)}</p>
       <p style="color:#fff;font-weight:700;margin:26px 0 14px">${esc(MM.ONBOARD.ready)}</p>
       <button class="btn btn-primary" id="w-start" style="min-width:200px">Start</button>
-      <p class="auth-foot">A Creative Resilience journey by <b>IONITY GLOBAL (PTY) LTD</b></p>
+      <p class="auth-foot">A Creative Resilience journey by <a href="https://www.ionity.co.za" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a><br/><a class="io-url" href="https://www.ionity.co.za" target="_blank" rel="noopener">www.ionity.co.za</a></p>
     </div>
   `, { theme: 'theme-auth' });
   $('#w-start').onclick = () => { S.onboarded = true; save(); nav('#/demographics'); };
@@ -521,6 +579,7 @@ routes.home = () => {
         <span class="chip">${flowerSVG(14, { petal: '#fff', core: '#ffd166' })} Week ${currentWeek()} of 8</span>
         ${streak ? `<span class="chip">🔥 ${streak}-day check-in streak</span>` : ''}
         <span class="chip">🎨 ${actsDone()}/8 activities</span>
+        <button class="chip chip-cta" id="go-spark">${I.sparkle}<span>Daily Spark${(S.sparks || []).some(s => s.day === dayKey()) ? ' ✨' : ''}</span></button>
       </div>
       <div class="hero-card home-hero">
         <h2>${esc(wc.title)}</h2>
@@ -539,14 +598,148 @@ routes.home = () => {
         <div class="garden-title">Your mood garden</div>
         ${gardenSVG()}
       </div>
+      ${ionityFooter()}
     </div>
   `);
   app.querySelectorAll('.tile').forEach(t => t.addEventListener('click', () => {
     if (t.dataset.locked === 'true') { toast('Complete your Pre-Survey to unlock this ✨'); return; }
     nav(t.dataset.route);
   }));
+  $('#go-spark')?.addEventListener('click', () => nav('#/spark'));
   maybeMoodModal();
 };
+
+/* ── Daily Spark ✨ — hold-to-charge inspiration ─────────── */
+function dayKey(ts = Date.now()) { const d = new Date(ts); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; }
+
+function pickSpark() {
+  // Deterministic per day + phone, so everyone gets "their" spark of the day
+  const seedStr = dayKey() + (S.auth?.phone || '');
+  let h = 2166136261;
+  for (const c of seedStr) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); }
+  return MM.SPARKS[Math.abs(h) % MM.SPARKS.length];
+}
+
+function personalLine() {
+  const streak = moodStreak();
+  const done = actsDone();
+  const recent = S.moods.slice(-5);
+  const good = recent.filter(m => m.mood === 'good').length;
+  const bad = recent.filter(m => m.mood === 'bad').length;
+  if (!S.sparks || !S.sparks.length) return MM.SPARK_PERSONAL.firstSpark;
+  if (streak >= 2) return MM.SPARK_PERSONAL.streak(streak);
+  if (done > 0 && Math.random() < .5) return MM.SPARK_PERSONAL.acts(done);
+  if (recent.length >= 3 && good > bad) return MM.SPARK_PERSONAL.moodsGood;
+  if (recent.length >= 3 && bad > good) return MM.SPARK_PERSONAL.moodsTough;
+  return MM.SPARK_PERSONAL.week(currentWeek());
+}
+
+routes.spark = () => {
+  if (!S.sparks) S.sparks = [];
+  const todayDone = S.sparks.some(s => s.day === dayKey());
+  const spark = pickSpark();
+  const stars = S.sparks.slice(-56);
+  const constellation = stars.map((s, i) => {
+    const x = 20 + ((i * 37) % 280), y = 14 + ((i * 53) % 60);
+    const r = 1.4 + ((i * 7) % 3) * .8;
+    return `<circle cx="${x}" cy="${y}" r="${r}" fill="#ffd166" opacity="${.45 + ((i * 13) % 5) * .12}">
+      <animate attributeName="opacity" values="${.4 + ((i * 13) % 5) * .1};1;${.4 + ((i * 13) % 5) * .1}" dur="${2.2 + (i % 5) * .8}s" repeatCount="indefinite"/>
+    </circle>`;
+  }).join('');
+
+  render(`
+    ${header('Daily Spark', { backTo: '#/home' })}
+    <div class="body-pad spark-wrap">
+      <svg class="spark-sky" viewBox="0 0 320 80" aria-hidden="true">${constellation}
+        ${stars.length ? '' : '<text x="160" y="46" text-anchor="middle" fill="rgba(255,255,255,.45)" font-size="9.5" font-family="Poppins">your collected sparks will shine here</text>'}
+      </svg>
+      <div class="spark-stage ${todayDone ? 'lit' : ''}" id="spark-stage">
+        <div class="spark-halo" id="spark-halo"></div>
+        <button class="spark-orb" id="spark-orb" aria-label="${todayDone ? 'Today\u2019s spark' : 'Hold to charge your spark'}">
+          ${flowerSVG(70, { petal: '#fff' })}
+        </button>
+        <div class="spark-hint" id="spark-hint">${todayDone ? 'Today\u2019s spark is lit \u2728' : 'Press & hold the orb.<br/>Breathe in while it charges\u2026'}</div>
+      </div>
+      <div class="spark-card ${todayDone ? '' : 'hidden'}" id="spark-card">
+        <div class="spark-q">\u201C${esc(spark.text)}\u201D</div>
+        <div class="spark-by">\u2014 ${esc(spark.by)}</div>
+        <div class="spark-you" id="spark-you"></div>
+        <div class="modal-btns">
+          <button class="btn btn-ghost" id="spark-share">Share</button>
+          <button class="btn btn-primary" id="spark-home">Carry it with me</button>
+        </div>
+      </div>
+      <p class="spark-count">${S.sparks.length ? `\u2b50 ${S.sparks.length} spark${S.sparks.length > 1 ? 's' : ''} collected on your journey` : 'Collect a spark every day \u2014 build your constellation'}</p>
+    </div>
+  `, { theme: 'theme-spark' });
+
+  const orb = $('#spark-orb'), halo = $('#spark-halo'), hint = $('#spark-hint'), stage = $('#spark-stage');
+  const cardEl = $('#spark-card');
+  if (todayDone) $('#spark-you').textContent = S.sparks.find(s => s.day === dayKey())?.you || '';
+
+  let charge = 0, chargeIv = null;
+  const HOLD_MS = 2600;
+
+  function reveal() {
+    clearInterval(chargeIv);
+    stage.classList.add('lit');
+    const you = personalLine();
+    S.sparks.push({ day: dayKey(), text: spark.text, by: spark.by, you, at: Date.now() });
+    save();
+    if (navigator.vibrate) navigator.vibrate([40, 80, 140]);
+    confetti();
+    $('#spark-you').textContent = you;
+    hint.innerHTML = 'Today\u2019s spark is lit \u2728';
+    cardEl.classList.remove('hidden');
+    cardEl.classList.add('pop');
+  }
+  function startHold(e) {
+    if (todayDone || stage.classList.contains('lit')) return;
+    e.preventDefault();
+    charge = 0;
+    orb.classList.add('charging');
+    hint.textContent = 'Keep holding\u2026 breathe in\u2026';
+    chargeIv = setInterval(() => {
+      charge += 50;
+      const p = Math.min(1, charge / HOLD_MS);
+      halo.style.setProperty('--p', p);
+      if (navigator.vibrate && charge % 500 === 0) navigator.vibrate(6);
+      if (p >= 1) { endHold(); reveal(); }
+    }, 50);
+  }
+  function endHold() {
+    clearInterval(chargeIv);
+    orb.classList.remove('charging');
+    if (!stage.classList.contains('lit')) {
+      halo.style.setProperty('--p', 0);
+      hint.innerHTML = 'Press & hold the orb.<br/>Breathe in while it charges\u2026';
+    }
+  }
+  orb.addEventListener('pointerdown', startHold);
+  orb.addEventListener('pointerup', endHold);
+  orb.addEventListener('pointerleave', endHold);
+  orb.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && !todayDone) { e.preventDefault(); if (!chargeIv) startHold(e); } });
+  orb.addEventListener('keyup', endHold);
+
+  $('#spark-home').onclick = () => { toast('Spark saved to your constellation \u2b50'); nav('#/home'); };
+  $('#spark-share').onclick = async () => {
+    const rec = S.sparks.find(s => s.day === dayKey()) || { text: spark.text, by: spark.by };
+    const msg = `\u201C${rec.text}\u201D \u2014 ${rec.by}\n\n\u2728 My Daily Spark from MojoMind`;
+    try {
+      if (navigator.share) await navigator.share({ title: 'My Daily Spark \u2014 MojoMind', text: msg });
+      else { await navigator.clipboard.writeText(msg); toast('Spark copied \u2014 paste it anywhere \uD83D\uDCAB'); }
+    } catch { /* user cancelled */ }
+  };
+};
+
+/* IONITY brand footer */
+function ionityFooter() {
+  return `<footer class="ionity-foot">
+    <svg class="io-bolt" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4.5 13.5H11L9.8 22 19 10h-6.6L13 2Z" fill="currentColor"/></svg>
+    <span>Crafted by <a href="https://www.ionity.co.za" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a></span>
+    <a class="io-url" href="https://www.ionity.co.za" target="_blank" rel="noopener">www.ionity.co.za</a>
+  </footer>`;
+}
 
 function currentWeek() {
   if (!S.startedAt) return 1;

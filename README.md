@@ -7,7 +7,9 @@ validated mental-health check-ins, weekly art activities, facilitated chat, and
 always-available crisis support — all wrapped in the signature MojoMind
 purple-and-pink experience.
 
-> Crafted with ❤ by **IONITY GLOBAL (PTY) LTD** · MojoMind branding and content preserved as-is.
+> Crafted with ❤ by **IONITY GLOBAL (PTY) LTD** · [www.ionity.co.za](https://www.ionity.co.za) · MojoMind branding and content preserved as-is.
+
+**Live:** [https://hellion.solutions](https://hellion.solutions) (GitHub Pages, custom domain)
 
 ---
 
