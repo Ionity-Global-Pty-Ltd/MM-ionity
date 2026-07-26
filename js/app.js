@@ -80,14 +80,18 @@ function knotSVG(size = 84) {
 }
 
 function faceSVG(kind, color, size = 62) {
-  const mouth = kind === 'good' ? '<path d="M20 36 Q31 46 42 36" />'
-    : kind === 'meh' ? '<path d="M21 39 H41" />'
-    : '<path d="M20 42 Q31 33 42 42" />';
-  return `<svg viewBox="0 0 62 62" width="${size}" height="${size}" class="face" fill="none" stroke="${color}" stroke-width="3.4" stroke-linecap="round">
-    <circle cx="31" cy="31" r="27.5"/>
-    <circle cx="22.5" cy="24" r="1.6" fill="${color}" stroke="none"/>
-    <circle cx="39.5" cy="24" r="1.6" fill="${color}" stroke="none"/>
-    ${mouth}
+  const mouth = kind === 'good' ? '<path class="mouth" d="M20 36 Q31 46 42 36" />'
+    : kind === 'meh' ? '<path class="mouth" d="M21 39 H41" />'
+    : '<path class="mouth" d="M20 42 Q31 33 42 42" />';
+  return `<svg viewBox="0 0 62 62" width="${size}" height="${size}" class="face face-${kind}" fill="none" stroke="${color}" stroke-width="3.4" stroke-linecap="round" aria-hidden="true">
+    <g class="face-content">
+      <circle class="face-ring" cx="31" cy="31" r="27.5"/>
+      <g class="eyes">
+        <circle class="eye eye-left" cx="22.5" cy="24" r="1.6" fill="${color}" stroke="none"/>
+        <circle class="eye eye-right" cx="39.5" cy="24" r="1.6" fill="${color}" stroke="none"/>
+      </g>
+      ${mouth}
+    </g>
   </svg>`;
 }
 
@@ -836,8 +840,25 @@ function maybeMoodModal(force = false) {
   m.querySelectorAll('.mood-row').forEach(r => r.addEventListener('click', () => {
     sel = r.dataset.mood;
     m.querySelectorAll('.mood-row').forEach(x => x.classList.toggle('sel', x === r));
+    r.classList.remove('react');
+    void r.offsetWidth;
+    r.classList.add('react');
+    setTimeout(() => r.classList.remove('react'), 620);
     if (navigator.vibrate) navigator.vibrate(8);
   }));
+  m.querySelectorAll('.mood-row').forEach(r => {
+    r.addEventListener('pointermove', e => {
+      const box = r.getBoundingClientRect();
+      const lookX = Math.max(-1.8, Math.min(1.8, ((e.clientX - box.left) / box.width - .5) * 4));
+      const lookY = Math.max(-1.3, Math.min(1.3, ((e.clientY - box.top) / box.height - .5) * 3));
+      r.style.setProperty('--look-x', `${lookX}px`);
+      r.style.setProperty('--look-y', `${lookY}px`);
+    });
+    r.addEventListener('pointerleave', () => {
+      r.style.setProperty('--look-x', '0px');
+      r.style.setProperty('--look-y', '0px');
+    });
+  });
   m.querySelector('#mood-cancel').onclick = () => closeModal();
   m.querySelector('#mood-save').onclick = () => {
     if (!sel) return toast('Pick a face that matches your mood 🙂');
