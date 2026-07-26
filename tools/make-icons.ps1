@@ -28,16 +28,18 @@ function New-MojoIcon {
     $g.FillRectangle($brush, $rect)
   }
 
-  # Flower: 6 white petals + warm core
+  # SHOUT flower: green, orange, red and blue petals + warm core
   $cx = $Size / 2.0; $cy = $Size / 2.0
   $scale = ($Size / 64.0) * (1.0 - $Pad)
   $petalRx = 6.6 * $scale; $petalRy = 12.2 * $scale; $petalCy = -13.5 * $scale
-  $white = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(247, 255, 255, 255))
+  $petalColors = @('#00a651', '#f58220', '#ed1c24', '#2e3192', '#00a651', '#f58220')
   for ($k = 0; $k -lt 6; $k++) {
+    $petalBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.ColorTranslator]::FromHtml($petalColors[$k]))
     $g.TranslateTransform($cx, $cy)
     $g.RotateTransform($k * 60)
-    $g.FillEllipse($white, -$petalRx, ($petalCy - $petalRy), (2*$petalRx), (2*$petalRy))
+    $g.FillEllipse($petalBrush, -$petalRx, ($petalCy - $petalRy), (2*$petalRx), (2*$petalRy))
     $g.ResetTransform()
+    $petalBrush.Dispose()
   }
   $coreR = 6.9 * $scale
   $corePath = New-Object System.Drawing.Drawing2D.GraphicsPath

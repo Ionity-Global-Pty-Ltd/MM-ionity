@@ -41,21 +41,21 @@ const I = {
   sparkle: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 5.7a2 2 0 0 0 1.3 1.3L21 11l-5.8 2a2 2 0 0 0-1.3 1.3L12 20l-1.9-5.7a2 2 0 0 0-1.3-1.3L3 11l5.8-2a2 2 0 0 0 1.3-1.3L12 2Z"/><circle cx="19" cy="5" r="1.6"/><circle cx="5" cy="19" r="1.3"/></svg>',
 };
 
-/* Flower logo (brand mark used across the app, as in the recordings) */
+/* SHOUT-IT-NOW flower: one shared colour language across the app. */
+const SHOUT_COLORS = ['#00a651', '#f58220', '#ed1c24', '#2e3192'];
+let flowerInstance = 0;
 function flowerSVG(size = 34, opts = {}) {
+  const coreId = `shout-core-${++flowerInstance}`;
   const petals = [];
   for (let k = 0; k < 6; k++) {
-    petals.push(`<ellipse cx="0" cy="-13" rx="6.5" ry="12" transform="rotate(${k * 60})" fill="${opts.petal || 'url(#mmpet)'}" opacity=".96"/>`);
+    petals.push(`<ellipse cx="0" cy="-13" rx="6.5" ry="12" transform="rotate(${k * 60})" fill="${SHOUT_COLORS[k % SHOUT_COLORS.length]}" opacity=".97"/>`);
   }
   return `<svg viewBox="-25 -25 50 50" width="${size}" height="${size}" aria-hidden="true">
     <defs>
-      <linearGradient id="mmpet" x1="0" y1="-1" x2="0" y2="1">
-        <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#fbc9e4"/>
-      </linearGradient>
-      <radialGradient id="mmcore"><stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#f3256b"/></radialGradient>
+      <radialGradient id="${coreId}"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#ffd166"/><stop offset="1" stop-color="#f3256b"/></radialGradient>
     </defs>
     <g>${petals.join('')}</g>
-    <circle r="6.6" fill="${opts.core || 'url(#mmcore)'}"/>
+    <circle r="6.6" fill="${opts.core || `url(#${coreId})`}"/>
   </svg>`;
 }
 
@@ -156,10 +156,10 @@ const FX = (() => {
   fit(); addEventListener('resize', fit);
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const palettes = [
-    ['#f3256b', '#f9a8d4', '#ffffff', '#e393ec', '#ffd166'],
-    ['#34c759', '#ffd166', '#ffffff', '#f0813c', '#ee2b63'],
-    ['#5a5fbf', '#c04ac4', '#fbc9e4', '#ffffff', '#7ec86e'],
-    ['#ff8a3d', '#f3256b', '#8e3ba8', '#ffd166', '#ffffff'],
+    ['#00a651', '#f58220', '#ed1c24', '#2e3192', '#ffffff'],
+    ['#f58220', '#ed1c24', '#2e3192', '#00a651', '#ffd166'],
+    ['#2e3192', '#00a651', '#f58220', '#ed1c24', '#fbc9e4'],
+    ['#ed1c24', '#2e3192', '#00a651', '#f58220', '#ffffff'],
   ];
   const auraModes = ['bloom', 'care', 'spiral', 'starlight'];
   let lastAura = -1;
@@ -646,13 +646,12 @@ function gardenSVG() {
     const x = 26 + i * ((w - 52) / Math.max(1, moods.length - 1) || 0);
     const h = m.starter ? 42 : 26 + ((i * 7919) % 22);
     const mood = MM.MOODS.find(x2 => x2.key === m.mood) || MM.MOODS[0];
-    const starterColors = ['#ffffff', '#f9a8d4', '#ffd166', '#e393ec', '#f3256b'];
     const petals = Array.from({ length: 5 }, (_, k) =>
-      `<ellipse cx="0" cy="-7.2" rx="3.6" ry="7.2" transform="rotate(${k * 72})" fill="${m.starter ? starterColors[k] : mood.color}" opacity=".95"/>`).join('');
+      `<ellipse cx="0" cy="-7.2" rx="3.6" ry="7.2" transform="rotate(${k * 72})" fill="${SHOUT_COLORS[k % SHOUT_COLORS.length]}" opacity=".96"/>`).join('');
     return `<g class="flower ${m.starter ? 'starter-flower' : ''}" style="animation-delay:${i * .06}s, ${i * .4}s">
       <path d="M${x} 86 Q${x - 5} ${86 - h / 2} ${x} ${86 - h}" stroke="#7ec86e" stroke-width="2.6" fill="none"/>
       <ellipse cx="${x - 6}" cy="${86 - h * .45}" rx="5.4" ry="2.3" fill="#7ec86e" transform="rotate(-32 ${x - 6} ${86 - h * .45})"/>
-      <g transform="translate(${x} ${86 - h})">${petals}<circle r="3.4" fill="#ffd166"/></g>
+      <g transform="translate(${x} ${86 - h})">${petals}<circle r="4.5" fill="${m.starter ? '#ffd166' : mood.color}" stroke="#fff" stroke-width="1.1"/><circle r="1.8" fill="#fff" opacity=".92"/></g>
     </g>`;
   }).join('');
   return `<div class="garden"><svg width="${w}" height="92" viewBox="0 0 ${w} 92">${flowers}</svg></div>`;
@@ -1215,6 +1214,10 @@ function artDetail(a, tab) {
   if (!st || st.option == null) return nav(`#/art/${a.id}`);
   const kind = MM.ART_OPTION_KINDS[st.option];
   const tabs = [['start', 'Start Here'], ['materials', 'Materials'], ['pictures', 'Pictures'], ['reflections', 'Reflections']];
+  const uploadSrc = upload => typeof upload === 'string' ? upload : upload.src;
+  const uploadAnalysis = upload => typeof upload === 'object' ? upload.analysis : null;
+  const analysedUploads = st.uploads.map(uploadAnalysis).filter(Boolean);
+  const latestAnalysis = analysedUploads[analysedUploads.length - 1];
 
   let body = '';
   if (tab === 'start') {
@@ -1243,10 +1246,21 @@ function artDetail(a, tab) {
   } else if (tab === 'pictures') {
     body = `
       ${st.uploads.length
-        ? `<div class="upload-grid">${st.uploads.map((u, i) => `
-            <div class="shot"><img src="${u}" alt="Upload ${i + 1}" /><button class="del" data-del="${i}" aria-label="Delete">${I.x}</button></div>`).join('')}
+        ? `<div class="upload-grid">${st.uploads.map((upload, i) => `
+            <div class="shot"><img src="${uploadSrc(upload)}" alt="Upload ${i + 1}" />${uploadAnalysis(upload) ? `<span class="shot-read" title="Colours read by Mojo Guide">${I.sparkle}</span>` : ''}<button class="del" data-del="${i}" aria-label="Delete">${I.x}</button></div>`).join('')}
           </div>`
         : `<div class="info-card"><p class="empty-note">No pictures have been uploaded yet.</p></div>`}
+      ${latestAnalysis ? `
+        <div class="colour-insight">
+          <span class="colour-insight-mark">${I.sparkle}</span>
+          <div class="grow">
+            <h4>Mojo Guide colour note</h4>
+            <p>${esc(latestAnalysis.feedback)}</p>
+            <div class="colour-palette">${latestAnalysis.palette.map((colour, i) => `<span style="--swatch:${colour}" title="Palette colour ${i + 1}"></span>`).join('')}</div>
+            <small>Read on this device from colour only · not a mental-health assessment</small>
+          </div>
+        </div>`
+        : st.uploads.length ? `<button class="btn btn-ghost read-colours" id="read-colours">${I.sparkle} Read colours</button>` : ''}
       <input type="file" id="file-in" accept="image/*" multiple class="hidden" />
       <div class="act-foot-btns" style="padding:0;justify-content:space-between">
         <button class="btn btn-ghost" id="upload-btn" style="display:inline-flex;align-items:center;gap:8px">${I.camera} Upload</button>
@@ -1298,11 +1312,24 @@ function artDetail(a, tab) {
   $('#upload-btn')?.addEventListener('click', () => $('#file-in').click());
   $('#file-in')?.addEventListener('change', async e => {
     const files = [...e.target.files].slice(0, 6);
+    toast(`Reading colour${files.length > 1 ? 's' : ''} on this device…`, 1800);
     for (const f of files) {
       const url = await shrinkImage(f);
-      st.uploads.push(url);
+      const analysis = await analyzeArtwork(url);
+      st.uploads.push({ src: url, analysis });
     }
     save(); toast(`${files.length} picture${files.length > 1 ? 's' : ''} added 📸`);
+    artDetail(a, 'pictures');
+  });
+  $('#read-colours')?.addEventListener('click', async () => {
+    const button = $('#read-colours');
+    button.disabled = true; button.textContent = 'Reading colours…';
+    for (let i = 0; i < st.uploads.length; i++) {
+      if (uploadAnalysis(st.uploads[i])) continue;
+      const src = uploadSrc(st.uploads[i]);
+      st.uploads[i] = { src, analysis: await analyzeArtwork(src) };
+    }
+    save(); toast('Colour note ready ✨');
     artDetail(a, 'pictures');
   });
   app.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', e => {
@@ -1349,6 +1376,78 @@ function shrinkImage(file) {
   });
 }
 
+function analyzeArtwork(src) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const size = 72;
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, size, size);
+      const scale = Math.min(size / img.width, size / img.height);
+      const width = img.width * scale, height = img.height * scale;
+      ctx.drawImage(img, (size - width) / 2, (size - height) / 2, width, height);
+      const pixels = ctx.getImageData(0, 0, size, size).data;
+      const families = { red: 0, orange: 0, yellow: 0, green: 0, blue: 0, purple: 0, pink: 0, neutral: 0 };
+      const bins = new Map();
+      let count = 0, lightSum = 0, lightSquared = 0;
+      for (let i = 0; i < pixels.length; i += 16) {
+        const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2], alpha = pixels[i + 3];
+        if (alpha < 100) continue;
+        const max = Math.max(r, g, b) / 255, min = Math.min(r, g, b) / 255;
+        const light = (max + min) / 2;
+        const delta = max - min;
+        const saturation = delta === 0 ? 0 : delta / (1 - Math.abs(2 * light - 1));
+        let hue = 0;
+        if (delta) {
+          if (max === r / 255) hue = 60 * (((g - b) / 255 / delta) % 6);
+          else if (max === g / 255) hue = 60 * ((b - r) / 255 / delta + 2);
+          else hue = 60 * ((r - g) / 255 / delta + 4);
+          if (hue < 0) hue += 360;
+        }
+        let family = 'neutral';
+        if (saturation > .16 && light > .08 && light < .96) {
+          if (hue < 15 || hue >= 345) family = 'red';
+          else if (hue < 45) family = 'orange';
+          else if (hue < 70) family = 'yellow';
+          else if (hue < 165) family = 'green';
+          else if (hue < 255) family = 'blue';
+          else if (hue < 300) family = 'purple';
+          else family = 'pink';
+        }
+        families[family] += family === 'neutral' ? .2 : 1 + saturation;
+        if (!(r > 246 && g > 246 && b > 246)) {
+          const qr = Math.min(255, Math.round(r / 40) * 40);
+          const qg = Math.min(255, Math.round(g / 40) * 40);
+          const qb = Math.min(255, Math.round(b / 40) * 40);
+          const key = `#${[qr, qg, qb].map(v => v.toString(16).padStart(2, '0')).join('')}`;
+          bins.set(key, (bins.get(key) || 0) + 1);
+        }
+        count++; lightSum += light; lightSquared += light * light;
+      }
+      const ranked = Object.entries(families).sort((a, b) => b[1] - a[1]);
+      const dominant = ranked[0]?.[1] ? ranked[0][0] : 'neutral';
+      const secondary = ranked[1]?.[1] > ranked[0]?.[1] * .25 ? ranked[1][0] : null;
+      const brightness = count ? lightSum / count : .5;
+      const contrast = count ? Math.sqrt(Math.max(0, lightSquared / count - brightness * brightness)) : 0;
+      const meanings = {
+        red: 'energy and courage', orange: 'warmth and movement', yellow: 'hope and light',
+        green: 'growth and balance', blue: 'calm and reflection', purple: 'imagination and depth',
+        pink: 'care and connection', neutral: 'quiet focus',
+      };
+      const names = `${dominant}${secondary ? ` and ${secondary}` : ''}`;
+      const tone = brightness > .72 ? 'bright and open' : brightness < .34 ? 'deep and grounded' : 'balanced';
+      const finish = contrast > .22 ? 'Strong contrast adds a clear sense of movement.' : 'The gentle contrast keeps the feeling cohesive.';
+      const feedback = `${names[0].toUpperCase()}${names.slice(1)} tones stand out, which can suggest ${meanings[dominant]}; the palette feels ${tone}. ${finish}`;
+      const palette = [...bins.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([colour]) => colour);
+      resolve({ dominant, secondary, brightness: +brightness.toFixed(2), contrast: +contrast.toFixed(2), palette: palette.length ? palette : ['#f9a8d4', '#7b21a8'], feedback, analyzedAt: Date.now() });
+    };
+    img.onerror = () => resolve({ dominant: 'neutral', secondary: null, brightness: .5, contrast: 0, palette: ['#f9a8d4', '#7b21a8'], feedback: 'I could not read the colours in this image yet. You can upload another picture or describe the palette in Chat.', analyzedAt: Date.now() });
+    img.src = src;
+  });
+}
+
 /* ── Chat ────────────────────────────────────────────────── */
 routes.chat = (params, isBack) => {
   if (!chatOpen()) { toast('Complete your Pre-Survey to unlock Chat ✨'); return nav('#/pre'); }
@@ -1388,6 +1487,7 @@ function chatChannels(scope, isBack) {
 
 /* ── Mojo Guide — indexed, activity-aware, safe ─────────── */
 function fillAIContext(template, activity) {
+  const latestUpload = [...(actState(activity.id)?.uploads || [])].reverse().find(upload => typeof upload === 'object' && upload.analysis);
   const values = {
     act: activity.name,
     materials: activity.materials.slice(0, 3).join('; '),
@@ -1396,6 +1496,7 @@ function fillAIContext(template, activity) {
     reflections: activity.reflections.slice(0, 2).join(' / '),
     week: currentWeek(),
     done: actsDone(),
+    artwork: latestUpload?.analysis?.feedback || 'I have not read colours from an uploaded picture for this activity yet. Add one in the Pictures tab, then ask me again.',
   };
   return template.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
 }

@@ -700,6 +700,11 @@ MM.AI = {
       reply: 'Open {act}, choose the Pictures tab, then tap Upload. Your image is compressed on your device before it is saved, so it stays lighter on mobile data. 📸',
     },
     {
+      id: 'artwork colours',
+      terms: ['colour', 'colours', 'color', 'colors', 'palette', 'what do you see', 'my artwork', 'my picture'],
+      reply: '{artwork}',
+    },
+    {
       id: 'reflections',
       terms: ['reflect', 'reflection', 'journal', 'what to write', 'diary'],
       reply: 'For {act}, you can begin with either of these prompts: {reflections}. Honest and short is enough — there is no right answer. 💭',
