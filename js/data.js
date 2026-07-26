@@ -677,6 +677,80 @@ MM.AI = {
       ],
     },
   ],
+  knowledge: [
+    {
+      id: 'materials',
+      terms: ['material', 'materials', 'supplies', 'tools', 'pencil', 'paper'],
+      reply: 'For {act}, keep it simple: {materials}. Use what you already have — the meaning matters more than perfect supplies. 🎨',
+    },
+    {
+      id: 'starting',
+      terms: ['where to start', 'how to start', 'begin', 'first step', 'instructions'],
+      reply: 'Here is a gentle start for {act}: {steps} You only need to begin — it does not need to be perfect.',
+    },
+    {
+      id: 'creative options',
+      terms: ['option', 'options', 'draw', 'write', 'voice', 'nature', 'digital'],
+      minScore: 2,
+      reply: 'You can approach {act} in five ways: {options}. Pick the one that feels easiest today, and mixing them is welcome.',
+    },
+    {
+      id: 'pictures and uploads',
+      terms: ['upload', 'picture', 'photo', 'camera', 'image', 'visual diary'],
+      reply: 'Open {act}, choose the Pictures tab, then tap Upload. Your image is compressed on your device before it is saved, so it stays lighter on mobile data. 📸',
+    },
+    {
+      id: 'reflections',
+      terms: ['reflect', 'reflection', 'journal', 'what to write', 'diary'],
+      reply: 'For {act}, you can begin with either of these prompts: {reflections}. Honest and short is enough — there is no right answer. 💭',
+    },
+    {
+      id: 'progress and unlocks',
+      terms: ['progress', 'week', 'unlock', 'locked', 'when does', 'how far'],
+      reply: 'You are in week {week}, with {done} of 8 art activities completed. Activities open week by week; completing the Pre-Survey unlocks Art, Chat and the Post-Survey path.',
+    },
+    {
+      id: 'surveys',
+      terms: ['pre-survey', 'post-survey', 'pre survey', 'post survey', 'questionnaire', 'survey'],
+      reply: 'The Pre-Survey checks your starting point; the Post-Survey checks in again after the journey and includes app usability. Draft answers save on your device as you go.',
+    },
+    {
+      id: 'privacy',
+      terms: ['privacy', 'private', 'data', 'confidential', 'anonymous', 'who can see'],
+      minScore: 2,
+      reply: 'MojoMind keeps this demo’s progress on your device. Study responses are intended to remain anonymous and within the research team, as explained in the consent screen.',
+    },
+    {
+      id: 'offline use',
+      terms: ['offline', 'internet', 'connection', 'mobile data', 'network', 'load shedding'],
+      reply: 'MojoMind is an offline-first PWA. Once loaded, the app shell remains available without a connection, and your in-progress answers stay on this device until you return.',
+    },
+    {
+      id: 'support pathways',
+      terms: ['support service', 'support services', 'counsellor', 'helpline', 'hotline', 'lifeline', 'sadag'],
+      reply: 'Open Support Services for Lifeline, SADAG, the Suicide Crisis Helpline and your facilitator. If this is urgent or you feel unsafe, tap Help at the top now. 💜',
+    },
+    {
+      id: 'breathing and grounding',
+      terms: ['breathe', 'breathing', 'grounding', 'ground myself', 'panic', 'calm down'],
+      reply: 'Tap Help and use the 4–6–7 breathing guide: breathe in for 4, hold for 6, and breathe out for 7. You can also sip cold water or feel your feet against the ground.',
+    },
+    {
+      id: 'incentive',
+      terms: ['incentive', 'r400', 'payment', 'reward'],
+      reply: 'The study instructions note a R400 incentive after completing both surveys. For timing or eligibility questions, contact your facilitator through Chat.',
+    },
+    {
+      id: 'mood garden',
+      terms: ['mood garden', 'flower', 'flowers', 'daily check-in', 'mood check'],
+      reply: 'Your mood garden begins with one welcome flower. Each daily check-in grows another flower in the colour of that day’s feeling — a gentle picture of your journey. 🌸',
+    },
+    {
+      id: 'daily spark',
+      terms: ['daily spark', 'inspiration', 'quote', 'constellation'],
+      reply: 'Daily Spark gives you one message each day. Hold the glowing orb while you breathe in; your saved sparks become a small constellation over time. ✨',
+    },
+  ],
   fallback: [
     'Thank you for sharing! How did this make you feel?',
     'I hear you. Tell me more \u2014 I\u2019m listening. \uD83C\uDF38',

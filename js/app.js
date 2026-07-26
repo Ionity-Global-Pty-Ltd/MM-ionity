@@ -155,7 +155,14 @@ const FX = (() => {
   const fit = () => { cv.width = innerWidth; cv.height = innerHeight; };
   fit(); addEventListener('resize', fit);
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const PINKS = ['#f3256b', '#f9a8d4', '#ffffff', '#e393ec', '#ffd166'];
+  const palettes = [
+    ['#f3256b', '#f9a8d4', '#ffffff', '#e393ec', '#ffd166'],
+    ['#34c759', '#ffd166', '#ffffff', '#f0813c', '#ee2b63'],
+    ['#5a5fbf', '#c04ac4', '#fbc9e4', '#ffffff', '#7ec86e'],
+    ['#ff8a3d', '#f3256b', '#8e3ba8', '#ffd166', '#ffffff'],
+  ];
+  const auraModes = ['bloom', 'care', 'spiral', 'starlight'];
+  let lastAura = -1;
   let parts = [], running = false;
 
   function loop() {
@@ -181,6 +188,16 @@ const FX = (() => {
         p.s += p.grow;
         ctx.strokeStyle = p.c; ctx.lineWidth = Math.max(.6, 2.4 * p.life);
         ctx.beginPath(); ctx.arc(0, 0, p.s, 0, 7); ctx.stroke();
+      } else if (p.kind === 'spark') {
+        ctx.strokeStyle = p.c; ctx.lineWidth = Math.max(.7, 1.8 * p.life);
+        ctx.beginPath();
+        ctx.moveTo(-p.s, 0); ctx.lineTo(p.s, 0);
+        ctx.moveTo(0, -p.s); ctx.lineTo(0, p.s);
+        ctx.moveTo(-p.s * .55, -p.s * .55); ctx.lineTo(p.s * .55, p.s * .55);
+        ctx.moveTo(p.s * .55, -p.s * .55); ctx.lineTo(-p.s * .55, p.s * .55);
+        ctx.stroke();
+      } else if (p.kind === 'dot') {
+        ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(0, 0, p.s, 0, 7); ctx.fill();
       }
       ctx.restore();
     }
@@ -189,22 +206,41 @@ const FX = (() => {
   }
   const add = arr => { parts.push(...arr); if (!running && parts.length) { running = true; requestAnimationFrame(loop); } };
   const rnd = (a, b) => a + Math.random() * (b - a);
+  const rndInt = (a, b) => Math.floor(rnd(a, b + 1));
 
-  /* Click Aura: the MojoMind flower bursts into care wherever you tap */
+  /* Click Aura: every tap gets a different bloom, care, spiral or starlight signature. */
   function burst(x, y) {
     if (reduced) return;
-    const out = [
-      { kind: 'ring', x, y, vx: 0, vy: 0, s: 6, grow: 2.6, c: 'rgba(249,168,212,.9)', life: 1, decay: .045 },
-      { kind: 'ring', x, y, vx: 0, vy: 0, s: 2, grow: 1.7, c: 'rgba(255,209,102,.85)', life: 1, decay: .06 },
-    ];
-    for (let k = 0; k < 7; k++) {
-      const a = (k / 7) * Math.PI * 2 + rnd(-.2, .2), sp = rnd(1.6, 3.4);
-      out.push({ kind: 'petal', x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - .6, g: .07, s: rnd(6, 10), r: a + Math.PI / 2, vr: rnd(-.08, .08), c: PINKS[k % PINKS.length], life: 1, decay: .028 });
+    let modeIndex = rndInt(0, auraModes.length - 2);
+    if (modeIndex >= lastAura) modeIndex++;
+    lastAura = modeIndex;
+    const mode = auraModes[modeIndex];
+    const colors = palettes[rndInt(0, palettes.length - 1)];
+    const out = [];
+    const ringCount = mode === 'starlight' ? 1 : mode === 'care' ? 3 : 2;
+    for (let k = 0; k < ringCount; k++) {
+      out.push({ kind: 'ring', x, y, vx: 0, vy: 0, s: 2 + k * rnd(2.5, 5), grow: rnd(1.4, 3), c: colors[(k + 1) % colors.length], life: rnd(.82, 1.12), decay: rnd(.035, .058) });
     }
-    for (let k = 0; k < 3; k++) {
-      const a = rnd(0, Math.PI * 2), sp = rnd(1, 2.2);
-      out.push({ kind: 'heart', x, y, vx: Math.cos(a) * sp, vy: -rnd(1.4, 2.6), g: .05, s: rnd(4, 7), r: rnd(-.4, .4), vr: rnd(-.05, .05), c: k ? '#f3256b' : '#ff6fa5', life: 1.1, decay: .026 });
+    const petalCount = mode === 'bloom' ? rndInt(8, 12) : mode === 'spiral' ? rndInt(6, 9) : rndInt(3, 6);
+    const startAngle = rnd(0, Math.PI * 2);
+    for (let k = 0; k < petalCount; k++) {
+      const a = startAngle + (k / petalCount) * Math.PI * 2 + rnd(-.18, .18);
+      const sp = mode === 'spiral' ? rnd(2.2, 3.8) : rnd(1.4, 3.5);
+      const curl = mode === 'spiral' ? rnd(.7, 1.5) : 0;
+      out.push({ kind: 'petal', x: x + rnd(-2, 2), y: y + rnd(-2, 2), vx: Math.cos(a) * sp - Math.sin(a) * curl, vy: Math.sin(a) * sp + Math.cos(a) * curl - .55, g: rnd(.045, .09), s: rnd(5.5, 11), r: a + Math.PI / 2, vr: rnd(-.12, .12), c: colors[k % colors.length], life: rnd(.9, 1.18), decay: rnd(.022, .034) });
     }
+    const heartCount = mode === 'care' ? rndInt(7, 10) : rndInt(1, 4);
+    for (let k = 0; k < heartCount; k++) {
+      const a = rnd(0, Math.PI * 2), sp = rnd(.8, 2.5);
+      out.push({ kind: 'heart', x: x + rnd(-3, 3), y: y + rnd(-2, 2), vx: Math.cos(a) * sp, vy: -rnd(1.2, 3), g: rnd(.035, .065), s: rnd(3.5, 7.5), r: rnd(-.5, .5), vr: rnd(-.07, .07), c: colors[k % colors.length], life: rnd(.92, 1.2), decay: rnd(.021, .032) });
+    }
+    const sparkCount = mode === 'starlight' ? rndInt(10, 15) : rndInt(2, 6);
+    for (let k = 0; k < sparkCount; k++) {
+      const a = rnd(0, Math.PI * 2), sp = rnd(1.2, mode === 'starlight' ? 4.3 : 2.8);
+      out.push({ kind: Math.random() < .28 ? 'dot' : 'spark', x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - .4, g: rnd(.025, .07), s: rnd(1.4, 4.2), r: rnd(0, Math.PI), vr: rnd(-.16, .16), c: colors[k % colors.length], life: rnd(.7, 1.05), decay: rnd(.028, .05) });
+    }
+    cv.dataset.auraMode = mode;
+    cv.dataset.auraId = `${Date.now()}-${rndInt(1000, 9999)}`;
     add(out);
   }
 
@@ -604,21 +640,16 @@ function tile(icon, label, route, { locked = false, badge = null, badgeDone = fa
 }
 
 function gardenSVG() {
-  const moods = S.moods.slice(-14);
-  if (!moods.length) {
-    return `<div class="garden"><svg width="200" height="86" viewBox="0 0 200 86">
-      <g opacity=".5">${[30, 70, 110, 150, 170].map((x, i) => `<path d="M${x} 86 Q${x - 4} ${56 - i * 3} ${x} ${44 - i * 4}" stroke="#b465d8" stroke-width="2.4" fill="none"/>`).join('')}</g>
-      <text x="100" y="80" text-anchor="middle" fill="rgba(255,255,255,.55)" font-size="9.5" font-family="Poppins">check in daily to grow your garden</text>
-    </svg></div>`;
-  }
+  const moods = [{ mood: 'starter', starter: true }, ...S.moods.slice(-13)];
   const w = Math.max(220, moods.length * 30 + 40);
   const flowers = moods.map((m, i) => {
     const x = 26 + i * ((w - 52) / Math.max(1, moods.length - 1) || 0);
-    const h = 26 + ((i * 7919) % 22);
+    const h = m.starter ? 42 : 26 + ((i * 7919) % 22);
     const mood = MM.MOODS.find(x2 => x2.key === m.mood) || MM.MOODS[0];
+    const starterColors = ['#ffffff', '#f9a8d4', '#ffd166', '#e393ec', '#f3256b'];
     const petals = Array.from({ length: 5 }, (_, k) =>
-      `<ellipse cx="0" cy="-7.2" rx="3.6" ry="7.2" transform="rotate(${k * 72})" fill="${mood.color}" opacity=".95"/>`).join('');
-    return `<g class="flower" style="animation-delay:${i * .06}s, ${i * .4}s">
+      `<ellipse cx="0" cy="-7.2" rx="3.6" ry="7.2" transform="rotate(${k * 72})" fill="${m.starter ? starterColors[k] : mood.color}" opacity=".95"/>`).join('');
+    return `<g class="flower ${m.starter ? 'starter-flower' : ''}" style="animation-delay:${i * .06}s, ${i * .4}s">
       <path d="M${x} 86 Q${x - 5} ${86 - h / 2} ${x} ${86 - h}" stroke="#7ec86e" stroke-width="2.6" fill="none"/>
       <ellipse cx="${x - 6}" cy="${86 - h * .45}" rx="5.4" ry="2.3" fill="#7ec86e" transform="rotate(-32 ${x - 6} ${86 - h * .45})"/>
       <g transform="translate(${x} ${86 - h})">${petals}<circle r="3.4" fill="#ffd166"/></g>
@@ -656,6 +687,7 @@ routes.home = () => {
       </div>
       <div class="garden-wrap">
         <div class="garden-title">Your mood garden</div>
+        <div class="garden-subtitle">${S.moods.length ? `${S.moods.length + 1} flowers growing with you` : 'Your first flower is already here — check in to help it grow'}</div>
         ${gardenSVG()}
       </div>
       ${ionityFooter()}
@@ -1344,7 +1376,7 @@ function chatChannels(scope, isBack) {
         const [c1, c2] = MM.ACT_COLORS[i % MM.ACT_COLORS.length];
         return `<div class="chan-card" data-open="${a.id}" style="animation-delay:${i * .05}s" role="button" tabindex="0">
           <span class="ch-ic" style="background:linear-gradient(140deg, ${c1}, ${c2})">${a.id}</span>
-          <h4>${esc(a.name)}${last ? `<span class="last">${esc(last.who === 'me' ? 'You: ' : '')}${esc(last.text)}</span>` : `<span class="last">Say hello 👋</span>`}</h4>
+          <h4>${esc(a.name)}${last ? `<span class="last">${esc(last.who === 'me' ? 'You: ' : last.who === 'guide' ? 'Mojo Guide: ' : 'Facilitator: ')}${esc(last.text)}</span>` : `<span class="last">Say hello 👋</span>`}</h4>
           ${unread ? `<span class="unread">${unread}</span>` : ''}
         </div>`;
       }).join('')}
@@ -1354,18 +1386,63 @@ function chatChannels(scope, isBack) {
   app.querySelectorAll('.chan-card').forEach(c => c.addEventListener('click', () => nav(`#/chat/${scope}/${c.dataset.open}`)));
 }
 
-/* ── Facilitator AI — intent-aware, activity-aware, safe ── */
+/* ── Mojo Guide — indexed, activity-aware, safe ─────────── */
+function fillAIContext(template, activity) {
+  const values = {
+    act: activity.name,
+    materials: activity.materials.slice(0, 3).join('; '),
+    steps: activity.startHere.slice(0, 2).map(([title, detail]) => `${title} ${detail}`).join(' Then: '),
+    options: MM.ART_OPTION_KINDS.map(x => x.name).join(', '),
+    reflections: activity.reflections.slice(0, 2).join(' / '),
+    week: currentWeek(),
+    done: actsDone(),
+  };
+  return template.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
+}
+
+function aiTermMatches(haystack, term) {
+  const escaped = term.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return term.includes(' ')
+    ? haystack.includes(term.toLowerCase())
+    : new RegExp(`\\b${escaped}`, 'i').test(haystack);
+}
+
+function indexedKnowledgeReply(text, activity) {
+  const haystack = text.toLowerCase().replace(/[^a-z0-9\s-]/g, ' ');
+  let best = null;
+  for (const entry of MM.AI.knowledge) {
+    const score = entry.terms.reduce((total, term) => total + (aiTermMatches(haystack, term) ? (term.includes(' ') ? 3 : 1) : 0), 0);
+    if (score >= (entry.minScore || 1) && (!best || score > best.score)) best = { entry, score };
+  }
+  return best ? { topic: best.entry.id, text: fillAIContext(best.entry.reply, activity) } : null;
+}
+
 function facilitatorReply(text, activity) {
   if (MM.AI.crisisRx.test(text)) {
     setTimeout(() => toast('💜 You are not alone — the Help button is right at the top', 6000), 2600);
     return MM.AI.crisisReply;
   }
+  if (!S.aiMemory) S.aiMemory = {};
+  const previous = S.aiMemory[activity.id];
+  if (previous && /^(?:(?:yes|yeah|yep|okay|ok|sure)(?:,?\s+please)?|please|tell me more)[.!\s]*$/i.test(text)) {
+    const followUp = `Absolutely. For ${activity.name}, choose one tiny next step and give it five unhurried minutes. You can come back and tell me what changed — I’ll remember we were talking about ${previous.topic}.`;
+    S.lastAiReply = followUp; save();
+    return followUp;
+  }
+  const indexed = indexedKnowledgeReply(text, activity);
+  if (indexed) {
+    S.aiMemory[activity.id] = { topic: indexed.topic, at: Date.now() };
+    S.lastAiReply = indexed.text; save();
+    return indexed.text;
+  }
   const intent = MM.AI.intents.find(i => i.rx.test(text));
   const pool = intent ? intent.replies : MM.AI.fallback;
   let pick;
   do { pick = pool[Math.random() * pool.length | 0]; } while (pool.length > 1 && pick === S.lastAiReply);
-  S.lastAiReply = pick; save();
-  return pick.replace(/\{act\}/g, activity.name);
+  const reply = fillAIContext(pick, activity);
+  S.aiMemory[activity.id] = { topic: intent?.name || 'reflection', at: Date.now() };
+  S.lastAiReply = reply; save();
+  return reply;
 }
 
 function chatThread(scope, actId) {
@@ -1388,13 +1465,18 @@ function chatThread(scope, actId) {
     const d = new Date(ts);
     return `${String(d.getDate()).padStart(2, '0')} ${d.toLocaleString('en', { month: 'short' })} ${d.getFullYear()}  |  ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   };
+  const whoLabel = who => who === 'me' ? 'Me' : who === 'guide' ? 'Mojo Guide' : 'Facilitator';
   render(`
     ${header(a.name, { backTo: `#/chat/${scope === 'individual' ? 'individual' : ''}` })}
     <div class="chat-scroll" id="chat-scroll">
+      <div class="ai-guide-banner">
+        <span class="ai-guide-mark">${I.sparkle}</span>
+        <span><b>Mojo Guide</b><small>Activity-aware support</small></span>
+      </div>
       ${msgs.map(m => `
-        <div class="bubble ${m.who === 'me' ? 'me' : 'them'}">
+        <div class="bubble ${m.who === 'me' ? 'me' : m.who === 'guide' ? 'them guide' : 'them'}">
           <p>${esc(m.text)}</p>
-          <span class="meta"><b>${m.who === 'me' ? 'Me' : 'Facilitator'}</b> | ${fmt(m.at)}</span>
+          <span class="meta"><b>${whoLabel(m.who)}</b> | ${fmt(m.at)}</span>
         </div>`).join('')}
     </div>
     <div class="chat-input-row">
@@ -1424,11 +1506,11 @@ function chatThread(scope, actId) {
       toBottom();
       setTimeout(() => {
         $('#typing')?.remove();
-        msgs.push({ who: 'fac', text: reply, at: Date.now() });
+        msgs.push({ who: 'guide', text: reply, at: Date.now() });
         S.chatRead[`${scope}:${actId}`] = Date.now(); save();
         if (!$('#chat-scroll')) return;
         scroll.insertAdjacentHTML('beforeend', `
-          <div class="bubble them"><p>${esc(reply)}</p><span class="meta"><b>Facilitator</b> | ${fmt(Date.now())}</span></div>`);
+          <div class="bubble them guide"><p>${esc(reply)}</p><span class="meta"><b>Mojo Guide</b> | ${fmt(Date.now())}</span></div>`);
         toBottom();
       }, 900 + Math.min(2600, reply.length * 16));
     }, 700);

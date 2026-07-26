@@ -252,6 +252,17 @@ body {
 .q-progress .track { flex: 1; height: 7px; border-radius: 99px; background: #efe9f6; overflow: hidden; }
 .q-progress .fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--pink-500), var(--violet-600)); transition: width .45s cubic-bezier(.22,.9,.36,1); }
 .q-progress b { font-size: 11.4px; color: var(--ink-soft); font-weight: 600; white-space: nowrap; }
+@media (max-width: 519px) {
+  .q-progress {
+    position: sticky; top: calc(66px + env(safe-area-inset-top)); z-index: 25;
+    margin: -8px -8px 4px; padding: 10px 9px;
+    border: 1px solid rgba(232,226,240,.92); border-radius: 13px;
+    background: rgba(255,255,255,.96);
+    box-shadow: 0 7px 18px rgba(42,11,64,.14);
+    backdrop-filter: blur(10px);
+  }
+  .q-item { scroll-margin-top: calc(142px + env(safe-area-inset-top)); }
+}
 .q-section-title { text-align: center; margin: 6px 0 0; }
 .q-section-title h3 { margin: 0; font-size: 16.5px; font-weight: 700; color: var(--ink); }
 .q-section-title h3 .req { color: var(--err); margin-left: 3px; }
@@ -402,9 +413,12 @@ body {
 /* Mood garden */
 .garden-wrap { margin-top: auto; padding: 18px 6px 0; position: relative; }
 .garden-title { text-align: center; color: rgba(255,255,255,.85); font-size: 11.6px; font-weight: 600; margin-bottom: 2px; }
+.garden-subtitle { text-align: center; color: rgba(255,255,255,.58); font-size: 9.8px; font-weight: 500; margin-bottom: 2px; }
 .garden { display: flex; align-items: flex-end; justify-content: center; min-height: 96px; gap: 2px; }
 .garden svg { overflow: visible; }
 .garden .flower { transform-origin: 50% 100%; animation: bloom .9s cubic-bezier(.34,1.56,.64,1) both, sway 5s ease-in-out infinite alternate; }
+.garden .starter-flower { filter: drop-shadow(0 0 6px rgba(255,209,102,.62)); animation: bloom 1.1s cubic-bezier(.34,1.56,.64,1) both, starter-sway 3.8s ease-in-out infinite alternate; }
+@keyframes starter-sway { from { transform: rotate(-4deg) scale(1); } to { transform: rotate(4deg) scale(1.07); } }
 @keyframes bloom { from { transform: scale(0); } to { transform: scale(1); } }
 @keyframes sway { from { rotate: -3deg; } to { rotate: 3deg; } }
 
@@ -843,6 +857,18 @@ body {
 .chan-card .unread { background: var(--pink-500); color: #fff; min-width: 22px; height: 22px; border-radius: 99px; display: grid; place-items: center; font-size: 11px; font-weight: 700; padding: 0 6px; }
 
 .chat-scroll { flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 8px 16px 14px; }
+.ai-guide-banner {
+  align-self: center; display: flex; align-items: center; gap: 9px;
+  padding: 7px 12px; margin: 0 0 3px; border-radius: 999px;
+  color: #fff; background: rgba(255,255,255,.12);
+  border: 1px solid rgba(249,168,212,.48); backdrop-filter: blur(8px);
+  box-shadow: 0 4px 14px rgba(30,6,46,.16);
+}
+.ai-guide-mark { width: 25px; height: 25px; border-radius: 50%; display: grid; place-items: center; color: #ffd166; background: rgba(255,255,255,.14); }
+.ai-guide-mark svg { width: 14px; height: 14px; }
+.ai-guide-banner > span:last-child { display: flex; flex-direction: column; text-align: left; }
+.ai-guide-banner b { font-size: 11.4px; line-height: 1.2; }
+.ai-guide-banner small { font-size: 9px; color: rgba(255,255,255,.68); line-height: 1.3; }
 .bubble {
   max-width: 82%; border-radius: 18px; padding: 11px 14px 8px;
   color: #fff; box-shadow: 0 4px 12px rgba(20,5,30,.25);
@@ -854,6 +880,8 @@ body {
 .bubble .meta b { font-weight: 700; }
 .bubble.me { align-self: flex-end; background: linear-gradient(135deg, var(--pink-500), #d81b60); border-bottom-right-radius: 6px; }
 .bubble.them { align-self: flex-start; background: linear-gradient(135deg, #6d28a8, #4f1d7a); border-bottom-left-radius: 6px; }
+.bubble.guide { border: 1px solid rgba(255,209,102,.48); background: linear-gradient(135deg, #7131a6, #4a1a72); box-shadow: 0 5px 16px rgba(20,5,30,.3), inset 0 1px 0 rgba(255,255,255,.1); }
+.bubble.guide .meta b { color: #ffd98a; }
 .bubble.typing { display: flex; gap: 5px; padding: 14px 16px; }
 .bubble.typing i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.85); animation: blink 1.2s infinite; }
 .bubble.typing i:nth-child(2) { animation-delay: .2s; }
