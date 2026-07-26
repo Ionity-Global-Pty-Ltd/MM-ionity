@@ -3,6 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <script>
+    if (location.hostname === 'www.hellion.solutions' && location.protocol !== 'https:') {
+      location.replace(`https://${location.host}${location.pathname}${location.search}${location.hash}`);
+    }
+  </script>
   <title>MojoMind — Creative Resilience</title>
   <meta name="description" content="MojoMind — an 8-week creative resilience intervention. Express yourself through art, track your wellbeing, and find support anytime. Crafted by IONITY Global (Pty) Ltd." />
   <meta name="theme-color" content="#5C1680" />
