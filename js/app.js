@@ -386,8 +386,12 @@ function render(html, { theme = 'theme-home', backAnim = false } = {}) {
 routes.signin = () => {
   render(`
     <div class="auth-wrap">
-      ${knotSVG(84)}
-      <h1>Sign In</h1>
+      <img class="auth-cloud" src="./assets/branding/shout-colour-cloud.png" alt="" aria-hidden="true" />
+      <div class="auth-brand-lockup">
+        <img src="./assets/branding/shout-it-now-logo.png" alt="SHOUT-IT-NOW" />
+        <span>Creative Resilience with MojoMind</span>
+      </div>
+      <h1 class="auth-title">Mobile Number Sign In</h1>
       <p class="sub">Welcome to ${MM.APP_NAME}</p>
       <div class="field">${I.phone}<input id="f-phone" type="tel" inputmode="tel" placeholder="Mobile Number" autocomplete="tel" /></div>
       <div class="field">${I.keyIc}<input id="f-pass" type="password" placeholder="Password" autocomplete="current-password" /></div>
@@ -395,7 +399,7 @@ routes.signin = () => {
         <label class="switch"><input id="f-rem" type="checkbox" checked /><span class="knob"></span>Remember me?</label>
         <button class="link" id="f-forgot">Forgot Password</button>
       </div>
-      <button class="btn btn-primary btn-block" id="f-login">Login</button>
+      <button class="btn btn-primary btn-block" id="f-login">Sign in with number</button>
       <p class="auth-foot">${MM.APP_NAME} · Creative Resilience Intervention<br/>Crafted with ❤ by <a href="https://www.ionity.co.za" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a><br/><a class="io-url" href="https://www.ionity.co.za" target="_blank" rel="noopener">www.ionity.co.za</a></p>
     </div>
   `, { theme: 'theme-auth' });

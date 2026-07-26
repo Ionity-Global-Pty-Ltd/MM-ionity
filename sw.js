@@ -2,7 +2,7 @@
    © IONITY Global (Pty) Ltd */
 'use strict';
 
-const VERSION = 'mojomind-v1.2.1';
+const VERSION = 'mojomind-v1.3.0';
 const SHELL = [
   './',
   './index.html',
@@ -11,6 +11,8 @@ const SHELL = [
   './js/data.js',
   './js/app.js',
   './icons/favicon.svg',
+  './assets/branding/shout-colour-cloud.png',
+  './assets/branding/shout-it-now-logo.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/maskable-512.png',
