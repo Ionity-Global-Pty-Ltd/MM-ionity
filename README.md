@@ -9,7 +9,7 @@ purple-and-pink experience.
 
 > Crafted with ❤ by **IONITY GLOBAL (PTY) LTD** · [www.ionity.co.za](https://www.ionity.co.za) · MojoMind branding and content preserved as-is.
 
-**Live:** [https://hellion.solutions](https://hellion.solutions) (GitHub Pages, custom domain)
+**Live:** [https://www.hellion.solutions](https://www.hellion.solutions) (GitHub Pages, custom domain; `hellion.solutions` redirects here)
 
 ---
 
