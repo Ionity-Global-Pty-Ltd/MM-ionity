@@ -603,7 +603,7 @@ MM.MOODS = [
   { key: 'bad',  label: 'Not great',    color: '#e8506e' },
 ];
 
-/* ── Facilitator auto-replies (demo) ─────────────────────── */
+/* ── Facilitator auto-replies (legacy pool, kept as fallback) ── */
 MM.FACILITATOR_REPLIES = [
   'Thank you for sharing! How did this activity make you feel?',
   'That\u2019s wonderful\u2014keep expressing yourself, there\u2019s no wrong way. \uD83C\uDFA8',
@@ -611,6 +611,80 @@ MM.FACILITATOR_REPLIES = [
   'Great progress this week! Remember to complete your reflection when you\u2019re ready.',
   'Lovely! Would you like to tell the group more about what inspired you?',
 ];
+
+/* ── Facilitator AI — intent brain ───────────────────────── */
+MM.AI = {
+  crisisRx: /suicid|kill (myself|me)|end (it|my life)|self.?harm|hurt myself|don.?t want to (live|be here)|no reason to live|overdose/i,
+  crisisReply: 'Thank you for trusting me with this \u2014 what you\u2019re feeling matters, and you deserve support right now. Please tap the Help button at the top for immediate steps, or call the Suicide Crisis Helpline on 0800 567 567 (free, 24 hours). If you can, reach out to someone you trust and let them know how you feel. I\u2019m here with you. \uD83D\uDC9C',
+  intents: [
+    {
+      name: 'greeting', rx: /^(hi|hello|hey|hola|sawubona|molo|dumela|good (morning|afternoon|evening)|howzit)\b/i,
+      replies: [
+        'Hello! Lovely to see you here. \uD83C\uDF38 How is your {act} journey going so far?',
+        'Hey there! Welcome to the {act} space. What\u2019s on your mind today?',
+        'Sawubona! \uD83D\uDC4B I\u2019m here whenever you want to share or ask anything about {act}.',
+      ],
+    },
+    {
+      name: 'sad', rx: /sad|down|depress|cry|lonely|heavy|tired of|hopeless|empty|numb|anxious|anxiety|stress|worried|scared|afraid|overwhelm/i,
+      replies: [
+        'I hear you, and I\u2019m really glad you said it out loud here. Those feelings are valid. Would a short breathing moment help? The Help button has a guided one \u2014 and I\u2019m right here. \uD83D\uDC9C',
+        'That sounds heavy, and carrying it takes strength. Be gentle with yourself today. Sometimes putting the feeling into your {act} creation helps it soften. Want to try?',
+        'Thank you for trusting me with that. You\u2019re not alone \u2014 support is one tap away under Support Services, and this space is always open for you. \uD83C\uDF31',
+      ],
+    },
+    {
+      name: 'happy', rx: /happy|great|good|excited|proud|amazing|awesome|wonderful|love(d)? (it|this)|enjoyed|fun/i,
+      replies: [
+        'That\u2019s beautiful to hear! \uD83C\uDF1F Hold onto that feeling \u2014 maybe even capture it in your visual diary.',
+        'Yes!! Moments like these are worth celebrating. What do you think sparked it?',
+        'I love that energy! Let it flow into your {act} creation \u2014 joy makes wonderful art. \uD83C\uDFA8',
+      ],
+    },
+    {
+      name: 'done', rx: /finish(ed)?|done|complete(d)?|submitted|uploaded/i,
+      replies: [
+        'Congratulations on completing it! \uD83C\uDF89 Take a moment to sit with your creation \u2014 what does it tell you about yourself?',
+        'Wonderful work! Don\u2019t forget the Reflections tab \u2014 your thoughts are the most powerful part of {act}.',
+        'That\u2019s real commitment. Every activity you finish grows your resilience a little more. \uD83C\uDF31',
+      ],
+    },
+    {
+      name: 'stuck', rx: /stuck|hard|difficult|can.?t|don.?t know|confus|struggle|help me|how do i|what (should|must) i/i,
+      replies: [
+        'Totally okay to feel stuck \u2014 creativity has no deadline. Try the Start Here tab of {act} for a gentle first step, or just make one small mark and see where it leads.',
+        'There\u2019s no wrong way to do {act}. Pick the option that feels lightest \u2014 art, words, voice, nature or digital \u2014 and start tiny. I believe in you!',
+        'Good question! Check the Materials tab for what you need, and remember: mixing options is allowed. Want to tell me which part feels tricky?',
+      ],
+    },
+    {
+      name: 'thanks', rx: /thank(s| you)|dankie|ngiyabonga|enkosi|ke a leboga/i,
+      replies: [
+        'Always a pleasure! I\u2019m here any time you need me. \uD83D\uDC9C',
+        'You\u2019re so welcome \u2014 thank YOU for showing up for yourself today. \uD83C\uDF38',
+      ],
+    },
+    {
+      name: 'meds', rx: /medicat|pills|treatment|art therapy|clinic|doctor|appointment/i,
+      replies: [
+        'Looking after your health is a big act of self-care. If you have questions about medication or appointments, your clinic team is the best guide \u2014 and Support Services has caring people to talk to as well. \uD83D\uDC9C',
+      ],
+    },
+    {
+      name: 'tech', rx: /bug|broken|not work|can.?t upload|error|crash|slow|internet|data|offline/i,
+      replies: [
+        'Sorry about that! MojoMind works offline too \u2014 your work is saved on your phone and will be here when you return. If something still looks wrong, describe it here and we\u2019ll sort it out together. \uD83D\uDD27',
+      ],
+    },
+  ],
+  fallback: [
+    'Thank you for sharing! How did this make you feel?',
+    'I hear you. Tell me more \u2014 I\u2019m listening. \uD83C\uDF38',
+    'That\u2019s a lovely thought to bring into {act}. What inspired it?',
+    'Beautiful \u2014 keep expressing yourself, there\u2019s no wrong way here. \uD83C\uDFA8',
+    'Noted with care. \uD83D\uDC9C Remember your reflections tab is a great place for thoughts like this too.',
+  ],
+};
 
 /* ── Daily Spark — inspiration library ───────────────────── */
 MM.SPARKS = [

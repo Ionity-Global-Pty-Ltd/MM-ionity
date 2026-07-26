@@ -145,35 +145,87 @@ function modal(html, { onClose } = {}) {
 }
 function closeModal(cb) { $('#modal-root').innerHTML = ''; cb && cb(); }
 
-/* Confetti */
-function confetti() {
+/* ── FX engine — confetti + Click Aura “Jump Forth” ─────── */
+const FX = (() => {
   const cv = $('#fx'), ctx = cv.getContext('2d');
-  cv.width = innerWidth; cv.height = innerHeight;
-  const colors = ['#f3256b', '#f9a8d4', '#c04ac4', '#7b21a8', '#ffd166', '#34c759', '#5a5fbf'];
-  const parts = Array.from({ length: 140 }, () => ({
-    x: innerWidth / 2 + (Math.random() - .5) * 140,
-    y: innerHeight * .62,
-    vx: (Math.random() - .5) * 13,
-    vy: -Math.random() * 15 - 5,
-    s: Math.random() * 7 + 4,
-    c: colors[Math.random() * colors.length | 0],
-    r: Math.random() * Math.PI,
-    vr: (Math.random() - .5) * .3,
-  }));
-  let frames = 0;
-  (function tick() {
+  const fit = () => { cv.width = innerWidth; cv.height = innerHeight; };
+  fit(); addEventListener('resize', fit);
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const PINKS = ['#f3256b', '#f9a8d4', '#ffffff', '#e393ec', '#ffd166'];
+  let parts = [], running = false;
+
+  function loop() {
     ctx.clearRect(0, 0, cv.width, cv.height);
-    parts.forEach(p => {
-      p.x += p.vx; p.y += p.vy; p.vy += .42; p.r += p.vr;
-      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r);
-      ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * .62);
+    parts = parts.filter(p => (p.life -= p.decay) > 0);
+    for (const p of parts) {
+      p.x += p.vx; p.y += p.vy; p.vy += p.g || 0; p.r += p.vr || 0;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, Math.min(1, p.life));
+      ctx.translate(p.x, p.y); ctx.rotate(p.r || 0);
+      if (p.kind === 'rect') {
+        ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * .62);
+      } else if (p.kind === 'petal') {
+        ctx.fillStyle = p.c; ctx.beginPath();
+        ctx.ellipse(0, -p.s * .5, p.s * .34, p.s * .78, 0, 0, 7); ctx.fill();
+      } else if (p.kind === 'heart') {
+        const s = p.s; ctx.fillStyle = p.c; ctx.beginPath();
+        ctx.moveTo(0, s * .34);
+        ctx.bezierCurveTo(s * .55, -s * .3, s * 1.15, s * .22, 0, s);
+        ctx.bezierCurveTo(-s * 1.15, s * .22, -s * .55, -s * .3, 0, s * .34);
+        ctx.fill();
+      } else if (p.kind === 'ring') {
+        p.s += p.grow;
+        ctx.strokeStyle = p.c; ctx.lineWidth = Math.max(.6, 2.4 * p.life);
+        ctx.beginPath(); ctx.arc(0, 0, p.s, 0, 7); ctx.stroke();
+      }
       ctx.restore();
-    });
-    if (++frames < 130) requestAnimationFrame(tick);
-    else ctx.clearRect(0, 0, cv.width, cv.height);
-  })();
-  if (navigator.vibrate) navigator.vibrate([30, 40, 60]);
-}
+    }
+    if (parts.length) requestAnimationFrame(loop);
+    else { running = false; ctx.clearRect(0, 0, cv.width, cv.height); }
+  }
+  const add = arr => { parts.push(...arr); if (!running && parts.length) { running = true; requestAnimationFrame(loop); } };
+  const rnd = (a, b) => a + Math.random() * (b - a);
+
+  /* Click Aura: the MojoMind flower bursts into care wherever you tap */
+  function burst(x, y) {
+    if (reduced) return;
+    const out = [
+      { kind: 'ring', x, y, vx: 0, vy: 0, s: 6, grow: 2.6, c: 'rgba(249,168,212,.9)', life: 1, decay: .045 },
+      { kind: 'ring', x, y, vx: 0, vy: 0, s: 2, grow: 1.7, c: 'rgba(255,209,102,.85)', life: 1, decay: .06 },
+    ];
+    for (let k = 0; k < 7; k++) {
+      const a = (k / 7) * Math.PI * 2 + rnd(-.2, .2), sp = rnd(1.6, 3.4);
+      out.push({ kind: 'petal', x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - .6, g: .07, s: rnd(6, 10), r: a + Math.PI / 2, vr: rnd(-.08, .08), c: PINKS[k % PINKS.length], life: 1, decay: .028 });
+    }
+    for (let k = 0; k < 3; k++) {
+      const a = rnd(0, Math.PI * 2), sp = rnd(1, 2.2);
+      out.push({ kind: 'heart', x, y, vx: Math.cos(a) * sp, vy: -rnd(1.4, 2.6), g: .05, s: rnd(4, 7), r: rnd(-.4, .4), vr: rnd(-.05, .05), c: k ? '#f3256b' : '#ff6fa5', life: 1.1, decay: .026 });
+    }
+    add(out);
+  }
+
+  function confetti() {
+    if (navigator.vibrate) navigator.vibrate([30, 40, 60]);
+    if (reduced) return;
+    const colors = ['#f3256b', '#f9a8d4', '#c04ac4', '#7b21a8', '#ffd166', '#34c759', '#5a5fbf'];
+    const out = Array.from({ length: 130 }, () => ({
+      kind: Math.random() < .22 ? 'petal' : 'rect',
+      x: innerWidth / 2 + rnd(-70, 70), y: innerHeight * .62,
+      vx: rnd(-6.5, 6.5), vy: -rnd(5, 15), g: .42,
+      s: rnd(4, 11), r: rnd(0, Math.PI), vr: rnd(-.15, .15),
+      c: colors[Math.random() * colors.length | 0],
+      life: 1.3, decay: .012,
+    }));
+    add(out);
+  }
+  return { confetti, burst };
+})();
+function confetti() { FX.confetti(); }
+
+/* Jump Forth — every tap blooms */
+addEventListener('pointerdown', e => {
+  if (e.isPrimary) FX.burst(e.clientX, e.clientY);
+}, { passive: true });
 
 /* Ambient floating petals */
 (function stars() {
@@ -735,7 +787,15 @@ routes.spark = () => {
 /* IONITY brand footer */
 function ionityFooter() {
   return `<footer class="ionity-foot">
-    <svg class="io-bolt" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4.5 13.5H11L9.8 22 19 10h-6.6L13 2Z" fill="currentColor"/></svg>
+    <svg class="io-mark" viewBox="0 0 24 24" aria-hidden="true">
+      <defs><linearGradient id="iog" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#ffd166"/><stop offset=".5" stop-color="#f3256b"/><stop offset="1" stop-color="#c04ac4"/>
+      </linearGradient></defs>
+      <ellipse cx="12" cy="12" rx="9.6" ry="4.1" fill="none" stroke="url(#iog)" stroke-width="1.5" transform="rotate(-24 12 12)"/>
+      <ellipse cx="12" cy="12" rx="9.6" ry="4.1" fill="none" stroke="url(#iog)" stroke-width="1.5" opacity=".5" transform="rotate(52 12 12)"/>
+      <circle cx="12" cy="12" r="3" fill="url(#iog)"/>
+      <circle cx="20.4" cy="8.2" r="1.6" fill="url(#iog)"/>
+    </svg>
     <span>Crafted by <a href="https://www.ionity.co.za" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a></span>
     <a class="io-url" href="https://www.ionity.co.za" target="_blank" rel="noopener">www.ionity.co.za</a>
   </footer>`;
@@ -1269,6 +1329,20 @@ function chatChannels(scope, isBack) {
   app.querySelectorAll('.chan-card').forEach(c => c.addEventListener('click', () => nav(`#/chat/${scope}/${c.dataset.open}`)));
 }
 
+/* ── Facilitator AI — intent-aware, activity-aware, safe ── */
+function facilitatorReply(text, activity) {
+  if (MM.AI.crisisRx.test(text)) {
+    setTimeout(() => toast('💜 You are not alone — the Help button is right at the top', 6000), 2600);
+    return MM.AI.crisisReply;
+  }
+  const intent = MM.AI.intents.find(i => i.rx.test(text));
+  const pool = intent ? intent.replies : MM.AI.fallback;
+  let pick;
+  do { pick = pool[Math.random() * pool.length | 0]; } while (pool.length > 1 && pick === S.lastAiReply);
+  S.lastAiReply = pick; save();
+  return pick.replace(/\{act\}/g, activity.name);
+}
+
 function chatThread(scope, actId) {
   const a = MM.ACTIVITIES.find(x => x.id === actId);
   if (!a) return nav('#/chat');
@@ -1317,21 +1391,21 @@ function chatThread(scope, actId) {
     scroll.insertAdjacentHTML('beforeend', `
       <div class="bubble me"><p>${esc(text)}</p><span class="meta"><b>Me</b> | ${fmt(Date.now())}</span></div>`);
     toBottom();
-    // Facilitator demo reply
+    // Facilitator reply — intent-aware AI with typing indicator
+    const reply = facilitatorReply(text, a);
     setTimeout(() => {
       if (!$('#chat-scroll')) return;
       scroll.insertAdjacentHTML('beforeend', `<div class="bubble them typing" id="typing"><i></i><i></i><i></i></div>`);
       toBottom();
       setTimeout(() => {
         $('#typing')?.remove();
-        const reply = MM.FACILITATOR_REPLIES[Math.random() * MM.FACILITATOR_REPLIES.length | 0];
         msgs.push({ who: 'fac', text: reply, at: Date.now() });
         S.chatRead[`${scope}:${actId}`] = Date.now(); save();
         if (!$('#chat-scroll')) return;
         scroll.insertAdjacentHTML('beforeend', `
           <div class="bubble them"><p>${esc(reply)}</p><span class="meta"><b>Facilitator</b> | ${fmt(Date.now())}</span></div>`);
         toBottom();
-      }, 1400 + Math.random() * 900);
+      }, 900 + Math.min(2600, reply.length * 16));
     }, 700);
   };
   $('#chat-send').onclick = sendMsg;

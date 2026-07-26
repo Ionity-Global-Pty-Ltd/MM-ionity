@@ -531,7 +531,12 @@ body {
   border-top: 1px solid rgba(249,168,212,.28);
   color: rgba(255,255,255,.62); font-size: 10.8px; text-align: center; line-height: 1.6;
 }
-.ionity-foot .io-bolt { width: 16px; height: 16px; color: #f9a8d4; filter: drop-shadow(0 1px 5px rgba(243,37,107,.55)); }
+.ionity-foot .io-mark {
+  width: 22px; height: 22px;
+  filter: drop-shadow(0 1px 6px rgba(243,37,107,.5));
+  animation: io-orbit 12s linear infinite;
+}
+@keyframes io-orbit { to { transform: rotate(1turn); } }
 .ionity-foot a { color: rgba(249,168,212,.9); text-decoration: none; }
 .ionity-foot a b { font-weight: 700; letter-spacing: .8px; color: #f9a8d4; }
 .ionity-foot .io-url { font-weight: 600; letter-spacing: .5px; text-decoration: underline; text-underline-offset: 3px; opacity: .85; }
