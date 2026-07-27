@@ -1,0 +1,25 @@
+{
+  "name": "mojomind-creative-resilience",
+  "version": "1.5.0",
+  "private": true,
+  "description": "MojoMind — an 8-week creative resilience intervention PWA. Crafted by IONITY Global (Pty) Ltd.",
+  "homepage": "https://www.hellion.solutions",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ionity-Global-Pty-Ltd/mojomind.git"
+  },
+  "author": "IONITY Global (Pty) Ltd <https://www.ionity.co.za>",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "scripts": {
+    "start": "python -m http.server 8123",
+    "serve": "npx serve . -l 8123",
+    "icons": "pwsh ./tools/make-icons.ps1"
+  },
+  "keywords": [
+    "pwa",
+    "mental-health",
+    "creative-resilience",
+    "mojomind",
+    "ionity"
+  ]
+}

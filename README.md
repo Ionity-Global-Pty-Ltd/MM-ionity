@@ -11,11 +11,13 @@ purple-and-pink experience.
 
 **Live:** [https://www.hellion.solutions](https://www.hellion.solutions) (GitHub Pages, custom domain; `hellion.solutions` redirects here)
 
+**Version:** 1.5.0 — see [CHANGELOG.md](CHANGELOG.md) for release history · [LICENSE.md](LICENSE.md)
+
 ---
 
 ## ✨ The journey (exact app pathing)
 
-```
+```text
 Sign In → Terms & Conditions → Welcome → Demographic Questions → Home
 Home ├── Instructions
      ├── Support Services
@@ -32,7 +34,7 @@ Help Now (crisis support + guided 4·6·7 breathing) is one tap away on every sc
 ## 💜 Feature highlights
 
 | | |
-|---|---|
+| --- | --- |
 | 📱 **True PWA** | Installable, offline-first service worker, app shortcuts |
 | 🧠 **Validated instruments** | PHQ-9, GAD-7, MARS-5, Stigma-5, BRS, CAGE-AID, usability |
 | 🌼 **Mood garden** | Daily mood check-ins grow a living flower garden with streaks |
@@ -57,6 +59,7 @@ Then open `http://localhost:8080`. Install it from your browser's
 "Add to Home Screen / Install app" prompt for the full experience.
 
 ### Demo notes
+
 - Sign in with any valid-looking mobile number + any password.
 - The Pre-Survey unlocks Art Activities, Chat and the Post-Survey.
 - Weekly activity unlocks are simulated from your sign-up date; completed
@@ -64,7 +67,7 @@ Then open `http://localhost:8080`. Install it from your browser's
 
 ## 🗂 Structure
 
-```
+```text
 index.html            app shell
 css/app.css           design system (video-accurate palette)
 js/data.js            all study content & instruments (verbatim)
@@ -72,7 +75,11 @@ js/app.js             router, state, screens, PWA glue
 sw.js                 offline-first service worker
 manifest.webmanifest  PWA manifest + shortcuts
 icons/                generated brand icons
+assets/branding/      SHOUT-IT-NOW brand artwork
 tools/make-icons.ps1  icon generator
+package.json          project metadata & scripts
+CHANGELOG.md          release history
+LICENSE               usage terms
 ```
 
 ---
