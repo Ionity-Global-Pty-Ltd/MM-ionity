@@ -2753,9 +2753,9 @@ function artDetail(a, tab) {
     body = `
       ${st.uploads.length
         ? `<div class="upload-grid">${st.uploads.map((upload, i) => `
-            <div class="shot ${upload.kind === 'drawing' ? 'is-drawing' : ''}"><img src="${uploadSrc(upload)}" alt="${upload.kind === 'drawing' ? 'Drawing' : 'Upload'} ${i + 1}" />${upload.kind === 'drawing' ? '<span class="shot-tag">🖍 drawn here</span>' : ''}${uploadAnalysis(upload) ? `<span class="shot-read" data-vision="${i}" title="What Moja Vision saw">${I.sparkle}</span>` : ''}${locked ? '' : `<button class="del" data-del="${i}" aria-label="Delete">${I.x}</button>`}</div>`).join('')}
+            <div class="shot ${upload.kind === 'drawing' ? 'is-drawing' : ''}"><img src="${uploadSrc(upload)}" alt="${upload.kind === 'drawing' ? 'Drawing' : 'Upload'} ${i + 1}" />${upload.kind === 'drawing' ? '<span class="shot-tag">🖍 drawn here</span>' : ''}${uploadAnalysis(upload) ? `<span class="shot-read" data-vision="${i}" title="What Moja Vision saw">${I.sparkle}</span>` : ''}<button class="del" data-del="${i}" aria-label="Delete">${I.x}</button></div>`).join('')}
           </div>`
-        : `<div class="info-card"><p class="empty-note">Nothing here yet — upload a photo of your work, or draw it right on your phone. 🖍</p></div>`}
+        : `<div class="info-card"><p class="empty-note">Nothing here yet — launch the drawing studio below or upload a photo of your work. 🎨📸</p></div>`}
       ${latestAnalysis ? `
         <div class="colour-insight">
           <span class="colour-insight-mark">${I.sparkle}</span>
@@ -2768,28 +2768,30 @@ function artDetail(a, tab) {
         </div>`
         : st.uploads.length ? `<button class="btn btn-ghost read-colours" id="read-colours">${I.sparkle} Read colours</button>` : ''}
       <input type="file" id="file-in" accept="image/*" multiple class="hidden" />
-      ${locked ? '' : `
-        <div class="art-creator-hub">
-          <div class="art-choice-card draw-choice" id="draw-btn" role="button" tabindex="0">
-            <div class="acc-head">
-              <span class="acc-badge">🎨 DIGITAL PAINT STUDIO</span>
-              <span class="acc-icon">🖌️</span>
-            </div>
-            <b>Draw &amp; Paint Directly on Screen</b>
-            <p>Full paintbrush suite, custom colors, neon glow, stamps &amp; live on-device Moja Vision AI analysis.</p>
-            <button class="btn btn-primary btn-block" style="margin-top:4px">Launch Drawing Studio 🎨</button>
+      
+      <!-- Always Active Art Creator Hub -->
+      <div class="art-creator-hub" style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+        <div class="art-choice-card draw-choice" id="draw-btn" role="button" tabindex="0" style="cursor:pointer">
+          <div class="acc-head" style="display:flex;justify-content:space-between;align-items:center">
+            <span class="acc-badge" style="background:linear-gradient(135deg,#f3256b,#8a2eae);color:#fff;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700">🎨 DIGITAL PAINT STUDIO</span>
+            <span class="acc-icon" style="font-size:20px">🖌️</span>
           </div>
+          <b style="display:block;margin:6px 0 2px;font-size:14px;color:#fff">Draw &amp; Paint Directly on Screen</b>
+          <p style="font-size:12px;color:rgba(255,255,255,0.85);margin:0 0 8px">Full paintbrush suite, custom colors, neon glow, stamps &amp; live on-device Moja Vision AI analysis.</p>
+          <button class="btn btn-primary btn-block" style="pointer-events:none">Launch Drawing Studio 🎨</button>
+        </div>
 
-          <div class="art-choice-card photo-choice" id="upload-btn" role="button" tabindex="0">
-            <div class="acc-head">
-              <span class="acc-badge" style="background:linear-gradient(135deg,#3366ff,#8a2eae)">📷 PHYSICAL ARTWORK</span>
-              <span class="acc-icon">📸</span>
-            </div>
-            <b>Upload or Snap a Photo</b>
-            <p>Take a picture of paintings, crafts, nature collages, or drawings made with physical materials.</p>
-            <button class="btn btn-outline btn-block" style="margin-top:4px">Upload Photo 📷</button>
+        <div class="art-choice-card photo-choice" id="upload-btn" role="button" tabindex="0" style="cursor:pointer">
+          <div class="acc-head" style="display:flex;justify-content:space-between;align-items:center">
+            <span class="acc-badge" style="background:linear-gradient(135deg,#3366ff,#00a651);color:#fff;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700">📷 PHYSICAL ARTWORK</span>
+            <span class="acc-icon" style="font-size:20px">📸</span>
           </div>
-        </div>`}
+          <b style="display:block;margin:6px 0 2px;font-size:14px;color:#fff">Upload or Snap a Photo</b>
+          <p style="font-size:12px;color:rgba(255,255,255,0.85);margin:0 0 8px">Take a picture of paintings, crafts, nature collages, or drawings made with physical materials.</p>
+          <button class="btn btn-outline btn-block" style="pointer-events:none">Upload / Snap Photo 📷</button>
+        </div>
+      </div>
+
       <div class="act-foot-btns" style="padding:0;justify-content:flex-end">
         <button class="btn btn-primary" data-go="reflections">Reflect</button>
       </div>`;
@@ -2798,14 +2800,13 @@ function artDetail(a, tab) {
       <div class="info-card voice-card">
         <h3><span class="ic">${I.mic}</span>Speak your story</h3>
         <p>Record a voice note for ${esc(a.name)} — MojaMind writes down what it hears, on your device, so your spoken words can become reflections too.</p>
-        ${locked ? '' : `
         <div class="rec-stage" id="rec-stage">
           <button class="rec-btn" id="rec-btn" aria-label="Start recording">${I.mic}</button>
           <div class="rec-meta">
             <b id="rec-clock">0:00 / 1:30</b>
             <p class="rec-live" id="rec-live">Tap the microphone to start</p>
           </div>
-        </div>`}
+        </div>
       </div>
       ${voice.length ? voice.map((v, i) => `
         <div class="voice-note">
@@ -2813,16 +2814,16 @@ function artDetail(a, tab) {
             <span class="vn-ic">${I.mic}</span>
             <b>Voice note ${i + 1}</b>
             <small>${v.dur ? `${Math.floor(v.dur / 60)}:${String(v.dur % 60).padStart(2, '0')} · ` : ''}${new Date(v.at).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short' })}</small>
-            ${locked ? '' : `<button class="del vn-del" data-vdel="${i}" aria-label="Delete voice note">${I.x}</button>`}
+            <button class="del vn-del" data-vdel="${i}" aria-label="Delete voice note">${I.x}</button>
           </div>
           <audio controls preload="metadata" src="${v.src}"></audio>
           ${v.transcript ? `
             <div class="vn-transcript">
               <small>${I.sparkle} AI transcript (read on this device)</small>
               <p>${esc(v.transcript)}</p>
-              ${locked ? '' : `<button class="btn btn-ghost vn-use" data-vuse="${i}">Use in reflections</button>`}
+              <button class="btn btn-ghost vn-use" data-vuse="${i}">Use in reflections</button>
             </div>` : '<p class="vn-none">No transcript was captured for this note.</p>'}
-        </div>`).join('') : `<div class="info-card"><p class="empty-note">No voice notes yet${locked ? '.' : ' — your voice matters, whenever you’re ready. 🎤'}</p></div>`}
+        </div>`).join('') : `<div class="info-card"><p class="empty-note">No voice notes yet — your voice matters, whenever you’re ready. 🎤</p></div>`}
       <div class="act-foot-btns" style="padding:0">
         <button class="btn btn-primary" data-go="reflections" style="min-width:150px">Reflect</button>
       </div>`;
@@ -2839,15 +2840,15 @@ function artDetail(a, tab) {
             <div class="refl-q" data-ri="${i}">
               <label for="rq${i}"><span class="refl-num">${i + 1}</span>${esc(q)}</label>
               <div class="refl-input-wrap">
-                <textarea id="rq${i}" data-r="${i}" placeholder="${locked ? '' : 'Your reflection… (no right or wrong)'}" ${locked ? 'readonly' : ''}>${esc(st.reflections[i] || '')}</textarea>
-                ${!locked && canDictate ? `<button class="refl-mic" data-dictate="${i}" aria-label="Speak this reflection instead of typing" title="Speak your answer">${I.mic}</button>` : ''}
+                <textarea id="rq${i}" data-r="${i}" placeholder="Your reflection… (no right or wrong)">${esc(st.reflections[i] || '')}</textarea>
+                ${canDictate ? `<button class="refl-mic" data-dictate="${i}" aria-label="Speak this reflection instead of typing" title="Speak your answer">${I.mic}</button>` : ''}
               </div>
               <div class="refl-note hidden" data-note="${i}" aria-live="polite"></div>
             </div>`).join('')}
         </div>
       </div>
       <div class="act-foot-btns" style="padding:0">
-        ${locked ? '' : `<button class="btn btn-primary" id="submit-refl" style="min-width:150px">Submit</button>`}
+        <button class="btn btn-primary" id="submit-refl" style="min-width:150px">${locked ? 'Update Reflections 💾' : 'Submit'}</button>
       </div>`;
   }
 
@@ -2855,8 +2856,11 @@ function artDetail(a, tab) {
     ${header(a.name, { backTo: '#/art' })}
     <div class="body-pad" style="gap:12px">
       <div class="hero-card" style="padding:13px 16px">
-        <p class="lead" style="margin:0">Option ${st.option + 1} — ${kind.emoji} ${esc(kind.name)}</p>
-        ${locked ? `<p class="locked-strip">${I.lock} Submitted ${new Date(st.submittedAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })} — locked to protect your original expression</p>` : ''}
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+          <p class="lead" style="margin:0">Option ${st.option + 1} — ${kind.emoji} ${esc(kind.name)}</p>
+          ${locked ? `<button class="btn btn-ghost btn-sm" id="unlock-act-btn" style="font-size:11px;padding:3px 8px;border-color:#ffd166;color:#ffd166">🔓 Unlock</button>` : ''}
+        </div>
+        ${locked ? `<p class="locked-strip">${I.lock} Submitted ${new Date(st.submittedAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })} — you can still add artwork or edit anytime.</p>` : ''}
       </div>
       <div class="tabs-bar" role="tablist">
         ${tabs.map(([k, lbl]) => `<button class="tab-link ${tab === k ? 'active' : ''}" role="tab" aria-selected="${tab === k}" data-tab="${k}">${lbl}</button>`).join('')}
@@ -2868,8 +2872,14 @@ function artDetail(a, tab) {
   app.querySelectorAll('.tab-link').forEach(t => t.addEventListener('click', () => nav(`#/art/${a.id}/detail/${t.dataset.tab}`)));
   app.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => nav(`#/art/${a.id}/detail/${b.dataset.go}`)));
 
+  $('#unlock-act-btn')?.addEventListener('click', () => {
+    delete st.submittedAt;
+    save();
+    toast('Activity unlocked for editing 🎨✨');
+    artDetail(a, tab);
+  });
+
   if (tab === 'reflections') {
-    // Show the tiny on-device read straight away for anything already written.
     a.reflections.forEach((_, i) => scheduleReflectionNote(i, st.reflections[i] || '', true));
   }
 
@@ -2888,118 +2898,122 @@ function artDetail(a, tab) {
     if (an) visionModal({ feedback: an.feedback, palette: an.palette, words: an.words, capabilities: { text: !!globalThis.TextDetector } });
   }));
 
-  if (!locked) {
-    $('#draw-btn')?.addEventListener('click', () => openDrawPad(a));
-    $('#upload-btn')?.addEventListener('click', () => $('#file-in').click());
-    $('#file-in')?.addEventListener('change', async e => {
-      const files = [...e.target.files].slice(0, 6);
-      toast(`Moja Vision is looking at your picture${files.length > 1 ? 's' : ''}…`, 1800);
-      let last = null;
-      for (const f of files) {
-        const url = await shrinkImage(f);
-        const vision = await MMVision.read(url);
-        last = vision;
-        st.uploads.push({
-          src: url, kind: 'photo', at: Date.now(),
-          analysis: {
-            feedback: vision.feedback, palette: vision.palette,
-            dominant: vision.colour?.dominant, brightness: vision.colour?.brightness,
-            contrast: vision.colour?.contrast, words: vision.words || null,
-            faces: vision.faces || 0, analyzedAt: Date.now(),
-          },
-        });
-      }
-      save(); toast(`${files.length} picture${files.length > 1 ? 's' : ''} added 📸`);
-      artDetail(a, 'pictures');
-      if (last) setTimeout(() => visionModal(last), 240);
-    });
-    $('#read-colours')?.addEventListener('click', async () => {
-      const button = $('#read-colours');
-      button.disabled = true; button.textContent = 'Reading colours…';
-      for (let i = 0; i < st.uploads.length; i++) {
-        if (uploadAnalysis(st.uploads[i])) continue;
-        const src = uploadSrc(st.uploads[i]);
-        st.uploads[i] = { src, analysis: await analyzeArtwork(src) };
-      }
-      save(); toast('Colour note ready ✨');
-      artDetail(a, 'pictures');
-    });
-    app.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', e => {
-      e.stopPropagation();
-      st.uploads.splice(+b.dataset.del, 1); save();
-      artDetail(a, 'pictures');
-    }));
-
-    /* Voice recorder wiring */
-    const recBtn = $('#rec-btn');
-    if (recBtn) {
-      let stopFn = null;
-      recBtn.addEventListener('click', async () => {
-        if (voiceCap) { stopFn?.(); recBtn.classList.remove('rec-on'); recBtn.innerHTML = I.mic; return; }
-        const ui = { live: $('#rec-live'), clock: $('#rec-clock') };
-        recBtn.classList.add('rec-on'); recBtn.innerHTML = I.stop;
-        ui.live.textContent = 'Listening…';
-        stopFn = await startVoiceCapture(a, st, ui);
-        if (!voiceCap) { recBtn.classList.remove('rec-on'); recBtn.innerHTML = I.mic; }
+  // Always active Draw and Upload event listeners
+  $('#draw-btn')?.addEventListener('click', () => openDrawPad(a));
+  $('#upload-btn')?.addEventListener('click', () => $('#file-in').click());
+  $('#file-in')?.addEventListener('change', async e => {
+    const files = [...e.target.files].slice(0, 6);
+    toast(`Moja Vision is looking at your picture${files.length > 1 ? 's' : ''}…`, 1800);
+    let last = null;
+    for (const f of files) {
+      const url = await shrinkImage(f);
+      const vision = await MMVision.read(url);
+      last = vision;
+      st.uploads.push({
+        src: url, kind: 'photo', at: Date.now(),
+        analysis: {
+          feedback: vision.feedback, palette: vision.palette,
+          dominant: vision.colour?.dominant, brightness: vision.colour?.brightness,
+          contrast: vision.colour?.contrast, words: vision.words || null,
+          faces: vision.faces || 0, analyzedAt: Date.now(),
+        },
       });
     }
-    app.querySelectorAll('[data-vdel]').forEach(b => b.addEventListener('click', () => {
-      st.voice.splice(+b.dataset.vdel, 1); save();
-      artDetail(a, 'voice');
-    }));
-    app.querySelectorAll('[data-vuse]').forEach(b => b.addEventListener('click', () => {
-      const v = (st.voice || [])[+b.dataset.vuse];
-      if (!v?.transcript) return;
-      const slot = a.reflections.findIndex((_, i) => !(st.reflections[i] || '').trim());
-      const idx = slot === -1 ? a.reflections.length - 1 : slot;
-      st.reflections[idx] = ((st.reflections[idx] || '') + ' ' + v.transcript).trim();
-      save();
-      toast('Transcript added to your reflections ✍️');
-      artDetail(a, 'reflections');
-    }));
+    save(); toast(`${files.length} picture${files.length > 1 ? 's' : ''} added 📸`);
+    artDetail(a, 'pictures');
+    if (last) setTimeout(() => visionModal(last), 240);
+  });
 
-    app.querySelectorAll('[data-dictate]').forEach(b => b.addEventListener('click', () => {
-      const idx = +b.dataset.dictate;
-      toggleReflectionDictation(idx, $(`#rq${idx}`), b);
-    }));
-    app.querySelectorAll('[data-r]').forEach(t => t.addEventListener('input', () => {
-      st.reflections[t.dataset.r] = t.value; save();
-      scheduleReflectionNote(+t.dataset.r, t.value);
-    }));
-    $('#submit-refl')?.addEventListener('click', () => {
-      const filled = a.reflections.filter((_, i) => (st.reflections[i] || '').trim()).length;
-      if (!filled) return toast('Share at least one reflection before submitting 💭');
-      const m = modal(`
-        <h3>Submit ${esc(a.name)}?</h3>
-        <p style="font-size:13px;line-height:1.65;color:#ffffff;text-align:center;margin:0 0 6px">
-          Once submitted, this activity is locked and cannot be edited — your original expression is preserved exactly as it is. 🔒</p>
-        <div class="modal-btns">
-          <button class="btn btn-ghost" id="sub-no">Keep working</button>
-          <button class="btn btn-primary" id="sub-yes">Submit</button>
-        </div>`);
-      m.querySelector('#sub-no').onclick = () => closeModal();
-      m.querySelector('#sub-yes').onclick = () => {
-        closeModal();
-        st.submittedAt = Date.now(); save();
-        confetti();
-        const c = modal(`
-          <div class="celebrate">
-            <div style="font-size:56px">🎨</div>
-            <h3>Activity ${a.id} submitted!</h3>
-            <p>Beautiful work. Sit with your creation for a moment — it is preserved exactly as you made it.</p>
-            <button class="btn btn-primary btn-block" id="cel-ok">Back to activities</button>
-          </div>`);
-        c.querySelector('#cel-ok').onclick = () => { closeModal(); nav('#/art'); };
-      };
+  $('#read-colours')?.addEventListener('click', async () => {
+    const button = $('#read-colours');
+    button.disabled = true; button.textContent = 'Reading colours…';
+    for (let i = 0; i < st.uploads.length; i++) {
+      if (uploadAnalysis(st.uploads[i])) continue;
+      const src = uploadSrc(st.uploads[i]);
+      st.uploads[i] = { src, analysis: await analyzeArtwork(src) };
+    }
+    save(); toast('Colour note ready ✨');
+    artDetail(a, 'pictures');
+  });
+
+  app.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', e => {
+    e.stopPropagation();
+    st.uploads.splice(+b.dataset.del, 1); save();
+    artDetail(a, 'pictures');
+  }));
+
+  /* Voice recorder wiring */
+  const recBtn = $('#rec-btn');
+  if (recBtn) {
+    let stopFn = null;
+    recBtn.addEventListener('click', async () => {
+      if (voiceCap) { stopFn?.(); recBtn.classList.remove('rec-on'); recBtn.innerHTML = I.mic; return; }
+      const ui = { live: $('#rec-live'), clock: $('#rec-clock') };
+      recBtn.classList.add('rec-on'); recBtn.innerHTML = I.stop;
+      ui.live.textContent = 'Listening…';
+      stopFn = await startVoiceCapture(a, st, ui);
+      if (!voiceCap) { recBtn.classList.remove('rec-on'); recBtn.innerHTML = I.mic; }
     });
   }
+
+  app.querySelectorAll('[data-vdel]').forEach(b => b.addEventListener('click', () => {
+    st.voice.splice(+b.dataset.vdel, 1); save();
+    artDetail(a, 'voice');
+  }));
+
+  app.querySelectorAll('[data-vuse]').forEach(b => b.addEventListener('click', () => {
+    const v = (st.voice || [])[+b.dataset.vuse];
+    if (!v?.transcript) return;
+    const slot = a.reflections.findIndex((_, i) => !(st.reflections[i] || '').trim());
+    const idx = slot === -1 ? a.reflections.length - 1 : slot;
+    st.reflections[idx] = ((st.reflections[idx] || '') + ' ' + v.transcript).trim();
+    save();
+    toast('Transcript added to your reflections ✍️');
+    artDetail(a, 'reflections');
+  }));
+
+  app.querySelectorAll('[data-dictate]').forEach(b => b.addEventListener('click', () => {
+    const idx = +b.dataset.dictate;
+    toggleReflectionDictation(idx, $(`#rq${idx}`), b);
+  }));
+
+  app.querySelectorAll('[data-r]').forEach(t => t.addEventListener('input', () => {
+    st.reflections[t.dataset.r] = t.value; save();
+    scheduleReflectionNote(+t.dataset.r, t.value);
+  }));
+
+  $('#submit-refl')?.addEventListener('click', () => {
+    const filled = a.reflections.filter((_, i) => (st.reflections[i] || '').trim()).length;
+    if (!filled) return toast('Share at least one reflection before submitting 💭');
+    const m = modal(`
+      <h3>Submit ${esc(a.name)}?</h3>
+      <p style="font-size:13px;line-height:1.65;color:#ffffff;text-align:center;margin:0 0 6px">
+        Save and lock this activity to mark it complete. You can unlock or add more art anytime! 🎨</p>
+      <div class="modal-btns">
+        <button class="btn btn-ghost" id="sub-no">Keep working</button>
+        <button class="btn btn-primary" id="sub-yes">Submit</button>
+      </div>`);
+    m.querySelector('#sub-no').onclick = () => closeModal();
+    m.querySelector('#sub-yes').onclick = () => {
+      closeModal();
+      st.submittedAt = Date.now(); save();
+      confetti();
+      const c = modal(`
+        <div class="celebrate">
+          <div style="font-size:56px">🎨</div>
+          <h3>Activity ${a.id} submitted!</h3>
+          <p>Beautiful work. Sit with your creation for a moment — your resilience shines brightly.</p>
+          <button class="btn btn-primary btn-block" id="cel-ok">Back to activities</button>
+        </div>`);
+      c.querySelector('#cel-ok').onclick = () => { closeModal(); nav('#/art'); };
+    };
+  });
 }
 
 /* ── Draw on your device ─────────────────────────────────── */
 function openDrawPad(a) {
   const st = actState(a.id);
   if (!st) return;
-  if (st.submittedAt) return toast('This activity is submitted and locked 🔒');
 
   MMVoice.pause(); // the drawing pad is a focused space
 
