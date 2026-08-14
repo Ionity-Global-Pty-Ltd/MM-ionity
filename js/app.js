@@ -1555,10 +1555,14 @@ routes.home = () => {
   $('#go-spark')?.addEventListener('click', () => nav('#/spark'));
   $('#go-cert-chip')?.addEventListener('click', () => MMPortfolio.showPortfolioModal());
   $('#go-privacy')?.addEventListener('click', () => nav('#/privacy'));
+  $('.garden-wrap')?.addEventListener('click', () => maybeMoodModal(true));
   app.querySelectorAll('[data-pred]').forEach(b => b.addEventListener('click', () => nav(b.dataset.pred)));
   $('#next-step')?.addEventListener('click', () => {
-    if (step.act === 'mood') return;
-    nav(step.route);
+    if (step.act === 'mood') {
+      maybeMoodModal(true);
+      return;
+    }
+    if (step.route) nav(step.route);
   });
 };
 
@@ -3740,64 +3744,121 @@ window.addEventListener('hashchange', () => {
   if (!location.hash.startsWith('#/gamebubble')) MMBubble.stop();
 });
 
-/* ── Writer / Journal Screen ───────────────────────────────── */
+/* ── Writer / Note Space & Journal 📖✍️ ─────────────────────── */
 routes.journal = (args = []) => {
-  const subview = args[0] || 'write'; // 'write' | 'entries'
+  const subview = args[0] || 'write'; // 'write' | 'entries' | 'edit'
+  const editId = subview === 'edit' ? args[1] : null;
   const entries = MMJournal.getEntries();
+  const editingEntry = editId ? MMJournal.getEntry(editId) : null;
+  const draft = editingEntry ? {
+    title: editingEntry.title || '',
+    body: editingEntry.body || '',
+    mood: editingEntry.mood || '🌟 Hopeful',
+    artImg: editingEntry.artImg || null,
+    photoImg: editingEntry.photoImg || null,
+  } : (MMJournal.getDraft() || { title: '', body: '', mood: '🌟 Hopeful', artImg: null, photoImg: null });
 
   render(`
-    ${header('Journal & Writer 📖✍️', { backTo: '#/home' })}
+    ${header('Writer & Note Space 📖✍️', { backTo: '#/home' })}
     <div class="body-pad" style="gap:14px">
-      <div class="tabs-bar" role="tablist">
-        <button class="tab-link ${subview === 'write' ? 'active' : ''}" id="j-tab-write">✍️ New Entry</button>
-        <button class="tab-link ${subview === 'entries' ? 'active' : ''}" id="j-tab-entries">📚 Saved Notes (${entries.length})</button>
+      <!-- Top Navigation Tabs -->
+      <div class="tabs-bar" role="tablist" style="justify-content:center">
+        <button class="tab-link ${subview === 'write' || subview === 'edit' ? 'active' : ''}" id="j-tab-write">
+          ${editingEntry ? '✏️ Edit Note' : '✍️ New Note'}
+        </button>
+        <button class="tab-link ${subview === 'entries' ? 'active' : ''}" id="j-tab-entries">
+          📚 Saved Notes (${entries.length})
+        </button>
       </div>
 
-      ${subview === 'write' ? `
+      ${subview === 'write' || subview === 'edit' ? `
         <!-- Procedural 432Hz & Nature Soundscape Bar -->
         ${typeof MMSoundscape !== 'undefined' ? MMSoundscape.soundscapeBarHTML() : ''}
 
-        <!-- Journal Writer View -->
-        <div class="card journal-card">
-          <div class="journal-prompts-bar">
-            <span class="j-prompt-lbl">💡 Spark prompt:</span>
-            <button class="btn btn-ghost btn-sm" id="j-shuffle-prompt">Shuffle</button>
+        <!-- Note Writer Card -->
+        <div class="card journal-card" style="text-align:left;display:flex;flex-direction:column;gap:12px;padding:18px;background:rgba(255,255,255,0.09);backdrop-filter:blur(16px);border:1.5px solid rgba(51,102,255,0.45);border-radius:20px;box-shadow:0 8px 30px rgba(0,0,0,0.4)">
+          
+          <!-- Prompt Bar -->
+          <div class="journal-prompts-bar" style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.25);padding:8px 12px;border-radius:12px;border:1px solid rgba(255,209,102,0.3)">
+            <span class="j-prompt-lbl" style="font-size:12px;font-weight:700;color:#ffd166">💡 Inspiration Spark:</span>
+            <button class="btn btn-ghost btn-sm" id="j-shuffle-prompt" style="padding:3px 8px;font-size:11px">🎲 Shuffle</button>
           </div>
-          <div class="j-prompt-box" id="j-prompt-text">${esc(pick(MM.JOURNAL_PROMPTS))}</div>
+          <div class="j-prompt-box" id="j-prompt-text" style="font-size:12.5px;color:rgba(255,255,255,0.9);line-height:1.5;font-style:italic;padding:0 4px">${esc(pick(MM.JOURNAL_PROMPTS))}</div>
 
-          <div class="field" style="margin-top:10px">
-            <input type="text" id="j-title" placeholder="Note title or thought headline…" maxlength="60" />
+          <!-- Fast Tag Pills -->
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <span style="font-size:11.5px;font-weight:700;color:rgba(255,255,255,0.7)">Quick Tag:</span>
+            ${['💭 Thought', '🌸 Gratitude', '🎯 Goal', '💡 Idea', '🌿 Healing', '📝 Todo', '❤️ Heart'].map(tag => `
+              <button class="j-tag-chip" data-tag="${tag}" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#ffffff;border-radius:10px;padding:4px 9px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s">${tag}</button>
+            `).join('')}
           </div>
 
-          <div class="j-mood-picker">
-            <span style="font-size:12px;font-weight:600;color:var(--ink)">Mood right now:</span>
-            <div class="j-mood-chips">
-              <button class="j-mood-btn active" data-mood="🌟 Hopeful">🌟 Hopeful</button>
-              <button class="j-mood-btn" data-mood="😌 Peaceful">😌 Peaceful</button>
-              <button class="j-mood-btn" data-mood="😊 Joyful">😊 Joyful</button>
-              <button class="j-mood-btn" data-mood="😐 Neutral">😐 Neutral</button>
-              <button class="j-mood-btn" data-mood="🌱 Reflective">🌱 Reflective</button>
+          <!-- Note Title -->
+          <div class="field" style="margin:0">
+            <input type="text" id="j-title" placeholder="Note Title or Thought Headline…" value="${esc(draft.title || '')}" maxlength="100" style="width:100%;font-size:15px;font-weight:700;color:#ffffff;background:rgba(0,0,0,0.3);border:1.5px solid rgba(255,255,255,0.2);border-radius:12px;padding:10px 14px;box-sizing:border-box" />
+          </div>
+
+          <!-- Mood Selector -->
+          <div class="j-mood-picker" style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:12px;font-weight:700;color:#ffd166">Mood Right Now:</span>
+            <div class="j-mood-chips" style="display:flex;gap:6px;flex-wrap:wrap">
+              ${['🌟 Hopeful', '😌 Peaceful', '😊 Joyful', '😐 Neutral', '🌱 Reflective', '🌧️ Tough Day', '🔥 Determined'].map(m => `
+                <button class="j-mood-btn ${draft.mood === m ? 'active' : ''}" data-mood="${m}" style="background:rgba(255,255,255,0.08);border:1px solid ${draft.mood === m ? '#ffd166' : 'rgba(255,255,255,0.2)'};color:#ffffff;border-radius:10px;padding:5px 10px;font-size:11.5px;font-weight:700;cursor:pointer;transition:all 0.15s">${m}</button>
+              `).join('')}
             </div>
           </div>
 
-          <div class="j-editor-wrap">
-            <textarea id="j-body" placeholder="Write or speak your thoughts freely… Everything is private and encrypted with AES-256 on your phone."></textarea>
-            <div class="j-editor-bar">
-              <span id="j-char-count">0 characters</span>
-              <span class="j-enc-badge">🔒 AES-GCM Encrypted</span>
+          <!-- Formatting Toolbar -->
+          <div class="j-format-bar" style="display:flex;gap:6px;background:rgba(0,0,0,0.28);padding:6px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);align-items:center;flex-wrap:wrap">
+            <button class="btn-fmt" data-fmt="bold" title="Bold Text" style="background:rgba(255,255,255,0.1);border:0;color:#fff;font-weight:800;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px"><b>B</b></button>
+            <button class="btn-fmt" data-fmt="italic" title="Italic Text" style="background:rgba(255,255,255,0.1);border:0;color:#fff;font-style:italic;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px"><i>I</i></button>
+            <button class="btn-fmt" data-fmt="bullet" title="Bullet List" style="background:rgba(255,255,255,0.1);border:0;color:#fff;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px">• List</button>
+            <button class="btn-fmt" data-fmt="todo" title="Checkbox Task" style="background:rgba(255,255,255,0.1);border:0;color:#fff;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px">☑ Task</button>
+            <button class="btn-fmt" data-fmt="quote" title="Quote" style="background:rgba(255,255,255,0.1);border:0;color:#fff;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px">“ ” Quote</button>
+            <button class="btn-fmt" data-fmt="spark" title="Insert Spark Prompt" style="background:rgba(255,209,102,0.2);border:1px solid #ffd166;color:#ffd166;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;margin-left:auto">✨ Add Spark</button>
+          </div>
+
+          <!-- Note Body Textarea -->
+          <div class="j-editor-wrap" style="position:relative;background:rgba(0,0,0,0.35);border:1.5px solid rgba(255,255,255,0.2);border-radius:16px;padding:12px;display:flex;flex-direction:column;box-shadow:inset 0 2px 10px rgba(0,0,0,0.4)">
+            <textarea id="j-body" placeholder="Write your thoughts, memories, goals, or reflections freely… Everything is private and encrypted with AES-256 on your phone." style="width:100%;min-height:170px;border:0;outline:none;resize:vertical;font:500 14px/1.6 var(--font);color:#ffffff;background:transparent">${esc(draft.body || '')}</textarea>
+            
+            <!-- Attached Drawing / Image Preview Container -->
+            <div id="j-attached-media" style="display:${draft.artImg || draft.photoImg ? 'flex' : 'none'};gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.15);flex-wrap:wrap">
+              ${draft.artImg ? `
+                <div class="j-media-thumb" id="j-thumb-art" style="position:relative;width:80px;height:80px;border-radius:10px;overflow:hidden;border:1.5px solid #3366ff">
+                  <img src="${draft.artImg}" style="width:100%;height:100%;object-fit:cover" alt="Attached Drawing" />
+                  <button id="j-del-art" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.7);border:0;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer">✕</button>
+                </div>
+              ` : ''}
+              ${draft.photoImg ? `
+                <div class="j-media-thumb" id="j-thumb-photo" style="position:relative;width:80px;height:80px;border-radius:10px;overflow:hidden;border:1.5px solid #00a651">
+                  <img src="${draft.photoImg}" style="width:100%;height:100%;object-fit:cover" alt="Attached Photo" />
+                  <button id="j-del-photo" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.7);border:0;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer">✕</button>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Status bar -->
+            <div class="j-editor-bar" style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;font-size:11.5px;color:rgba(255,255,255,0.7);border-top:1px solid rgba(255,255,255,0.12);padding-top:8px">
+              <span id="j-char-count">${(draft.body || '').length} characters · ${((draft.body || '').trim().split(/\s+/).filter(Boolean)).length} words</span>
+              <span class="j-enc-badge" style="color:#52e185;font-weight:700;display:flex;align-items:center;gap:4px">🔒 AES-GCM Encrypted</span>
             </div>
           </div>
 
-          <!-- Speech-to-Text, Draw Studio & Tiny OCR Bar -->
-          <div class="j-tools-bar">
-            <button class="btn btn-secondary j-tool-btn" id="j-mic-btn">
+          <!-- Tools: Voice Dictation, Drawing Studio, Photo Upload & OCR -->
+          <div class="j-tools-bar" style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-secondary j-tool-btn" id="j-mic-btn" style="flex:1 1 40%;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px">
               ${I.mic} <span id="j-mic-lbl">Speak to Write</span>
             </button>
-            <button class="btn btn-ghost j-tool-btn" id="j-draw-btn">
-              ${I.brush} <span>Draw / Paint</span>
+            <button class="btn btn-ghost j-tool-btn" id="j-draw-btn" style="flex:1 1 40%;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px">
+              🎨 <span>Draw &amp; Paint</span>
             </button>
-            <label class="btn btn-outline j-tool-btn" id="j-ocr-label" style="cursor:pointer">
-              ${I.camera} <span>Scan Note</span>
+            <label class="btn btn-outline j-tool-btn" id="j-photo-label" style="flex:1 1 40%;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer">
+              📸 <span>Add Photo</span>
+              <input type="file" id="j-photo-file" accept="image/*" style="display:none" />
+            </label>
+            <label class="btn btn-outline j-tool-btn" id="j-ocr-label" style="flex:1 1 40%;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer">
+              📷 <span>Scan Note (OCR)</span>
               <input type="file" id="j-ocr-file" accept="image/*" style="display:none" />
             </label>
           </div>
@@ -3813,68 +3874,82 @@ routes.journal = (args = []) => {
             <button class="btn btn-ghost btn-sm" id="j-ai-refresh" style="align-self:flex-start">✨ Reflect on this thought</button>
           </div>
 
-          <button class="btn btn-primary btn-block" id="j-save-btn" style="margin-top:12px">
-            🔒 Save Note to Vault
+          <!-- Primary Save Button -->
+          <button class="btn btn-primary btn-block" id="j-save-btn" style="font-size:15px;font-weight:800;padding:14px;border-radius:14px;box-shadow:0 6px 20px rgba(51,102,255,0.4)">
+            💾 ${editingEntry ? 'Update Note in Vault' : 'Save Note to Private Vault'}
           </button>
         </div>
       ` : `
-        <!-- Saved Journal Entries & Resilience Constellation -->
-        <div class="journal-entries-list">
-          ${entries.length ? `
-            <!-- Resilience Constellation Map -->
-            <div class="card constellation-card">
-              <div class="const-head">
-                <span class="spark-badge">RESILIENCE CONSTELLATION</span>
-                <span class="air-ai-pill">✨ On-Device NLP</span>
-              </div>
-              <h3 style="margin:6px 0 2px;font-size:16.5px;font-weight:800;color:#ffffff">Your Theme Constellation</h3>
-              <p style="font-size:12.5px;color:rgba(255,255,255,0.88);margin:0 0 14px">Glowing inner strength stars connected across your written reflections.</p>
-              <div class="const-grid">
-                ${(typeof MMNLP !== 'undefined' && MMNLP.resilienceConstellation ? MMNLP.resilienceConstellation(entries) : []).map(t => `
-                  <div class="const-star ${t.count > 0 ? 'lit' : ''}" style="--star-color:${t.color}">
-                    <span class="const-icon">${t.icon}</span>
-                    <b class="const-name">${t.name}</b>
-                    <span class="const-badge">${t.count} star${t.count === 1 ? '' : 's'}</span>
-                  </div>
-                `).join('')}
-              </div>
+        <!-- Saved Notes View with Instant Search & Filter -->
+        <div class="journal-entries-list" style="display:flex;flex-direction:column;gap:14px;text-align:left">
+          
+          <!-- Search Bar & Filters -->
+          <div class="card" style="padding:12px 14px;background:rgba(255,255,255,0.09);backdrop-filter:blur(16px);border:1.5px solid rgba(51,102,255,0.35);border-radius:16px">
+            <div style="position:relative">
+              <input type="text" id="j-search-in" placeholder="🔍 Search notes by title, text, or tag…" style="width:100%;padding:9px 12px;font-size:13px;color:#fff;background:rgba(0,0,0,0.3);border:1.5px solid rgba(255,255,255,0.18);border-radius:10px;box-sizing:border-box" />
             </div>
-          ` : ''}
+            <div class="j-filter-chips" style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+              <button class="j-filter-btn active" data-filter="all" style="background:rgba(255,209,102,0.2);border:1px solid #ffd166;color:#ffd166;border-radius:8px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer">All (${entries.length})</button>
+              <button class="j-filter-btn" data-filter="pinned" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#ffffff;border-radius:8px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer">⭐ Pinned (${entries.filter(e => e.pinned).length})</button>
+              <button class="j-filter-btn" data-filter="art" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#ffffff;border-radius:8px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer">🎨 Art &amp; Photos</button>
+              <button class="j-filter-btn" data-filter="gratitude" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#ffffff;border-radius:8px;padding:3px 8px;font-size:11px;font-weight:700;cursor:pointer">🌸 Gratitude</button>
+            </div>
+          </div>
 
-          ${entries.length ? entries.map(e => {
-            const themes = (typeof MMNLP !== 'undefined' && MMNLP.extractThemes) ? MMNLP.extractThemes(e.body + ' ' + (e.title || '')) : [];
-            return `
-              <div class="card journal-entry-card" data-jid="${e.id}">
-                <div class="j-entry-head">
-                  <span class="j-entry-mood">${esc(e.mood || '🌿 Note')}</span>
-                  <span class="j-entry-date">${new Date(e.updatedAt || e.createdAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-                </div>
-                <h3 class="j-entry-title">${esc(e.title || 'Untitled Note')}</h3>
-                <p class="j-entry-body">${esc(e.body)}</p>
-                ${themes.length ? `
-                  <div class="j-themes-row">
-                    ${themes.map(t => `<span class="j-theme-chip" style="--tc:${t.color}">${t.icon} ${t.name}</span>`).join('')}
+          <!-- Entries Container -->
+          <div id="j-entries-container" style="display:flex;flex-direction:column;gap:12px">
+            ${entries.length ? entries.map(e => {
+              const themes = (typeof MMNLP !== 'undefined' && MMNLP.extractThemes) ? MMNLP.extractThemes(e.body + ' ' + (e.title || '')) : [];
+              return `
+                <div class="card journal-entry-card ${e.pinned ? 'is-pinned' : ''}" data-jid="${e.id}" style="background:rgba(255,255,255,0.09);backdrop-filter:blur(16px);border:1.5px solid ${e.pinned ? '#ffd166' : 'rgba(255,255,255,0.18)'};border-radius:18px;padding:16px;box-shadow:0 6px 24px rgba(0,0,0,0.3)">
+                  <div class="j-entry-head" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <button class="j-pin-btn" data-pin="${e.id}" style="background:transparent;border:0;color:${e.pinned ? '#ffd700' : 'rgba(255,255,255,0.4)'};font-size:16px;cursor:pointer" title="${e.pinned ? 'Unpin note' : 'Pin note to top'}">${e.pinned ? '⭐' : '☆'}</button>
+                      <span class="j-entry-mood" style="font-weight:800;color:#ffd166;font-size:12px">${esc(e.mood || '🌿 Note')}</span>
+                    </div>
+                    <span class="j-entry-date" style="color:rgba(255,255,255,0.65);font-size:11.5px">${new Date(e.updatedAt || e.createdAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
-                ` : ''}
-                ${e.aiInsight ? `
-                  <div class="j-entry-ai">
-                    <span>${e.aiInsight.icon || '🌱'} <b>Tiny Guide:</b></span> ${esc(e.aiInsight.message)}
+
+                  <h3 class="j-entry-title" style="margin:2px 0 6px;font-size:16px;font-weight:800;color:#ffffff">${esc(e.title || 'Untitled Note')}</h3>
+                  <p class="j-entry-body" style="margin:0 0 10px;font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.9);white-space:pre-wrap">${esc(e.body)}</p>
+                  
+                  <!-- Attached Visual Thumbnails if present -->
+                  ${e.artImg || e.photoImg ? `
+                    <div style="display:flex;gap:8px;margin-bottom:10px">
+                      ${e.artImg ? `<img src="${e.artImg}" style="width:70px;height:70px;border-radius:10px;object-fit:cover;border:1px solid #3366ff" alt="Art attachment" />` : ''}
+                      ${e.photoImg ? `<img src="${e.photoImg}" style="width:70px;height:70px;border-radius:10px;object-fit:cover;border:1px solid #00a651" alt="Photo attachment" />` : ''}
+                    </div>
+                  ` : ''}
+
+                  ${themes.length ? `
+                    <div class="j-themes-row" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+                      ${themes.map(t => `<span class="j-theme-chip" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);border-radius:8px;padding:2px 7px;font-size:11px;color:#fff">${t.icon} ${t.name}</span>`).join('')}
+                    </div>
+                  ` : ''}
+
+                  ${e.aiInsight ? `
+                    <div class="j-entry-ai" style="background:rgba(255,255,255,0.08);border-left:3px solid #ffd166;padding:8px 12px;border-radius:0 10px 10px 0;font-size:12.5px;line-height:1.5;color:#ffffff;font-style:italic;margin-bottom:10px">
+                      <span>${e.aiInsight.icon || '🌱'} <b>Tiny Guide:</b></span> ${esc(e.aiInsight.message)}
+                    </div>
+                  ` : ''}
+
+                  <div class="j-entry-actions" style="display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,0.1);padding-top:10px">
+                    <button class="btn btn-ghost btn-sm j-edit-entry" data-edit="${e.id}" style="padding:4px 8px;font-size:11.5px">✏️ Edit</button>
+                    <button class="btn btn-ghost btn-sm j-copy-entry" data-text="${esc(e.body)}" style="padding:4px 8px;font-size:11.5px">📋 Copy</button>
+                    <button class="btn btn-ghost btn-sm j-read-aloud" data-text="${esc(e.body)}" style="padding:4px 8px;font-size:11.5px">🔊 Read Aloud</button>
+                    <button class="btn btn-ghost btn-sm j-del-entry" data-del="${e.id}" style="padding:4px 8px;font-size:11.5px;color:#ff758f">🗑️ Delete</button>
                   </div>
-                ` : ''}
-                <div class="j-entry-actions">
-                  <button class="btn btn-ghost btn-sm j-read-aloud" data-text="${esc(e.body)}">🔊 Read Aloud</button>
-                  <button class="btn btn-ghost btn-sm j-del-entry" data-del="${e.id}">Delete</button>
                 </div>
+              `;
+            }).join('') : `
+              <div class="card" style="text-align:center;padding:32px 16px;background:rgba(255,255,255,0.08);backdrop-filter:blur(16px);border:1.5px dashed rgba(255,255,255,0.25);border-radius:20px">
+                <div style="font-size:42px;margin-bottom:10px">📖✨</div>
+                <h3 style="margin:0 0 8px;color:#ffffff">Your Note Space is Fresh &amp; Ready</h3>
+                <p style="font-size:13px;color:rgba(255,255,255,0.85);margin:0 0 18px;line-height:1.6">Write thoughts, capture goals, speak voice notes, or attach sketches. Everything stays safely encrypted right here on your phone.</p>
+                <button class="btn btn-primary" onclick="nav('#/journal/write')" style="padding:12px 24px;border-radius:12px;font-weight:700">Write Your First Note ✍️</button>
               </div>
-            `;
-          }).join('') : `
-            <div class="card" style="text-align:center;padding:28px 16px">
-              <div style="font-size:36px;margin-bottom:8px">📖</div>
-              <h3 style="margin:0 0 6px">No Saved Notes Yet</h3>
-              <p style="font-size:13px;color:var(--ink-soft);margin:0 0 16px">Your thoughts, spoken reflections, and scanned notes will be stored safely here, encrypted on your phone.</p>
-              <button class="btn btn-primary" onclick="nav('#/journal/write')">Write Your First Note ✍️</button>
-            </div>
-          `}
+            `}
+          </div>
         </div>
       `}
 
@@ -3885,9 +3960,12 @@ routes.journal = (args = []) => {
   $('#j-tab-write')?.addEventListener('click', () => nav('#/journal/write'));
   $('#j-tab-entries')?.addEventListener('click', () => nav('#/journal/entries'));
 
-  if (subview === 'write') {
+  if (subview === 'write' || subview === 'edit') {
     if (typeof MMSoundscape !== 'undefined') MMSoundscape.wireEvents(app);
-    let selectedMood = '🌟 Hopeful';
+    let selectedMood = draft.mood || '🌟 Hopeful';
+    let currentArtImg = draft.artImg || null;
+    let currentPhotoImg = draft.photoImg || null;
+
     const bodyEl = $('#j-body');
     const titleEl = $('#j-title');
     const charCountEl = $('#j-char-count');
@@ -3895,11 +3973,67 @@ routes.journal = (args = []) => {
     const micBtn = $('#j-mic-btn');
     const micLbl = $('#j-mic-lbl');
 
+    const updateCounts = () => {
+      if (!bodyEl || !charCountEl) return;
+      const len = bodyEl.value.length;
+      const words = bodyEl.value.trim().split(/\s+/).filter(Boolean).length;
+      charCountEl.textContent = `${len} characters · ${words} words`;
+      // Auto-save draft
+      if (!editId) {
+        MMJournal.saveDraft({
+          title: titleEl?.value || '',
+          body: bodyEl.value || '',
+          mood: selectedMood,
+          artImg: currentArtImg,
+          photoImg: currentPhotoImg,
+        });
+      }
+    };
+
+    // Fast Tag Chip Click -> inserts at end of title or textarea
+    app.querySelectorAll('.j-tag-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const tag = chip.dataset.tag;
+        if (titleEl && !titleEl.value.includes(tag)) {
+          titleEl.value = (tag + ' ' + titleEl.value).trim();
+        }
+        updateCounts();
+        toast(`Tag "${tag}" added ✨`);
+      });
+    });
+
+    // Formatting buttons
+    app.querySelectorAll('.btn-fmt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!bodyEl) return;
+        const fmt = btn.dataset.fmt;
+        const start = bodyEl.selectionStart;
+        const end = bodyEl.selectionEnd;
+        const sel = bodyEl.value.substring(start, end);
+        let rep = '';
+
+        if (fmt === 'bold') rep = `**${sel || 'bold text'}**`;
+        else if (fmt === 'italic') rep = `*${sel || 'italic text'}*`;
+        else if (fmt === 'bullet') rep = `\n• ${sel || 'List item'}`;
+        else if (fmt === 'todo') rep = `\n☑ ${sel || 'Task item'}`;
+        else if (fmt === 'quote') rep = `\n> "${sel || 'Inspiring quote'}"`;
+        else if (fmt === 'spark') {
+          const sparkText = $('#j-prompt-text')?.textContent || pick(MM.JOURNAL_PROMPTS);
+          rep = `\n[💡 Spark: ${sparkText}]\n`;
+        }
+
+        bodyEl.setRangeText(rep, start, end, 'end');
+        bodyEl.focus();
+        updateCounts();
+      });
+    });
+
     app.querySelectorAll('.j-mood-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         app.querySelectorAll('.j-mood-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         selectedMood = btn.dataset.mood;
+        updateCounts();
       });
     });
 
@@ -3917,13 +4051,16 @@ routes.journal = (args = []) => {
           const av = $('#j-tiny-ai .tiny-ai-avatar');
           if (av) av.textContent = ref.icon;
         }
-      }, 700);
+      }, 600);
     };
 
     bodyEl?.addEventListener('input', () => {
-      const len = bodyEl.value.length;
-      charCountEl.textContent = `${len} characters`;
+      updateCounts();
       updateAi(bodyEl.value);
+    });
+
+    titleEl?.addEventListener('input', () => {
+      updateCounts();
     });
 
     $('#j-ai-refresh')?.addEventListener('click', () => {
@@ -3945,7 +4082,7 @@ routes.journal = (args = []) => {
         MMJournal.startDictation((finalText, interimText) => {
           if (bodyEl) {
             bodyEl.value = (bodyEl.value + ' ' + finalText).trim();
-            charCountEl.textContent = `${bodyEl.value.length} characters`;
+            updateCounts();
             updateAi(bodyEl.value);
           }
         }, (isRec) => {
@@ -3978,16 +4115,55 @@ routes.journal = (args = []) => {
         onSave: async (dataUrl, meta) => {
           if (!dataUrl) return toast('Make a mark or two first 🖍');
           close();
-          const noteText = `[🎨 Attached Drawing: ${meta.strokeCount || 1} strokes · Moja Vision: "${meta.vision?.feedback || 'Creative Expression'}"]`;
-          if (bodyEl) {
-            bodyEl.value = (bodyEl.value + (bodyEl.value ? '\n\n' : '') + noteText).trim();
-            charCountEl.textContent = `${bodyEl.value.length} characters`;
-            updateAi(bodyEl.value);
+          currentArtImg = dataUrl;
+          const mediaWrap = $('#j-attached-media');
+          if (mediaWrap) {
+            mediaWrap.style.display = 'flex';
+            mediaWrap.innerHTML += `
+              <div class="j-media-thumb" id="j-thumb-art" style="position:relative;width:80px;height:80px;border-radius:10px;overflow:hidden;border:1.5px solid #3366ff">
+                <img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover" alt="Attached Drawing" />
+                <button id="j-del-art" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.7);border:0;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer">✕</button>
+              </div>
+            `;
+            $('#j-del-art')?.addEventListener('click', () => {
+              currentArtImg = null;
+              $('#j-thumb-art')?.remove();
+              updateCounts();
+            });
           }
-          toast('Drawing saved and attached to your note 🎨✨');
+          updateCounts();
+          toast('Drawing attached to note 🎨✨');
           confetti();
         },
       });
+    });
+
+    // Add Photo File
+    $('#j-photo-file')?.addEventListener('change', e => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        currentPhotoImg = ev.target.result;
+        const mediaWrap = $('#j-attached-media');
+        if (mediaWrap) {
+          mediaWrap.style.display = 'flex';
+          mediaWrap.innerHTML += `
+            <div class="j-media-thumb" id="j-thumb-photo" style="position:relative;width:80px;height:80px;border-radius:10px;overflow:hidden;border:1.5px solid #00a651">
+              <img src="${currentPhotoImg}" style="width:100%;height:100%;object-fit:cover" alt="Attached Photo" />
+              <button id="j-del-photo" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.7);border:0;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer">✕</button>
+            </div>
+          `;
+          $('#j-del-photo')?.addEventListener('click', () => {
+            currentPhotoImg = null;
+            $('#j-thumb-photo')?.remove();
+            updateCounts();
+          });
+        }
+        updateCounts();
+        toast('Photo attached to note 📸✨');
+      };
+      reader.readAsDataURL(file);
     });
 
     // Tiny OCR
@@ -3998,62 +4174,159 @@ routes.journal = (args = []) => {
       const text = await MMJournal.performTinyOCR(file);
       if (text && bodyEl) {
         bodyEl.value = (bodyEl.value + (bodyEl.value ? '\n\n' : '') + text).trim();
-        charCountEl.textContent = `${bodyEl.value.length} characters`;
+        updateCounts();
         updateAi(bodyEl.value);
         toast('Handwritten text scanned into note ✨');
       }
+    });
+
+    // Remove existing art/photo handlers
+    $('#j-del-art')?.addEventListener('click', () => {
+      currentArtImg = null;
+      $('#j-thumb-art')?.remove();
+      updateCounts();
+    });
+    $('#j-del-photo')?.addEventListener('click', () => {
+      currentPhotoImg = null;
+      $('#j-thumb-photo')?.remove();
+      updateCounts();
     });
 
     // Save Note
     $('#j-save-btn')?.addEventListener('click', () => {
       const title = titleEl?.value.trim() || '';
       const body = bodyEl?.value.trim() || '';
-      if (!body) {
-        toast('Please write or speak a few words before saving ✍️');
+      if (!body && !currentArtImg && !currentPhotoImg) {
+        toast('Please write something or attach a drawing/photo before saving ✍️');
         return;
       }
-      const ref = MMJournal.generateAiReflection(body);
+      const ref = MMJournal.generateAiReflection(body || title);
       MMJournal.saveEntry({
-        title: title || 'Reflection',
+        id: editId || undefined,
+        title: title || 'Note & Reflection',
         body,
         mood: selectedMood,
+        artImg: currentArtImg,
+        photoImg: currentPhotoImg,
         aiInsight: ref,
       });
-      toast('Note encrypted and saved to your private Vault 🔒💜');
+      toast(editId ? 'Note updated in Vault 🔒💜' : 'Note encrypted & saved to Vault 🔒💜');
       confetti();
       nav('#/journal/entries');
     });
   } else {
-    // Entries view events
+    // Entries view events: Search, Filter, Pin, Copy, Read Aloud, Edit, Delete
+    const searchIn = $('#j-search-in');
+    const container = $('#j-entries-container');
+
+    const filterEntries = () => {
+      const q = (searchIn?.value || '').toLowerCase().trim();
+      const activeFilter = $('.j-filter-btn.active')?.dataset.filter || 'all';
+
+      container.querySelectorAll('.journal-entry-card').forEach(card => {
+        const jid = card.dataset.jid;
+        const entry = entries.find(x => x.id === jid);
+        if (!entry) return;
+
+        let matchesSearch = true;
+        if (q) {
+          const hay = `${entry.title} ${entry.body} ${entry.mood}`.toLowerCase();
+          matchesSearch = hay.includes(q);
+        }
+
+        let matchesFilter = true;
+        if (activeFilter === 'pinned') matchesFilter = !!entry.pinned;
+        else if (activeFilter === 'art') matchesFilter = !!(entry.artImg || entry.photoImg);
+        else if (activeFilter === 'gratitude') matchesFilter = /gratitude|grateful|thank|bless/i.test(`${entry.title} ${entry.body} ${entry.mood}`);
+
+        card.style.display = (matchesSearch && matchesFilter) ? 'flex' : 'none';
+      });
+    };
+
+    searchIn?.addEventListener('input', filterEntries);
+
+    app.querySelectorAll('.j-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        app.querySelectorAll('.j-filter-btn').forEach(b => {
+          b.classList.remove('active');
+          b.style.background = 'rgba(255,255,255,0.08)';
+          b.style.borderColor = 'rgba(255,255,255,0.2)';
+          b.style.color = '#ffffff';
+        });
+        btn.classList.add('active');
+        btn.style.background = 'rgba(255,209,102,0.2)';
+        btn.style.borderColor = '#ffd166';
+        btn.style.color = '#ffd166';
+        filterEntries();
+      });
+    });
+
+    // Pin Toggle
+    app.querySelectorAll('.j-pin-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = btn.dataset.pin;
+        const isPinned = MMJournal.togglePin(id);
+        toast(isPinned ? 'Note pinned to top ⭐' : 'Note unpinned');
+        route();
+      });
+    });
+
+    // Edit Entry
+    app.querySelectorAll('.j-edit-entry').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.edit;
+        nav(`#/journal/edit/${id}`);
+      });
+    });
+
+    // Copy Entry Text
+    app.querySelectorAll('.j-copy-entry').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const text = btn.dataset.text;
+        navigator.clipboard?.writeText(text).then(() => {
+          toast('Note text copied to clipboard 📋✨');
+        }).catch(() => {
+          toast('Text selected');
+        });
+      });
+    });
+
+    // Read Aloud
     app.querySelectorAll('.j-read-aloud').forEach(btn => {
       btn.addEventListener('click', () => {
         const text = btn.dataset.text;
-        if (MMVoice.supported()) {
+        if (typeof MMVoice !== 'undefined' && MMVoice.supported()) {
           MMVoice.speak(text, { persona: 'warmth', force: true });
           toast('Reading note aloud with Piper Voice 🔊✨');
         } else {
-          toast('Speech synthesis not available on this device');
+          MMJournal.readAloud(text, () => toast('Finished reading note 💜'));
+          toast('Reading note aloud 🔊');
         }
       });
     });
 
+    // Delete Entry
     app.querySelectorAll('.j-del-entry').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = btn.dataset.del;
         modal(`
-          <h3>Delete Journal Entry?</h3>
-          <p style="font-size:13px;line-height:1.6;color:var(--ink-soft);margin:8px 0 16px">
-            Are you sure you want to erase this private note from your device?
-          </p>
-          <div class="modal-btns">
-            <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-            <button class="btn btn-primary" id="confirm-del-entry" style="background:#ed1c24">Delete Note</button>
+          <div style="text-align:center;padding:10px 4px">
+            <div style="font-size:36px;margin-bottom:8px">🗑️</div>
+            <h3 style="margin:0 0 8px;color:#ffffff">Delete Note?</h3>
+            <p style="font-size:13px;line-height:1.6;color:rgba(255,255,255,0.85);margin:0 0 18px">
+              Are you sure you want to permanently erase this private note from your encrypted storage?
+            </p>
+            <div class="modal-btns" style="display:flex;gap:8px">
+              <button class="btn btn-ghost" onclick="closeModal()" style="flex:1">Cancel</button>
+              <button class="btn btn-primary" id="confirm-del-entry" style="background:#ed1c24;flex:1">Delete Note</button>
+            </div>
           </div>
         `).querySelector('#confirm-del-entry').onclick = () => {
           MMJournal.deleteEntry(id);
           closeModal();
           toast('Note deleted from Vault 🗑️');
-          nav('#/journal/entries');
+          route();
         };
       });
     });
