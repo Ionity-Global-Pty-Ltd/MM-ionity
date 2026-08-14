@@ -167,6 +167,9 @@ const actsDone = () => MM.ACTIVITIES.filter(a => actState(a.id)?.submittedAt).le
 const $ = sel => document.querySelector(sel);
 const app = $('#app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pick = arr => (arr && arr.length ? arr[Math.floor(Math.random() * arr.length)] : null);
+const rnd = (a, b) => a + Math.random() * (b - a);
+const rndInt = (a, b) => Math.floor(rnd(a, b + 1));
 const hexA = (hex, a) => {
   const h = hex.replace('#', '');
   const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
