@@ -403,8 +403,8 @@ function bootSplash() {
         </div>
       </div>
       <div class="splash-io-brand">
-        <img src="./assets/branding/ionity-global.png" alt="IONITY GLOBAL" class="splash-io-logo" />
-        <p class="splash-foot">Crafted by <a href="https://www.ionity.today" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a> · <a href="https://www.ionity.today" target="_blank" rel="noopener">www.ionity.today</a></p>
+        <img src="./assets/branding/ionity-global-white.png" alt="IONITY GLOBAL" class="splash-io-logo" />
+        <p class="splash-foot">Crafted by <a href="https://www.ionity.today" target="_blank" rel="noopener">IONITY GLOBAL</a> · <a href="https://www.ionity.today" target="_blank" rel="noopener">www.ionity.today</a></p>
       </div>
     </div>`;
   document.body.appendChild(el);
@@ -1059,7 +1059,7 @@ routes.signin = () => {
       </div>
       <button class="btn btn-primary btn-block" id="f-login">Sign in with number</button>
       <p class="datafree-note">📶 DataFree friendly — works offline once installed</p>
-      <p class="auth-foot">${MM.APP_NAME} · Creative Resilience Intervention<br/>${esc(MM.PARTNERS.line)}<br/><img src="./assets/branding/ionity-global.png" alt="IONITY GLOBAL" style="height:26px;margin:6px auto;display:block;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.4))" />Crafted with ❤ by <a href="https://www.ionity.today" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a> · <a class="io-url" href="https://www.ionity.today" target="_blank" rel="noopener">www.ionity.today</a></p>
+      <p class="auth-foot">${MM.APP_NAME} · Creative Resilience Intervention<br/>${esc(MM.PARTNERS.line)}<br/><img src="./assets/branding/ionity-global-white.png" alt="IONITY GLOBAL" class="auth-io-mini" />Crafted by <a href="https://www.ionity.today" target="_blank" rel="noopener">IONITY GLOBAL</a> · <a class="io-url" href="https://www.ionity.today" target="_blank" rel="noopener">www.ionity.today</a></p>
     </div>
   `, { theme: 'theme-auth' });
   app.querySelectorAll('.gp-btn').forEach(b => b.addEventListener('click', () => {
@@ -1118,7 +1118,7 @@ routes.welcome = () => {
       <div class="welcome-partners">${esc(MM.PARTNERS.line)}</div>
       <p style="color:#fff;font-weight:700;margin:22px 0 14px">${esc(MM.ONBOARD.ready)}</p>
       <button class="btn btn-primary" id="w-next" style="min-width:200px">Next</button>
-      <p class="auth-foot">A Creative Resilience journey by <br/><img src="./assets/branding/ionity-global.png" alt="IONITY GLOBAL" style="height:26px;margin:6px auto;display:block;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.4))" /><a href="https://www.ionity.today" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a><br/><a class="io-url" href="https://www.ionity.today" target="_blank" rel="noopener">www.ionity.today</a></p>
+      <p class="auth-foot">A Creative Resilience journey by <img src="./assets/branding/ionity-global-white.png" alt="IONITY GLOBAL" class="auth-io-mini" /><br/><a href="https://www.ionity.today" target="_blank" rel="noopener">IONITY GLOBAL</a> · <a class="io-url" href="https://www.ionity.today" target="_blank" rel="noopener">www.ionity.today</a></p>
     </div>
   `, { theme: 'theme-auth' });
   $('#w-next').onclick = () => { S.onboarded = true; save(); nav('#/home'); };
@@ -1693,11 +1693,10 @@ routes.spark = () => {
 function ionityFooter() {
   return `<footer class="ionity-foot">
     <div class="io-logo-wrap">
-      <img class="io-logo-img" src="./assets/branding/ionity-global.png" alt="IONITY GLOBAL" />
+      <img class="io-logo-img" src="./assets/branding/ionity-global-white.png" alt="IONITY GLOBAL" />
     </div>
     <div class="io-credits">
-      <span>Crafted by <a href="https://www.ionity.today" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a></span>
-      <a class="io-url" href="https://www.ionity.today" target="_blank" rel="noopener">www.ionity.today</a>
+      <span>Crafted by <a href="https://www.ionity.today" target="_blank" rel="noopener"><b>IONITY GLOBAL</b></a> · <a class="io-url" href="https://www.ionity.today" target="_blank" rel="noopener">www.ionity.today</a></span>
     </div>
   </footer>`;
 }
