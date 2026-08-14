@@ -2,7 +2,7 @@
    © IONITY Global (Pty) Ltd */
 'use strict';
 
-const VERSION = 'mojamind-v2.6.7';
+const VERSION = 'mojamind-v2.6.8';
 const SHELL = [
   './',
   './index.html',
@@ -11,6 +11,7 @@ const SHELL = [
   './js/data.js',
   './js/vault.js',
   './js/nlp.js',
+  './js/llm.js',
   './js/voice.js',
   './js/soundscape.js',
   './js/draw.js',

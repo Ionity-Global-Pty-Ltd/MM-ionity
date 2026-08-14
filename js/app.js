@@ -3285,10 +3285,13 @@ function chatThread(scope, actId) {
     <div class="chat-scroll" id="chat-scroll">
       <div class="ai-guide-banner">
         <span class="ai-guide-mark">${I.sparkle}</span>
-        <span><b>Moja Guide</b><small>Activity-aware support · AI</small></span>
-        ${S.adminMode
-          ? `<button class="handover-btn adm" id="adm-resolve" ${handover ? '' : 'disabled'}>${handover ? 'Mark handled' : 'No handover'}</button>`
-          : `<button class="handover-btn" id="ask-human">${handover ? (handover.joinedAt ? '🎓 Facilitator here' : '🙋 Requested…') : '🙋 Talk to a human'}</button>`}
+        <span><b>Moja Guide</b><small>On-Device Micro-LLM · 100% Private & DataFree</small></span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="handover-btn" id="open-llm-coach" title="Open On-Device AI Coach" style="background:rgba(51,102,255,0.25);border:1px solid #3366ff;color:#fff">✨ AI Coach</button>
+          ${S.adminMode
+            ? `<button class="handover-btn adm" id="adm-resolve" ${handover ? '' : 'disabled'}>${handover ? 'Mark handled' : 'No handover'}</button>`
+            : `<button class="handover-btn" id="ask-human">${handover ? (handover.joinedAt ? '🎓 Facilitator here' : '🙋 Requested…') : '🙋 Talk to a human'}</button>`}
+        </div>
       </div>
       ${msgs.map(bubbleHTML).join('')}
     </div>
@@ -3301,7 +3304,7 @@ function chatThread(scope, actId) {
         <button class="chat-prompt-pill" data-q="🌟 Feeling proud of completing this week!">🌟 Celebrate progress</button>
       </div>
       <div class="chat-input-bar">
-        <input id="chat-in" placeholder="${S.adminMode ? 'Reply as Facilitator…' : 'Type a message or tap a prompt…'}" autocomplete="off" maxlength="600" />
+        <input id="chat-in" placeholder="${S.adminMode ? 'Reply as Facilitator…' : 'Ask on-device AI or tap a prompt…'}" autocomplete="off" maxlength="600" />
         <button class="send ${S.adminMode ? 'adm' : ''}" id="chat-send" aria-label="Send">${I.send}</button>
       </div>
     </div>
@@ -3343,6 +3346,7 @@ function chatThread(scope, actId) {
     maybeJoinFacilitator();
   };
   $('#ask-human')?.addEventListener('click', requestHandover);
+  $('#open-llm-coach')?.addEventListener('click', () => MMLLM.openQuickCoachModal(a.name));
   $('#adm-resolve')?.addEventListener('click', () => {
     const q = pendingHandover(scope, actId);
     if (!q) return;
@@ -3352,7 +3356,7 @@ function chatThread(scope, actId) {
     toast('Marked handled 🎓');
   });
 
-  const sendMsg = () => {
+  const sendMsg = async () => {
     const inp = $('#chat-in');
     const text = inp.value.trim();
     if (!text) return;
@@ -3381,28 +3385,53 @@ function chatThread(scope, actId) {
       return;
     }
 
-    // Moja Guide (AI) reply — intent-aware with typing indicator
-    const res = facilitatorReply(text, a);
-    if (res.handover && !pendingHandover(scope, actId)) {
-      S.agentQueue[qKey] = { requestedAt: Date.now() }; save();
-      const btn = $('#ask-human'); if (btn) btn.textContent = '🙋 Requested…';
+    // Stream On-Device Micro-LLM response in real-time
+    if (!$('#chat-scroll')) return;
+    const streamBubbleId = 'stream-bubble-' + Date.now();
+    scroll.insertAdjacentHTML('beforeend', `
+      <div class="bubble them guide streaming" id="${streamBubbleId}">
+        <p class="stream-text"><span class="typing-cursor">▊</span></p>
+        <span class="meta"><b>Moja Guide</b> | <span class="engine-tag" style="color:#ffd700">⚡ Thinking…</span></span>
+      </div>
+    `);
+    toBottom();
+
+    const bubbleEl = document.getElementById(streamBubbleId);
+    const streamTextEl = bubbleEl?.querySelector('.stream-text');
+
+    try {
+      const res = await MMLLM.generateResponse(text, { activity: a, scope, state: S }, (chunk) => {
+        if (streamTextEl) {
+          streamTextEl.innerHTML = esc(chunk) + '<span class="typing-cursor" style="animation:blink .6s infinite;color:#ffd700;margin-left:2px">▊</span>';
+          toBottom();
+        }
+      });
+
+      if (bubbleEl) {
+        bubbleEl.classList.remove('streaming');
+        if (streamTextEl) streamTextEl.textContent = res.text;
+        const metaEl = bubbleEl.querySelector('.meta');
+        if (metaEl) {
+          metaEl.innerHTML = `<b>Moja Guide</b> | ${fmt(Date.now())} · <span style="color:#ffd700;font-size:10px;font-weight:600">⚡ ${res.engine}</span>`;
+        }
+      }
+
+      // Save to chat state
+      msgs.push({ who: 'guide', text: res.text, at: Date.now() });
+      S.chatRead[qKey] = Date.now();
+      save();
+
+      if (res.escalate && !S.tickets.some(t => t.source === 'chat' && Date.now() - t.createdAt < 6 * 36e5)) {
+        const t = newTicket('social', 'Wellbeing check-in requested (chat)',
+          `Moja Guide flagged ${res.escalate} distress in the ${a.name} ${scope} chat.`, 'chat');
+        pushMsg({ who: 'sys', text: `A social worker has been asked to reach out (${t.ref}).`, at: Date.now() });
+      }
+    } catch (err) {
+      console.error('LLM generation error:', err);
+      $('#' + streamBubbleId)?.remove();
+      const fallbackRes = facilitatorReply(text, a);
+      pushMsg({ who: 'guide', text: fallbackRes.text, at: Date.now() });
     }
-    // Distress in chat opens the same social-worker pathway as the surveys.
-    if (res.escalate && !S.tickets.some(t => t.source === 'chat' && Date.now() - t.createdAt < 6 * 36e5)) {
-      const t = newTicket('social', 'Wellbeing check-in requested (chat)',
-        `Moja Guide flagged ${res.escalate} distress in the ${a.name} ${scope} chat.`, 'chat');
-      pushMsg({ who: 'sys', text: `A social worker has been asked to reach out (${t.ref}).`, at: Date.now() });
-    }
-    setTimeout(() => {
-      if (!$('#chat-scroll')) return;
-      scroll.insertAdjacentHTML('beforeend', `<div class="bubble them typing" id="typing"><i></i><i></i><i></i></div>`);
-      toBottom();
-      setTimeout(() => {
-        $('#typing')?.remove();
-        pushMsg({ who: 'guide', text: res.text, at: Date.now() });
-        if (res.handover) maybeJoinFacilitator();
-      }, 900 + Math.min(2600, res.text.length * 16));
-    }, 700);
   };
   $('#chat-send').onclick = sendMsg;
   $('#chat-in').addEventListener('keydown', e => { if (e.key === 'Enter') sendMsg(); });

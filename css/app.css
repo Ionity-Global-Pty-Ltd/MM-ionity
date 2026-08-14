@@ -1089,11 +1089,33 @@ body {
 .bubble.them { align-self: flex-start; background: linear-gradient(135deg, #6d28a8, #4f1d7a); border-bottom-left-radius: 6px; }
 .bubble.guide { border: 1px solid rgba(255,209,102,.48); background: linear-gradient(135deg, #7131a6, #4a1a72); box-shadow: 0 5px 16px rgba(20,5,30,.3), inset 0 1px 0 rgba(255,255,255,.1); }
 .bubble.guide .meta b { color: #ffd98a; }
+.bubble.streaming {
+  border-color: #ffd166;
+  box-shadow: 0 0 16px rgba(255, 209, 102, 0.35);
+}
+.typing-cursor {
+  display: inline-block;
+  color: #ffd166;
+  font-weight: 800;
+  animation: cursor-blink .7s infinite;
+}
+@keyframes cursor-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
 .bubble.typing { display: flex; gap: 5px; padding: 14px 16px; }
 .bubble.typing i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.85); animation: blink 1.2s infinite; }
 .bubble.typing i:nth-child(2) { animation-delay: .2s; }
 .bubble.typing i:nth-child(3) { animation-delay: .4s; }
 @keyframes blink { 0%,80%,100% { opacity: .3; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
+
+.ai-coach-modal {
+  background: rgba(28, 10, 48, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 209, 102, 0.35);
+  border-radius: 20px;
+  padding: 18px 16px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+}
 
 .chat-input-row {
   position: sticky; bottom: calc(var(--nav-h) + 12px + env(safe-area-inset-bottom));
