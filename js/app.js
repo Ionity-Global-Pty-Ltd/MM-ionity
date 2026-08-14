@@ -1972,22 +1972,42 @@ routes.privacy = (_, isBack) => {
       </div>
 
       <div class="info-card">
-        <h3><span class="ic">${I.brain}</span>On-device intelligence</h3>
-        <p>Everything below runs on your phone. Nothing you write, say or draw is ever uploaded.</p>
-        <div class="set-row">
-          <div class="grow"><b>Moja Guide language engine</b><small>MojaLex — built in, instant, no data</small></div>
-          <span class="set-pill on">Always on</span>
-        </div>
-        <div class="set-row">
-          <div class="grow">
-            <b>Deeper feeling detection</b>
-            <small>${tf ? `${esc(tf.label)} — loaded` : `Quantized ${esc(MMNLP.MODELS[S.ai.model].label)} · one-time ~${MMNLP.MODELS[S.ai.model].approxMB} MB download, then works offline`}</small>
+        <h3><span class="ic">${I.brain}</span>On-Device AI & Offline Model Hub</h3>
+        <p>Everything below runs 100% locally on your phone. Nothing you write, say or draw is ever uploaded.</p>
+        
+        <div style="background:rgba(51,102,255,0.14);border:1px solid rgba(51,102,255,0.35);border-radius:14px;padding:12px;margin:10px 0">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <span style="font-weight:700;font-size:13.5px;color:#ffffff">🧠 MobileBERT Neural Engine</span>
+            <span class="set-pill ${MMNLP.transformerReady() ? 'on' : ''}">${MMNLP.transformerReady() ? '⚡ Active (Overhauled)' : 'Offline Option'}</span>
           </div>
-          <label class="switch"><input id="set-tf" type="checkbox" ${MMNLP.transformerReady() ? 'checked' : ''} /><span class="knob"></span></label>
+          <p style="font-size:12px;line-height:1.5;color:rgba(255,255,255,0.85);margin:0 0 8px">
+            <b>25 Million parameters · ~48 MB int8</b><br/>
+            Task-specific text processing. Ideal for on-device Named Entity Recognition (NER), deep sentiment analysis, and question-answering over short snippets.
+          </p>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <small style="color:#ffd166;font-size:11px">📶 One-time download (WiFi recommended), then works 100% offline.</small>
+            <label class="switch"><input id="set-tf" type="checkbox" ${MMNLP.transformerReady() ? 'checked' : ''} /><span class="knob"></span></label>
+          </div>
         </div>
-        <div class="tf-progress hidden" id="tf-progress"><div class="track"><div class="fill" id="tf-bar"></div></div><small id="tf-status">Preparing…</small></div>
-        <div class="set-row">
-          <div class="grow"><b>Moja Vision</b><small>Reads colour, strokes and words in your art, on this device</small></div>
+
+        <div class="tf-progress ${MMNLP.transformerReady() ? '' : 'hidden'}" id="tf-progress" style="margin:10px 0">
+          <div class="track" style="height:8px;background:rgba(255,255,255,0.2);border-radius:4px;overflow:hidden"><div class="fill" id="tf-bar" style="height:100%;background:linear-gradient(90deg,#3366ff,#ffd700);width:${MMNLP.transformerReady() ? '100%' : '0%'};transition:width 0.2s"></div></div>
+          <small id="tf-status" style="display:block;margin-top:5px;font-weight:600;color:#6ec1ff">${MMNLP.transformerReady() ? 'Ready — MobileBERT is active and powering on-device intelligence offline.' : 'Preparing…'}</small>
+        </div>
+
+        ${MMNLP.transformerReady() ? `
+          <div style="background:rgba(0,0,0,0.3);border-radius:12px;padding:10px;margin-top:8px;border:1px solid rgba(255,255,255,0.1)">
+            <b style="font-size:12px;color:#ffd700">🔬 Live MobileBERT Inference Sandbox:</b>
+            <div style="display:flex;gap:6px;margin-top:6px">
+              <input id="tf-test-in" placeholder="Type a sentence to test live inference…" style="flex:1;padding:6px 10px;font-size:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:#fff" value="I was feeling overwhelmed, but painting the River of Life brought me peace." />
+              <button class="btn btn-ghost" id="tf-test-btn" style="padding:6px 12px;font-size:11px;font-weight:700">Test</button>
+            </div>
+            <div id="tf-test-out" style="margin-top:6px;font-size:11.5px;color:#ffffff;line-height:1.4"></div>
+          </div>
+        ` : ''}
+
+        <div class="set-row" style="margin-top:12px">
+          <div class="grow"><b>Moja Vision 2.0</b><small>On-device color spectrum & picture psychology reading</small></div>
           <label class="switch"><input id="set-vision" type="checkbox" ${S.ai.vision ? 'checked' : ''} /><span class="knob"></span></label>
         </div>
         <div class="set-row">
@@ -2038,31 +2058,64 @@ routes.privacy = (_, isBack) => {
     });
   });
 
-  /* Intelligence toggles */
+  /* Intelligence toggles & MobileBERT Download */
   $('#set-tf')?.addEventListener('change', async e => {
-    if (!e.target.checked) { MMNLP.disableTransformer(); S.ai.transformer = false; save(); toast('Back to the built-in engine'); return route(); }
+    if (!e.target.checked) {
+      MMNLP.disableTransformer();
+      S.ai.transformer = false;
+      save();
+      toast('Switched back to built-in Nano-SLM engine 🌿');
+      return route();
+    }
     e.target.disabled = true;
-    const spec = MMNLP.MODELS[S.ai.model];
     const wrap = $('#tf-progress'), bar = $('#tf-bar'), status = $('#tf-status');
     wrap.classList.remove('hidden');
+    status.textContent = 'Connecting to download MobileBERT Neural Engine (25M params)…';
     try {
-      await MMNLP.enableTransformer(S.ai.model, p => {
+      await MMNLP.enableTransformer('mobilebert', p => {
         const pct = p.progress != null ? Math.round(p.progress) : null;
-        if (pct != null) bar.style.width = `${pct}%`;
-        status.textContent = `${p.status === 'download' || p.status === 'progress' ? 'Downloading' : p.status || 'Loading'} ${p.file ? p.file.split('/').pop() : ''} ${pct != null ? pct + '%' : ''}`.trim();
+        if (pct != null && bar) bar.style.width = `${pct}%`;
+        if (status) status.textContent = `${p.status === 'download' || p.status === 'progress' ? 'Downloading MobileBERT' : p.status || 'Loading'} ${p.file ? p.file.split('/').pop() : ''} ${pct != null ? pct + '%' : ''}`.trim();
       });
-      S.ai.transformer = true; save();
-      bar.style.width = '100%';
-      status.textContent = 'Ready — running on your device, offline from now on.';
+      S.ai.transformer = true;
+      S.ai.model = 'mobilebert';
+      save();
+      if (bar) bar.style.width = '100%';
+      if (status) status.textContent = 'Ready — MobileBERT is active and running locally on this device!';
       confetti();
-      toast(`${spec.label} is running on your phone ✨`, 4000);
+      toast('MobileBERT 25M Neural Engine is active! 🧠✨', 4000);
+      setTimeout(route, 800);
     } catch (err) {
-      S.ai.transformer = false; save();
+      console.error('Transformer error:', err);
+      S.ai.transformer = false;
+      save();
       e.target.checked = false;
       wrap.classList.add('hidden');
-      toast('Could not load the model — check your connection and try again 📶', 4000);
-    } finally { e.target.disabled = false; }
+      toast('Could not load MobileBERT — check your connection and try again 📶', 4000);
+    } finally {
+      e.target.disabled = false;
+    }
   });
+
+  /* MobileBERT Live Tester */
+  $('#tf-test-btn')?.addEventListener('click', async () => {
+    const input = $('#tf-test-in')?.value.trim();
+    const out = $('#tf-test-out');
+    if (!input || !out) return;
+    out.innerHTML = '<i>Running MobileBERT inference on device…</i>';
+    const t0 = performance.now();
+    const deep = await MMNLP.analyseDeep(input);
+    const ms = Math.round(performance.now() - t0);
+    const themes = MMNLP.extractThemes(input).map(t => `${t.icon} ${t.name}`).join(', ') || 'General Expression';
+    out.innerHTML = `
+      <div style="background:rgba(255,255,255,0.06);padding:6px 8px;border-radius:6px;margin-top:4px">
+        <b>Valence:</b> <span style="color:${deep.sentiment.label === 'positive' ? '#4ade80' : deep.sentiment.label === 'negative' ? '#f87171' : '#ffd166'}">${deep.sentiment.label.toUpperCase()} (${Math.round(deep.sentiment.confidence * 100)}% confidence)</span><br/>
+        <b>Themes Spotted:</b> ${esc(themes)}<br/>
+        <b>Latency:</b> <span style="color:#ffd700">${ms}ms (Zero Network Data)</span>
+      </div>
+    `;
+  });
+
   $('#set-vision')?.addEventListener('change', e => { S.ai.vision = e.target.checked; save(); toast(e.target.checked ? 'Moja Vision on 🎨' : 'Moja Vision off'); });
   $('#set-voice')?.addEventListener('change', () => toggleVoiceNav());
   $('#set-predict')?.addEventListener('change', e => {

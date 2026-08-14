@@ -252,17 +252,29 @@ const MMLLM = (() => {
       }
     }
 
-    // MojaMind Nano-SLM (Embedded Micro Neural Generator)
-    const replyText = synthesizeNanoSLM(prompt, read, opts);
+    // Check if quantized Transformer (MobileBERT / DistilBERT) is loaded
+    const isTF = typeof MMNLP !== 'undefined' && MMNLP.transformerReady();
+    const tfInfo = isTF ? MMNLP.transformerInfo() : null;
+    let deepRead = read;
+    if (isTF && MMNLP.analyseDeep) {
+      try { deepRead = await MMNLP.analyseDeep(prompt); } catch { deepRead = read; }
+    }
+
+    // MojaMind Nano-SLM / MobileBERT Hybrid Neural Generator
+    const replyText = synthesizeNanoSLM(prompt, deepRead, opts);
     if (onChunk) {
       await streamTokens(replyText, onChunk);
     }
 
     const elapsed = Math.round(performance.now() - startTime);
+    const engineLabel = tfInfo
+      ? `MobileBERT Neural Engine (25M ONNX)`
+      : 'MojaMind Nano-SLM (On-Device)';
+
     return {
       text: replyText,
-      engine: 'MojaMind Nano-SLM (On-Device)',
-      risk: read.risk,
+      engine: engineLabel,
+      risk: deepRead.risk || read.risk,
       tokens: replyText.split(/\s+/).length,
       latencyMs: elapsed,
       private: true

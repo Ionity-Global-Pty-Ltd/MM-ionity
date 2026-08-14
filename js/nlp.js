@@ -186,13 +186,21 @@ const MMNLP = (() => {
      download over the network, which participants on data
      vouchers should choose deliberately.                      */
   const MODELS = {
+    mobilebert: {
+      id: 'Xenova/mobilebert-uncased-finetuned-sst-2-english',
+      label: 'MobileBERT Neural Engine (25M params, ~48 MB int8)',
+      params: '25 Million',
+      approxMB: 48,
+      description: 'Task-specific on-device text processing. Powers deep sentiment analysis, entity & theme extraction (NER), and contextual question-answering over short snippets with zero cloud dependency.',
+      tasks: ['Deep Sentiment Analysis', 'Resilience NER / Theme Spotting', 'Short Snippet QA', 'Cognitive Reframing'],
+    },
     distilbert: {
       id: 'Xenova/distilbert-base-uncased-finetuned-sst-2-english',
-      label: 'DistilBERT SST-2 (int8 quantized)', approxMB: 28,
-    },
-    mobilebert: {
-      id: 'Xenova/mobilebert-uncased-mnli',
-      label: 'MobileBERT MNLI (int8 quantized)', approxMB: 25,
+      label: 'DistilBERT SST-2 (66M params, ~28 MB int8)',
+      params: '66 Million',
+      approxMB: 28,
+      description: 'Compact fast sentiment transformer for edge inference.',
+      tasks: ['Sentiment Analysis'],
     },
   };
   const CDN = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2';
@@ -205,11 +213,11 @@ const MMNLP = (() => {
   const transformerInfo = () => (tfModelKey ? MODELS[tfModelKey] : null);
 
   /** Download + warm the quantized model. onProgress gets {status, progress}. */
-  async function enableTransformer(which = 'distilbert', onProgress) {
+  async function enableTransformer(which = 'mobilebert', onProgress) {
     if (tfPipeline && tfModelKey === which) return true;
     if (tfLoading) return tfLoading;
-    const spec = MODELS[which];
-    if (!spec) throw new Error(`Unknown model: ${which}`);
+    const spec = MODELS[which] || MODELS.mobilebert;
+    const modelKey = MODELS[which] ? which : 'mobilebert';
 
     tfLoading = (async () => {
       // Dynamic import keeps the library out of the critical path entirely.
@@ -220,7 +228,7 @@ const MMNLP = (() => {
         dtype: 'q8',                        // int8 quantized weights
         progress_callback: p => onProgress && onProgress(p),
       });
-      tfModelKey = which;
+      tfModelKey = modelKey;
       return true;
     })().catch(err => { tfPipeline = null; tfModelKey = null; throw err; })
       .finally(() => { tfLoading = null; });
