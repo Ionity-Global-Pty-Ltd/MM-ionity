@@ -17,9 +17,14 @@ const MMJournal = (() => {
   let activeSpeechUtterance = null;
 
   const J = () => {
-    if (!globalThis.S) globalThis.S = {};
-    if (!globalThis.S.journal) globalThis.S.journal = [];
-    return globalThis.S.journal;
+    if (globalThis.S && Array.isArray(globalThis.S.journal)) {
+      return globalThis.S.journal;
+    }
+    if (globalThis.S) {
+      globalThis.S.journal = [];
+      return globalThis.S.journal;
+    }
+    return [];
   };
 
   /* ── Draft Auto-Save & Recovery ──────────────────────────── */
@@ -46,7 +51,7 @@ const MMJournal = (() => {
     } catch (e) { /* ignore */ }
   }
 
-  /* ── Speech to Text Dictation ────────────────────────────── */
+  /* ── Whisper / Web Speech Live Dictation ─────────────────── */
   function hasSpeech() {
     return 'webkitSpeechRecognition' in globalThis || 'SpeechRecognition' in globalThis;
   }
@@ -56,55 +61,93 @@ const MMJournal = (() => {
       if (typeof toast === 'function') toast('Speech recognition not available on this browser 🎤');
       return false;
     }
+
+    // Yield hands-free voice navigation so dictation has exclusive microphone access
+    if (typeof MMVoice !== 'undefined' && typeof MMVoice.pause === 'function') {
+      MMVoice.pause();
+    }
+
     const SR = globalThis.SpeechRecognition || globalThis.webkitSpeechRecognition;
-    rec = new SR();
-    rec.continuous = true;
-    rec.interimResults = true;
-    rec.lang = 'en-ZA';
-
-    rec.onstart = () => {
-      isListening = true;
-      onState && onState(true);
-      if (typeof toast === 'function') toast('Listening… speak naturally 🎙️', 2000);
-    };
-
-    rec.onresult = e => {
-      let interim = '';
-      let final = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        const item = e.results[i];
-        if (item.isFinal) final += item[0].transcript + ' ';
-        else interim += item[0].transcript;
-      }
-      onResult && onResult(final, interim);
-    };
-
-    rec.onerror = err => {
-      console.warn('Speech dictation note:', err);
-      stopDictation(onState);
-    };
-
-    rec.onend = () => {
-      isListening = false;
-      onState && onState(false);
-    };
-
     try {
+      if (rec) {
+        try { rec.stop(); } catch { /* noop */ }
+        rec = null;
+      }
+      rec = new SR();
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.lang = 'en-ZA';
+
+      rec.onstart = () => {
+        isListening = true;
+        onState && onState(true);
+        if (typeof toast === 'function') toast('Listening… speak naturally 🎙️', 2000);
+      };
+
+      rec.onresult = e => {
+        let interim = '';
+        let final = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const item = e.results[i];
+          let chunk = item[0].transcript;
+          if (item.isFinal) {
+            // Natural speech-to-punctuation helpers
+            chunk = chunk
+              .replace(/\s+full stop\b/gi, '.')
+              .replace(/\s+period\b/gi, '.')
+              .replace(/\s+comma\b/gi, ',')
+              .replace(/\s+question mark\b/gi, '?')
+              .replace(/\s+exclamation mark\b/gi, '!')
+              .replace(/\s+new line\b/gi, '\n')
+              .replace(/\s+new paragraph\b/gi, '\n\n');
+            final += chunk + ' ';
+          } else {
+            interim += chunk;
+          }
+        }
+        onResult && onResult(final, interim);
+      };
+
+      rec.onerror = err => {
+        console.warn('Speech dictation note:', err);
+        if (err.error === 'not-allowed' || err.error === 'service-not-allowed') {
+          if (typeof toast === 'function') toast('Microphone permission required for dictation 🎤');
+          stopDictation(onState);
+        }
+      };
+
+      rec.onend = () => {
+        if (isListening) {
+          // Keep stream alive if user didn't explicitly tap stop
+          try { rec.start(); } catch {
+            isListening = false;
+            onState && onState(false);
+          }
+        } else {
+          onState && onState(false);
+        }
+      };
+
       rec.start();
       return true;
     } catch (e) {
       console.warn('Could not start dictation:', e);
+      stopDictation(onState);
       return false;
     }
   }
 
   function stopDictation(onState) {
+    isListening = false;
     if (rec) {
       try { rec.stop(); } catch { /* ignore */ }
       rec = null;
     }
-    isListening = false;
     onState && onState(false);
+    // Resume hands-free voice navigation
+    if (typeof MMVoice !== 'undefined' && typeof MMVoice.resume === 'function') {
+      setTimeout(() => MMVoice.resume(), 300);
+    }
   }
 
   /* ── Text-to-Speech Read Aloud ───────────────────────────── */

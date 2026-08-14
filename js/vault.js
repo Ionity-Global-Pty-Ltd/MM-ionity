@@ -43,7 +43,15 @@ const Vault = (() => {
   const listeners = { lock: [] };
 
   const b64 = {
-    to: buf => btoa(String.fromCharCode(...new Uint8Array(buf))),
+    to: buf => {
+      const u8 = new Uint8Array(buf);
+      const CHUNK = 8192;
+      let bin = '';
+      for (let i = 0; i < u8.length; i += CHUNK) {
+        bin += String.fromCharCode.apply(null, u8.subarray(i, i + CHUNK));
+      }
+      return btoa(bin);
+    },
     from: str => Uint8Array.from(atob(str), c => c.charCodeAt(0)),
   };
   const rand = n => globalThis.crypto.getRandomValues(new Uint8Array(n));

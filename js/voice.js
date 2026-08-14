@@ -188,6 +188,10 @@ const MMVoice = (() => {
     return s;
   }
 
+  let isSpeaking = false;
+  let lastExecutedTime = 0;
+  let lastExecutedCmd = '';
+
   /* ── Piper Neural Speak Function ────────────────────────── */
   function speak(text, { persona = null, force = false, onEnd = null } = {}) {
     if (!synth) return;
@@ -212,17 +216,27 @@ const MMVoice = (() => {
       u.pitch = (cfg.pitch || p.pitch) * p.pitch;
       u.volume = p.volume || 1.0;
 
-      u.onend = () => { onEnd && onEnd(); };
-      u.onerror = e => { console.warn('Speech synthesis note:', e); onEnd && onEnd(); };
+      isSpeaking = true;
+      u.onstart = () => { isSpeaking = true; };
+      u.onend = () => {
+        setTimeout(() => { isSpeaking = false; }, 600); // 600ms acoustic echo gate
+        onEnd && onEnd();
+      };
+      u.onerror = e => {
+        setTimeout(() => { isSpeaking = false; }, 300);
+        console.warn('Speech synthesis note:', e);
+        onEnd && onEnd();
+      };
 
       playSoftChime();
       synth.speak(u);
     } catch (e) {
+      isSpeaking = false;
       console.warn('Piper TTS speech fallback:', e);
     }
   }
 
-  const shush = () => { try { synth?.cancel(); } catch { /* noop */ } };
+  const shush = () => { isSpeaking = false; try { synth?.cancel(); } catch { /* noop */ } };
 
   /** Read Aloud for low vision or mindfulness */
   function readAloud(text, { persona = 'warmth' } = {}) {
@@ -306,9 +320,17 @@ const MMVoice = (() => {
   const act = name => actions[name] && actions[name]();
 
   function match(transcript) {
+    const now = Date.now();
+    // Guard against echo-listening while TTS audio is playing through speakers
+    if (isSpeaking || (synth && synth.speaking)) return null;
+    // Debounce guard: Prevent same/different commands from executing within 1400ms cooldown window
+    if (now - lastExecutedTime < 1400) return null;
+
     for (const cmd of COMMANDS) {
       const m = transcript.match(cmd.rx);
       if (m) {
+        lastExecutedTime = now;
+        lastExecutedCmd = cmd.rx.source;
         if (cmd.say) speak(cmd.say, { force: true });
         cmd.run(m);
         return cmd;
@@ -327,6 +349,12 @@ const MMVoice = (() => {
     r.maxAlternatives = 2;
 
     r.onresult = e => {
+      // If the app is currently speaking or muted by acoustic gate, discard mic audio
+      if (isSpeaking || (synth && synth.speaking)) {
+        lastHeard = '';
+        return;
+      }
+
       let finalText = '';
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const res = e.results[i];

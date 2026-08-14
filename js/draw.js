@@ -78,11 +78,12 @@ const MMDraw = (() => {
           <div class="draw-tools-inner">
             <!-- Brush Selector -->
             <div class="draw-brush-picker">
-              <button class="draw-tool-tab on" data-brush="brush" title="Round Watercolor Brush">🖌️ Brush</button>
-              <button class="draw-tool-tab" data-brush="pen" title="Fine Pencil">✏️ Pencil</button>
-              <button class="draw-tool-tab" data-brush="oil" title="Oil Paint / Chisel">🎨 Oil</button>
+              <button class="draw-tool-tab on" data-brush="brush" title="Smooth Acrylic &amp; Watercolor Brush">🖌️ Brush</button>
+              <button class="draw-tool-tab" data-brush="airbrush" title="Soft Particle Spray Airbrush">💨 Airbrush</button>
+              <button class="draw-tool-tab" data-brush="pen" title="Fine Pencil &amp; Ink">✏️ Pencil</button>
+              <button class="draw-tool-tab" data-brush="oil" title="Oil Paint / Textured Chisel">🎨 Oil</button>
               <button class="draw-tool-tab" data-brush="neon" title="3D Luminous Glow Laser">⚡ Neon</button>
-              <button class="draw-tool-tab" data-brush="rainbow" title="Rainbow Sparkle Pen">🌈 Rainbow</button>
+              <button class="draw-tool-tab" data-brush="rainbow" title="Rainbow Sparkle Trail">🌈 Rainbow</button>
             </div>
 
             <!-- Color Palette & Custom Picker -->
@@ -159,6 +160,31 @@ const MMDraw = (() => {
         return;
       }
 
+      // Airbrush Spray Physics
+      if (s.brushType === 'airbrush' && !s.erase) {
+        ctx.save();
+        ctx.fillStyle = s.colour;
+        for (let i = 0; i < s.points.length; i++) {
+          const pt = s.points[i];
+          const radius = Math.max(4, s.size * (0.6 + pt.p * 0.9));
+          const density = Math.min(32, Math.max(10, Math.round(radius * 1.3)));
+          for (let d = 0; d < density; d++) {
+            const angle = Math.random() * Math.PI * 2;
+            const dist = Math.pow(Math.random(), 1.6) * radius;
+            const px = pt.x + Math.cos(angle) * dist;
+            const py = pt.y + Math.sin(angle) * dist;
+            const dotSize = Math.random() * 1.6 + 0.6;
+            const alpha = Math.max(0.04, (1 - dist / radius) * 0.26);
+            ctx.globalAlpha = alpha;
+            ctx.beginPath();
+            ctx.arc(px, py, dotSize, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        ctx.restore();
+        return;
+      }
+
       ctx.save();
       if (s.erase) {
         ctx.strokeStyle = '#ffffff';
@@ -171,6 +197,12 @@ const MMDraw = (() => {
         ctx.strokeStyle = s.colour;
         ctx.shadowBlur = 2;
         ctx.lineCap = 'square';
+      } else if (s.brushType === 'brush') {
+        ctx.strokeStyle = s.colour;
+        ctx.shadowColor = s.colour;
+        ctx.shadowBlur = 2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
       } else {
         ctx.strokeStyle = s.colour;
         ctx.shadowBlur = 0;

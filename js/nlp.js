@@ -297,6 +297,16 @@ const MMNLP = (() => {
     app: /app|button|upload|screen|login|sign in|password|crash|bug|slow/i,
     sleep: /sleep|insomnia|awake|nightmare|rest|tired/i,
   };
+
+  function topicsOf(text) {
+    if (!text) return [];
+    const out = [];
+    for (const [k, rx] of Object.entries(TOPICS)) {
+      if (rx.test(text)) out.push(k);
+    }
+    return out;
+  }
+
   /* ── Resilience Themes & Constellation ────────────────── */
   const THEME_PATTERNS = {
     hope: {

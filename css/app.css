@@ -498,15 +498,99 @@ body::after {
 .tile .box {
   width: 100%; aspect-ratio: 1; max-width: 104px; border-radius: 24px;
   display: grid; place-items: center; position: relative;
-  -webkit-backdrop-filter: blur(18px);
-  border: 1.8px solid rgba(255, 255, 255, 0.32);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  transition: transform .18s cubic-bezier(.34, 1.56, .64, 1), box-shadow .2s ease, border-color .2s ease, background .2s ease;
+  background: linear-gradient(145deg, rgba(51, 102, 255, 0.32), rgba(138, 46, 174, 0.25));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.6px solid rgba(51, 102, 255, 0.55);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  transition: transform .18s cubic-bezier(.34, 1.56, .64, 1), box-shadow .2s ease, border-color .2s ease, filter .2s ease;
 }
+
+/* Individual Vibrant Radiant Tiles */
+.tile[data-route="#/instructions"] .box {
+  background: linear-gradient(145deg, rgba(51, 102, 255, 0.45), rgba(0, 210, 255, 0.28)) !important;
+  border-color: rgba(0, 210, 255, 0.75) !important;
+  box-shadow: 0 10px 28px rgba(0, 210, 255, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+}
+.tile[data-route="#/instructions"] .box svg {
+  color: #00d2ff !important;
+  filter: drop-shadow(0 0 12px rgba(0, 210, 255, 0.85)) !important;
+}
+
+.tile[data-route="#/support"] .box {
+  background: linear-gradient(145deg, rgba(0, 201, 167, 0.45), rgba(16, 185, 129, 0.28)) !important;
+  border-color: rgba(0, 201, 167, 0.75) !important;
+  box-shadow: 0 10px 28px rgba(0, 201, 167, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+}
+.tile[data-route="#/support"] .box svg {
+  color: #00e676 !important;
+  filter: drop-shadow(0 0 12px rgba(0, 230, 118, 0.85)) !important;
+}
+
+.tile[data-route="#/pre"] .box {
+  background: linear-gradient(145deg, rgba(255, 183, 3, 0.42), rgba(245, 158, 11, 0.28)) !important;
+  border-color: rgba(255, 209, 102, 0.8) !important;
+  box-shadow: 0 10px 28px rgba(255, 183, 3, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+}
+.tile[data-route="#/pre"] .box svg {
+  color: #ffd166 !important;
+  filter: drop-shadow(0 0 12px rgba(255, 209, 102, 0.85)) !important;
+}
+
+.tile[data-route="#/art"] .box {
+  background: linear-gradient(145deg, rgba(217, 70, 239, 0.48), rgba(138, 46, 174, 0.32)) !important;
+  border-color: rgba(217, 70, 239, 0.8) !important;
+  box-shadow: 0 10px 28px rgba(217, 70, 239, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+}
+.tile[data-route="#/art"] .box svg {
+  color: #f472b6 !important;
+  filter: drop-shadow(0 0 12px rgba(244, 114, 182, 0.85)) !important;
+}
+
+.tile[data-route="#/chat"] .box {
+  background: linear-gradient(145deg, rgba(99, 102, 241, 0.48), rgba(51, 102, 255, 0.3)) !important;
+  border-color: rgba(129, 140, 248, 0.8) !important;
+  box-shadow: 0 10px 28px rgba(99, 102, 241, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+}
+.tile[data-route="#/chat"] .box svg {
+  color: #818cf8 !important;
+  filter: drop-shadow(0 0 12px rgba(129, 140, 248, 0.85)) !important;
+}
+
+.tile[data-route="#/post"] .box {
+  background: linear-gradient(145deg, rgba(251, 113, 133, 0.45), rgba(244, 63, 94, 0.3)) !important;
+  border-color: rgba(251, 113, 133, 0.8) !important;
+  box-shadow: 0 10px 28px rgba(251, 113, 133, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+}
+.tile[data-route="#/post"] .box svg {
+  color: #fb7185 !important;
+  filter: drop-shadow(0 0 12px rgba(251, 113, 133, 0.85)) !important;
+}
+
+.tile[data-route="#/games"] .box {
+  background: linear-gradient(145deg, rgba(168, 85, 247, 0.48), rgba(51, 102, 255, 0.32)) !important;
+  border-color: rgba(192, 132, 252, 0.85) !important;
+  box-shadow: 0 10px 28px rgba(168, 85, 247, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+}
+.tile[data-route="#/games"] .box svg {
+  color: #c084fc !important;
+  filter: drop-shadow(0 0 12px rgba(192, 132, 252, 0.9)) !important;
+}
+
+.tile[data-route="#/journal"] .box {
+  background: linear-gradient(145deg, rgba(14, 165, 233, 0.48), rgba(20, 184, 166, 0.3)) !important;
+  border-color: rgba(56, 189, 248, 0.85) !important;
+  box-shadow: 0 10px 28px rgba(14, 165, 233, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+}
+.tile[data-route="#/journal"] .box svg {
+  color: #38bdf8 !important;
+  filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.9)) !important;
+}
+
 .tile:hover .box {
-  background: linear-gradient(150deg, rgba(255, 255, 255, 0.25) 0%, rgba(51, 102, 255, 0.3) 100%);
-  border-color: #ffd166;
-  box-shadow: 0 12px 32px rgba(51, 102, 255, 0.45), 0 0 14px rgba(255, 209, 102, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transform: translateY(-3px) scale(1.04) !important;
+  filter: brightness(1.22) !important;
+  box-shadow: 0 14px 34px rgba(51, 102, 255, 0.55), 0 0 18px rgba(255, 209, 102, 0.45) !important;
 }
 .tile:active .box { transform: scale(.93); }
 .tile .box svg { width: 44%; height: 44%; color: #ffffff; filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3)); }
@@ -516,14 +600,14 @@ body::after {
 }
 .tile .badge {
   position: absolute; top: -6px; right: -6px; min-width: 24px; height: 24px;
-  border-radius: 99px; background: #f3256b; color: #ffffff;
+  border-radius: 99px; background: linear-gradient(135deg, #f3256b, #8a2eae); color: #ffffff;
   display: grid; place-items: center; font-size: 11px; font-weight: 800;
   border: 1.5px solid #ffffff; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
   padding: 0 6px;
 }
 .tile .badge.done {
-  background: #ffffff; color: #f3256b; border: 0;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+  background: linear-gradient(135deg, #00c9a7, #00e676); color: #ffffff; border: 1.5px solid #ffffff;
+  box-shadow: 0 3px 10px rgba(0, 201, 167, 0.55);
 }
 .tile.locked .box {
   background: rgba(255, 255, 255, 0.04);
@@ -1526,19 +1610,26 @@ body.rm *, body.rm *::before, body.rm *::after {
 .next-step {
   display: flex; align-items: center; gap: 13px; text-align: left;
   width: 100%; cursor: pointer;
-  border-radius: var(--radius); padding: 14px 16px;
-  background: linear-gradient(120deg, rgba(255,209,102,.16), rgba(243,37,107,.2)), rgba(255,255,255,.1);
-  border: 1.4px solid rgba(255,209,102,.5);
-  box-shadow: 0 8px 26px rgba(20,5,30,.28);
-  color: #fff; transition: transform .16s cubic-bezier(.34,1.56,.64,1);
+  border-radius: 20px; padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(51, 102, 255, 0.35) 0%, rgba(138, 46, 174, 0.3) 60%, rgba(0, 210, 255, 0.22) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.6px solid rgba(255, 209, 102, 0.65);
+  box-shadow: 0 10px 30px rgba(51, 102, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  color: #fff; transition: transform .16s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease, border-color .2s ease;
   animation: card-pop .4s both .1s;
 }
+.next-step:hover {
+  border-color: #ffd166;
+  box-shadow: 0 14px 36px rgba(51, 102, 255, 0.5), 0 0 16px rgba(255, 209, 102, 0.45);
+  transform: translateY(-2px);
+}
 .next-step:active { transform: scale(.97); }
-.next-step .ns-emoji { font-size: 27px; filter: drop-shadow(0 2px 6px rgba(0,0,0,.35)); }
-.next-step small { display: block; color: #ffd166; font-size: 9.8px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; }
-.next-step b { display: block; font-size: 14.6px; margin: 2px 0; line-height: 1.3; }
-.next-step em { display: block; font-style: normal; font-size: 11px; color: rgba(255,255,255,.75); line-height: 1.45; }
-.next-step .ns-go { font-size: 26px; color: rgba(255,255,255,.7); font-weight: 300; }
+.next-step .ns-emoji { font-size: 27px; filter: drop-shadow(0 2px 8px rgba(255, 209, 102, 0.5)); }
+.next-step small { display: block; color: #ffd166; font-size: 10px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; text-shadow: 0 0 10px rgba(255, 209, 102, 0.4); }
+.next-step b { display: block; font-size: 15px; font-weight: 800; margin: 2px 0; line-height: 1.3; color: #ffffff; }
+.next-step em { display: block; font-style: normal; font-size: 11.5px; color: rgba(255,255,255,.9); line-height: 1.45; }
+.next-step .ns-go { font-size: 26px; color: #ffd166; font-weight: 700; }
 
 .partner-strip { text-align: center; color: rgba(255,255,255,.5); font-size: 10.4px; font-weight: 600; letter-spacing: .3px; margin: 4px 0 0; }
 

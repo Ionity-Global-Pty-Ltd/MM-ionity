@@ -55,31 +55,21 @@ const I = {
   journal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10M6 14h6"/></svg>',
 };
 
-/* SHOUT-IT-NOW flower: one shared colour language across the app. */
-const SHOUT_COLORS = ['#00a651', '#f58220', '#ed1c24', '#2e3192'];
-let flowerInstance = 0;
+/* Official Ionity & Mojo Mind color palette */
+const SHOUT_COLORS = ['#3366FF', '#00d2ff', '#ffd166', '#8a2eae', '#34c759'];
+
+/* Official Mojo Mind brand emblem */
 function flowerSVG(size = 34, opts = {}) {
-  const coreId = `shout-core-${++flowerInstance}`;
-  const petals = [];
-  for (let k = 0; k < 6; k++) {
-    petals.push(`<ellipse cx="0" cy="-13" rx="6.5" ry="12" transform="rotate(${k * 60})" fill="${SHOUT_COLORS[k % SHOUT_COLORS.length]}" opacity=".97"/>`);
-  }
-  return `<svg viewBox="-25 -25 50 50" width="${size}" height="${size}" aria-hidden="true">
-    <defs>
-      <radialGradient id="${coreId}"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#ffd166"/><stop offset="1" stop-color="#f3256b"/></radialGradient>
-    </defs>
-    <g>${petals.join('')}</g>
-    <circle r="6.6" fill="${opts.core || `url(#${coreId})`}"/>
-  </svg>`;
+  return `<img src="./assets/branding/mojomind-flower.png" alt="Mojo Mind" width="${size}" height="${size}" class="brand-flower-img" style="width:${size}px;height:${size}px;object-fit:contain;filter:drop-shadow(0 3px 10px rgba(51,102,255,0.5));display:inline-block;vertical-align:middle" />`;
 }
 
-/* Official Mojo Mind logo mark */
-function knotSVG(size = 88) {
-  return `<img src="./assets/branding/mojomind-logo.png" alt="Mojo Mind" class="auth-logo mm-brand-logo" style="width:${size}px;height:auto;max-width:100%;border-radius:22px;filter:drop-shadow(0 8px 24px rgba(51,102,255,0.45));display:inline-block" />`;
+/* Official Mojo Mind logo mark — Smooth transparent brand lockup */
+function knotSVG(size = 130) {
+  return `<img src="./assets/branding/mojomind-logo.png" alt="Mojo Mind" class="auth-logo mm-brand-logo" style="width:${size}px;height:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 10px 28px rgba(51,102,255,0.5));display:inline-block;background:transparent;border:none;box-shadow:none" />`;
 }
 
-function mojoLogoHTML(size = 92) {
-  return `<img src="./assets/branding/mojomind-logo.png" alt="Mojo Mind" class="auth-logo mm-brand-logo" style="width:${size}px;height:auto;max-width:100%;border-radius:22px;filter:drop-shadow(0 8px 24px rgba(51,102,255,0.45));display:inline-block" />`;
+function mojoLogoHTML(size = 140, extraClass = '') {
+  return `<img src="./assets/branding/mojomind-logo.png" alt="Mojo Mind" class="auth-logo mm-brand-logo ${extraClass}" style="width:${size}px;height:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 10px 28px rgba(51,102,255,0.5));display:inline-block;background:transparent;border:none;box-shadow:none" />`;
 }
 
 function faceSVG(kind, color, size = 62) {
@@ -130,6 +120,7 @@ const blankState = () => ({
   startedAt: null,
 });
 let S = blankState();
+globalThis.S = S;
 
 /** Normalise anything loaded from an older build. */
 function hydrate(loaded) {
@@ -146,10 +137,14 @@ function hydrate(loaded) {
   if (!s.game3d) s.game3d = { highScore: 0, pollen: 0, sunrays: 0, sound: true, bestDistance: 0, crashes: 0, totalFlights: 0 };
   if (!s.gameBubble) s.gameBubble = { highScore: 0, bubblesPopped: 0, combos: 0, totalGames: 0, sound: true };
   if (!s.journal) s.journal = [];
+  globalThis.S = s;
   return s;
 }
 
-function save() { Vault.write(S); }
+function save() {
+  globalThis.S = S;
+  Vault.write(S);
+}
 
 /* Derived flags */
 const groupOf  = () => MM.GROUPS[S.group] || MM.GROUPS[3];
@@ -372,9 +367,8 @@ function bootSplash() {
   el.setAttribute('role', 'status');
   el.innerHTML = `
     <div class="splash-inner">
-      <div class="splash-flower">${mojoLogoHTML(110)}</div>
-      <h1 class="splash-name">Mojo Mind</h1>
-      <p class="splash-sub">Creative Resilience</p>
+      <div class="splash-flower" style="margin-bottom:6px">${mojoLogoHTML(160)}</div>
+      <p class="splash-sub" style="font-size:13px;letter-spacing:1.8px;text-transform:uppercase;color:rgba(255,255,255,0.85);font-weight:700;margin-top:2px">Creative Resilience</p>
       <div class="splash-partners">
         <p class="splash-welcome">${esc(MM.PARTNERS.headline)}</p>
         <div class="splash-powered">
@@ -572,8 +566,8 @@ function header(title, { home = false, backTo = null } = {}) {
 function lockScreen(message = '') {
   app.innerHTML = `<div class="screen theme-auth">
     <div class="auth-wrap lock-wrap">
-      <div class="lock-mark">${mojoLogoHTML(88)}</div>
-      <h1 class="auth-title">Welcome back</h1>
+      <div class="lock-mark">${mojoLogoHTML(130)}</div>
+      <h1 class="auth-title" style="margin-top:10px">Welcome back</h1>
       <p class="sub" style="color:#ffffff !important">Your journal is encrypted on this device. Enter your PIN to open it.</p>
       <div class="field">${I.lock}<input id="lock-pin" type="text" placeholder="Enter PIN (or Master Code)" autocomplete="current-password" maxlength="16" /></div>
       <p class="lock-err ${message ? '' : 'hidden'}" id="lock-err">${esc(message)}</p>
@@ -825,10 +819,19 @@ MMVoice.configure({
   },
 });
 
-/* Beacon of Hope Modal — affirmations, proverbs and grounding */
+/* Beacon of Hope & Ithemba Care Sanctuary — Affirmations, Starlight Seeds & Grounding */
 function beaconOfHopeModal() {
   let curIndex = 0;
-  const affs = MM.HOPE.affirmations;
+  if (!S.hopeSeeds) {
+    S.hopeSeeds = [
+      { text: 'You survived 100% of your hardest days. You have greatness inside you.', by: 'Anonymous Peer · Cape Town', at: Date.now() - 864e5 },
+      { text: 'Ungalahli ithemba. The dawn always breaks after the darkest hour.', by: 'Facilitator Zola', at: Date.now() - 1728e5 },
+      { text: 'Take a gentle breath. You do not have to carry the whole world today.', by: 'Participant · Soweto', at: Date.now() - 2592e5 },
+      { text: 'Your voice matters and your story is still being written. Keep going!', by: 'Anonymous Friend · Durban', at: Date.now() - 3456e5 }
+    ];
+  }
+  const affs = [...MM.HOPE.affirmations, ...S.hopeSeeds.map(s => ({ title: '🌟 Seed of Hope', text: s.text, sa: s.by }))];
+
   const m = modal(`
     <div class="beacon-modal">
       <div class="beacon-icon">
@@ -837,24 +840,42 @@ function beaconOfHopeModal() {
           <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
         </svg>
       </div>
-      <h3 class="beacon-title">${esc(MM.HOPE.title)}</h3>
-      <p class="beacon-sub">${esc(MM.HOPE.subtitle)}</p>
+      <h3 class="beacon-title">${esc(MM.HOPE.title)} · Ithemba</h3>
+      <p class="beacon-sub">A safe haven of courage, anonymous seeds of hope &amp; resilience</p>
       <p class="beacon-lead">“${esc(MM.HOPE.lead)}”</p>
-      <div class="beacon-card" id="beacon-card">
+      
+      <!-- Starlight Sky -->
+      <div style="background:rgba(0,0,0,0.3);border-radius:14px;padding:8px;margin:8px 0;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap">
+        <small style="color:#ffd166;font-weight:700;width:100%;text-align:center">✨ Touch any star to receive a message of courage</small>
+        ${affs.map((_, i) => `<button class="bdot ${i === 0 ? 'active' : ''}" data-star="${i}" style="width:28px;height:28px;border-radius:50%;background:rgba(255,209,102,0.2);border:1.5px solid #ffd166;color:#ffd166;font-size:12px;cursor:pointer;display:grid;place-items:center" title="Star ${i+1}">⭐</button>`).join('')}
+      </div>
+
+      <div class="beacon-card" id="beacon-card" style="min-height:120px">
         <h4 id="bh-title">${esc(affs[0].title)}</h4>
-        <p id="bh-text">${esc(affs[0].text)}</p>
+        <p id="bh-text" style="font-size:14px;line-height:1.6">${esc(affs[0].text)}</p>
         <div class="bh-sa" id="bh-sa">🌿 <i>${esc(affs[0].sa)}</i></div>
       </div>
+
       <div class="beacon-nav">
         <button class="beacon-prev" id="bh-prev" aria-label="Previous affirmation">‹</button>
-        <span class="beacon-dots" id="bh-dots">
-          ${affs.map((_, i) => `<span class="bdot ${i === 0 ? 'active' : ''}"></span>`).join('')}
-        </span>
+        <span style="font-size:11.5px;color:rgba(255,255,255,0.7);font-weight:600" id="bh-counter">1 of ${affs.length}</span>
         <button class="beacon-next" id="bh-next" aria-label="Next affirmation">›</button>
       </div>
-      <div class="beacon-acts">
-        <button class="btn btn-primary" id="bh-read">${I.sparkle} Read Aloud 🔊</button>
-        <button class="btn btn-ghost" id="bh-close">Close</button>
+
+      <!-- Plant a Seed of Hope Input -->
+      <div id="bh-seed-box" style="display:none;flex-direction:column;gap:8px;margin-top:10px;background:rgba(255,255,255,0.08);padding:12px;border-radius:14px;border:1.5px solid #ffd166">
+        <label style="font-size:12px;font-weight:700;color:#ffd166">Plant an anonymous Seed of Hope for someone in need:</label>
+        <textarea id="bh-seed-input" rows="2" placeholder="Write a gentle message of strength, courage or care…" style="width:100%;border-radius:8px;padding:8px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:13px;box-sizing:border-box"></textarea>
+        <div style="display:flex;gap:6px;justify-content:flex-end">
+          <button class="btn btn-ghost btn-sm" id="bh-seed-cancel">Cancel</button>
+          <button class="btn btn-primary btn-sm" id="bh-seed-submit">🌟 Plant Star</button>
+        </div>
+      </div>
+
+      <div class="beacon-acts" style="margin-top:12px">
+        <button class="btn btn-secondary btn-sm" id="bh-plant-btn">🌱 Plant a Seed of Hope</button>
+        <button class="btn btn-primary btn-sm" id="bh-read">${I.sparkle} Read Aloud 🔊</button>
+        <button class="btn btn-ghost btn-sm" id="bh-close">Close</button>
       </div>
     </div>
   `);
@@ -864,8 +885,20 @@ function beaconOfHopeModal() {
     m.querySelector('#bh-title').textContent = cur.title;
     m.querySelector('#bh-text').textContent = cur.text;
     m.querySelector('#bh-sa').innerHTML = `🌿 <i>${esc(cur.sa)}</i>`;
-    m.querySelectorAll('.bdot').forEach((d, i) => d.classList.toggle('active', i === curIndex));
+    m.querySelector('#bh-counter').textContent = `${curIndex + 1} of ${affs.length}`;
+    m.querySelectorAll('[data-star]').forEach((d, i) => {
+      d.style.background = (i === curIndex) ? '#ffd166' : 'rgba(255,209,102,0.2)';
+      d.style.color = (i === curIndex) ? '#000' : '#ffd166';
+      d.style.transform = (i === curIndex) ? 'scale(1.2)' : 'scale(1)';
+    });
   }
+
+  m.querySelectorAll('[data-star]').forEach(btn => {
+    btn.onclick = () => {
+      curIndex = parseInt(btn.dataset.star, 10);
+      update();
+    };
+  });
 
   m.querySelector('#bh-prev').onclick = () => {
     curIndex = (curIndex - 1 + affs.length) % affs.length;
@@ -884,6 +917,23 @@ function beaconOfHopeModal() {
       toast('“' + cur.text + '” 🌟');
     }
   };
+
+  const seedBox = m.querySelector('#bh-seed-box');
+  m.querySelector('#bh-plant-btn').onclick = () => {
+    seedBox.style.display = seedBox.style.display === 'none' ? 'flex' : 'none';
+  };
+  m.querySelector('#bh-seed-cancel').onclick = () => { seedBox.style.display = 'none'; };
+  m.querySelector('#bh-seed-submit').onclick = () => {
+    const val = m.querySelector('#bh-seed-input').value.trim();
+    if (!val) return toast('Please write a short message of hope first 🌱');
+    S.hopeSeeds.unshift({ text: val, by: 'Anonymous Peer', at: Date.now() });
+    save();
+    confetti();
+    toast('Your seed of hope is planted in the constellation! 🌟✨');
+    closeModal();
+    setTimeout(() => beaconOfHopeModal(), 300);
+  };
+
   m.querySelector('#bh-close').onclick = () => closeModal();
 }
 
@@ -1031,15 +1081,15 @@ routes.signin = () => {
         <button class="auth-back" id="f-back" aria-label="Back to welcome screen">${I.back}</button>
         <button class="auth-admin" id="f-admin">🎓 Admin login</button>
       </div>
-      <div class="auth-brand-lockup" style="flex-direction:column;align-items:center;gap:8px">
-        ${mojoLogoHTML(96)}
-        <div style="display:flex;align-items:center;gap:8px">
-          <img src="./assets/branding/shout-it-now-logo.png" alt="SHOUT-IT-NOW" style="height:20px;width:auto" />
-          <span style="font-size:12px;color:rgba(255,255,255,0.85)">Creative Resilience</span>
+      <div class="auth-brand-lockup" style="flex-direction:column;align-items:center;gap:6px;margin-bottom:12px">
+        ${mojoLogoHTML(130)}
+        <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+          <img src="./assets/branding/shout-it-now-logo.png" alt="SHOUT-IT-NOW" style="height:18px;width:auto" />
+          <span style="font-size:11.5px;color:rgba(255,255,255,0.85);font-weight:600">Creative Resilience</span>
         </div>
       </div>
-      <h1 class="auth-title">Sign In</h1>
-      <p class="sub">Welcome to Mojo Mind</p>
+      <h1 class="auth-title">Mobile Number Sign In</h1>
+      <p class="sub">Welcome to your Creative Resilience Journey</p>
       <div class="field">${I.phone}<input id="f-phone" type="tel" inputmode="tel" placeholder="Mobile Number" autocomplete="tel" /></div>
       <div class="field">${I.keyIc}<input id="f-pass" type="password" placeholder="Password" autocomplete="current-password" /></div>
       <div class="group-pick" role="group" aria-label="Study group">
@@ -1107,9 +1157,8 @@ routes.terms = () => {
 routes.welcome = () => {
   render(`
     <div class="auth-wrap" style="justify-content:center;text-align:center;align-items:center">
-      ${mojoLogoHTML(105)}
-      <h1 style="font-size:26px;margin-top:16px">${esc(MM.ONBOARD.title)}</h1>
-      <p class="sub" style="line-height:1.7;margin-top:10px">${esc(MM.ONBOARD.body)}</p>
+      ${mojoLogoHTML(150)}
+      <p class="sub" style="line-height:1.7;margin-top:14px;font-size:14.5px">${esc(MM.ONBOARD.body)}</p>
       <div class="welcome-partners">${esc(MM.PARTNERS.line)}</div>
       <p style="color:#fff;font-weight:700;margin:22px 0 14px">${esc(MM.ONBOARD.ready)}</p>
       <button class="btn btn-primary" id="w-next" style="min-width:200px">Next</button>
@@ -1268,21 +1317,94 @@ function tile(icon, label, route, { locked = false, badge = null, badgeDone = fa
 }
 
 function gardenSVG() {
-  const moods = [{ mood: 'starter', starter: true }, ...S.moods.slice(-13)];
-  const w = Math.max(220, moods.length * 30 + 40);
-  const flowers = moods.map((m, i) => {
-    const x = 26 + i * ((w - 52) / Math.max(1, moods.length - 1) || 0);
-    const h = m.starter ? 42 : 26 + ((i * 7919) % 22);
-    const mood = MM.MOODS.find(x2 => x2.key === m.mood) || MM.MOODS[0];
-    const petals = Array.from({ length: 5 }, (_, k) =>
-      `<ellipse cx="0" cy="-7.2" rx="3.6" ry="7.2" transform="rotate(${k * 72})" fill="${SHOUT_COLORS[k % SHOUT_COLORS.length]}" opacity=".96"/>`).join('');
-    return `<g class="flower ${m.starter ? 'starter-flower' : ''}" style="animation-delay:${i * .06}s, ${i * .4}s">
-      <path d="M${x} 86 Q${x - 5} ${86 - h / 2} ${x} ${86 - h}" stroke="#7ec86e" stroke-width="2.6" fill="none"/>
-      <ellipse cx="${x - 6}" cy="${86 - h * .45}" rx="5.4" ry="2.3" fill="#7ec86e" transform="rotate(-32 ${x - 6} ${86 - h * .45})"/>
-      <g transform="translate(${x} ${86 - h})">${petals}<circle r="4.5" fill="${m.starter ? '#ffd166' : mood.color}" stroke="#fff" stroke-width="1.1"/><circle r="1.8" fill="#fff" opacity=".92"/></g>
-    </g>`;
-  }).join('');
-  return `<div class="garden"><svg width="${w}" height="92" viewBox="0 0 ${w} 92">${flowers}</svg></div>`;
+  const wk = Math.max(1, Math.min(8, currentWeek() || 1));
+  const totalRows = Math.min(wk, 6);
+  const moods = [{ mood: 'starter', starter: true }, ...(S.moods || [])];
+  
+  const w = 320;
+  const totalH = 80 + (totalRows - 1) * 34;
+  
+  // Diverse floral varieties: Classic bloom, Lotus, Bellflower, Star Daisy
+  const flowerTypes = [
+    // 0: Classic 6-petal Bloom
+    (color, coreColor, scale = 1) => `
+      <g transform="scale(${scale})">
+        ${Array.from({ length: 6 }, (_, k) =>
+          `<ellipse cx="0" cy="-8" rx="3.8" ry="8" transform="rotate(${k * 60})" fill="${SHOUT_COLORS[k % SHOUT_COLORS.length]}" opacity=".96"/>`
+        ).join('')}
+        <circle r="4.8" fill="${coreColor}" stroke="#fff" stroke-width="1.1"/>
+        <circle r="1.8" fill="#fff" opacity=".95"/>
+      </g>`,
+    // 1: Radiant 8-petal Lotus
+    (color, coreColor, scale = 1) => `
+      <g transform="scale(${scale})">
+        ${Array.from({ length: 8 }, (_, k) =>
+          `<ellipse cx="0" cy="-8.5" rx="3.2" ry="8.5" transform="rotate(${k * 45})" fill="${k % 2 === 0 ? color : '#ffd166'}" opacity=".95"/>`
+        ).join('')}
+        <circle r="4.5" fill="${coreColor}" stroke="#fff" stroke-width="1.1"/>
+        <circle r="1.7" fill="#fff" opacity=".9"/>
+      </g>`,
+    // 2: Tulip / Bell Blossom
+    (color, coreColor, scale = 1) => `
+      <g transform="scale(${scale})">
+        <path d="M-6.5 -11 C-6.5 -4, -3 0, 0 0 C3 0, 6.5 -4, 6.5 -11 C3.8 -7, 1.8 -12, 0 -7.5 C-1.8 -12, -3.8 -7, -6.5 -11 Z" fill="${color}" opacity=".96"/>
+        <circle cy="-3.5" r="3" fill="${coreColor}"/>
+        <circle cy="-3.5" r="1.3" fill="#fff" opacity=".9"/>
+      </g>`,
+    // 3: 5-petal Sun Star
+    (color, coreColor, scale = 1) => `
+      <g transform="scale(${scale})">
+        ${Array.from({ length: 5 }, (_, k) =>
+          `<ellipse cx="0" cy="-7.5" rx="3.8" ry="7.5" transform="rotate(${k * 72})" fill="${color}" opacity=".95"/>`
+        ).join('')}
+        <circle r="4.5" fill="${coreColor}" stroke="#fff" stroke-width="1.1"/>
+        <circle r="1.8" fill="#fff" opacity=".92"/>
+      </g>`
+  ];
+
+  let flowersMarkup = '';
+  
+  // Render each week's terraced row from back (earlier weeks) to front (current week)
+  for (let r = 0; r < totalRows; r++) {
+    const rowWeek = r + 1;
+    const baseY = totalH - 14 - (totalRows - 1 - r) * 30;
+    const rowMoods = (r === totalRows - 1) ? moods : moods.filter((_, idx) => (idx % totalRows) === r);
+    const count = Math.max(3, Math.min(6, (rowMoods.length || 3) + 2));
+    
+    // Soil / Grass strip for this row
+    flowersMarkup += `<path d="M12 ${baseY} Q${w/2} ${baseY - 4} ${w - 12} ${baseY}" stroke="rgba(126, 200, 110, 0.3)" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
+    
+    for (let c = 0; c < count; c++) {
+      const moodItem = rowMoods[c % rowMoods.length] || { mood: 'starter' };
+      const moodDef = MM.MOODS.find(x => x.key === moodItem.mood) || MM.MOODS[0];
+      const color = moodItem.starter ? '#3366FF' : moodDef.color;
+      const coreColor = moodItem.starter ? '#ffd166' : '#ffffff';
+      
+      const x = 24 + c * ((w - 48) / Math.max(1, count - 1)) + ((r * 13 + c * 7) % 9 - 4);
+      const h = 20 + ((c * 17 + r * 23) % 18);
+      const styleIdx = (r + c) % flowerTypes.length;
+      const flowerSvg = flowerTypes[styleIdx](color, coreColor, 0.85 + (r * 0.05));
+      const animDelay = (r * 0.12 + c * 0.07).toFixed(2);
+      
+      flowersMarkup += `
+        <g class="flower ${moodItem.starter ? 'starter-flower' : ''}" style="animation-delay:${animDelay}s, ${(animDelay * 1.8).toFixed(2)}s">
+          <path d="M${x} ${baseY} Q${x - 3} ${baseY - h / 2} ${x} ${baseY - h}" stroke="#7ec86e" stroke-width="2.2" fill="none"/>
+          <ellipse cx="${x - 4}" cy="${baseY - h * 0.45}" rx="4.5" ry="2" fill="#7ec86e" transform="rotate(-28 ${x - 4} ${baseY - h * 0.45})"/>
+          <g transform="translate(${x} ${baseY - h})">
+            ${flowerSvg}
+          </g>
+        </g>
+      `;
+    }
+  }
+
+  return `
+    <div class="garden" style="min-height:${totalH}px;display:flex;align-items:center;justify-content:center;padding:6px 0">
+      <svg width="100%" height="${totalH}" viewBox="0 0 ${w} ${totalH}" style="overflow:visible">
+        ${flowersMarkup}
+      </svg>
+    </div>
+  `;
 }
 
 function greeting() {
@@ -4084,13 +4206,20 @@ routes.journal = (args = []) => {
       toast('Tiny AI reflected on your note ✨');
     });
 
-    // Voice Dictation
+    // Voice Dictation with real-time streaming preview
     let recording = false;
+    let baseText = '';
     micBtn?.addEventListener('click', () => {
       if (!recording) {
+        baseText = bodyEl ? bodyEl.value : '';
         MMJournal.startDictation((finalText, interimText) => {
           if (bodyEl) {
-            bodyEl.value = (bodyEl.value + ' ' + finalText).trim();
+            if (finalText) {
+              baseText = (baseText ? baseText.trim() + ' ' : '') + finalText.trim();
+              bodyEl.value = baseText;
+            } else if (interimText) {
+              bodyEl.value = (baseText ? baseText.trim() + ' ' : '') + interimText.trim();
+            }
             updateCounts();
             updateAi(bodyEl.value);
           }

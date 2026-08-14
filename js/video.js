@@ -56,7 +56,7 @@ const MMVideo = (() => {
 
   /* ── Video Source Resolution ─────────────────────────────── */
   function getVideoSrc(actId, optIdx = 0) {
-    if (actId >= 5 && actId <= 8) {
+    if (actId >= 1 && actId <= 8) {
       const optNum = Math.max(1, Math.min(5, (optIdx || 0) + 1));
       return `./assets/videos/activity-${actId}/option-${optNum}.mp4`;
     }
