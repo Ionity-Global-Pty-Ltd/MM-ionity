@@ -4255,46 +4255,60 @@ routes.journal = (args = []) => {
         ${typeof MMSoundscape !== 'undefined' ? MMSoundscape.soundscapeBarHTML() : ''}
 
         <!-- Note Writer Card -->
-        <div class="card journal-card" style="text-align:left;display:flex;flex-direction:column;gap:12px;padding:18px;background:rgba(255,255,255,0.09);backdrop-filter:blur(16px);border:1.5px solid rgba(51,102,255,0.45);border-radius:20px;box-shadow:0 8px 30px rgba(0,0,0,0.4)">
+        <div class="card journal-card" style="text-align:left;display:flex;flex-direction:column;gap:16px;padding:20px;background:rgba(255,255,255,0.08);backdrop-filter:blur(16px);border:1.6px solid rgba(51,102,255,0.45);border-radius:22px;box-shadow:0 10px 32px rgba(0,0,0,0.45)">
           
-          <!-- Prompt Bar -->
-          <div class="journal-prompts-bar" style="display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.25);padding:8px 12px;border-radius:12px;border:1px solid rgba(255,209,102,0.3)">
-            <span class="j-prompt-lbl" style="font-size:12px;font-weight:700;color:#ffd166">💡 Inspiration Spark:</span>
-            <button class="btn btn-ghost btn-sm" id="j-shuffle-prompt" style="padding:3px 8px;font-size:11px">🎲 Shuffle</button>
-          </div>
-          <div class="j-prompt-box" id="j-prompt-text" style="font-size:12.5px;color:rgba(255,255,255,0.9);line-height:1.5;font-style:italic;padding:0 4px">${esc(pick(MM.JOURNAL_PROMPTS))}</div>
-
-          <!-- Fast Tag Pills -->
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-            <span style="font-size:11.5px;font-weight:700;color:rgba(255,255,255,0.7)">Quick Tag:</span>
-            ${['💭 Thought', '🌸 Gratitude', '🎯 Goal', '💡 Idea', '🌿 Healing', '📝 Todo', '❤️ Heart'].map(tag => `
-              <button class="j-tag-chip" data-tag="${tag}" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#ffffff;border-radius:10px;padding:4px 9px;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s">${tag}</button>
-            `).join('')}
+          <!-- Inspiration Spark Card with Shuffler Dropdown -->
+          <div class="journal-prompts-bar" style="display:flex;flex-direction:column;gap:8px;background:rgba(0,0,0,0.32);padding:12px 14px;border-radius:14px;border:1.2px solid rgba(255,209,102,0.4)">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+              <span class="j-prompt-lbl" style="font-size:12.5px;font-weight:800;color:#ffd166;display:flex;align-items:center;gap:5px">💡 Inspiration Spark</span>
+              <button class="btn btn-ghost btn-sm" id="j-shuffle-prompt" style="padding:4px 10px;font-size:11.5px;font-weight:700;color:#ffd166;border:1px solid rgba(255,209,102,0.4);border-radius:8px">🔀 Shuffle Prompt</button>
+            </div>
+            <div class="j-prompt-box" id="j-prompt-text" style="font-size:13px;color:rgba(255,255,255,0.95);line-height:1.5;font-style:italic;transition:opacity 0.2s ease">${esc(pick(MM.JOURNAL_PROMPTS))}</div>
           </div>
 
           <!-- Note Title -->
           <div class="field" style="margin:0">
-            <input type="text" id="j-title" placeholder="Note Title or Thought Headline…" value="${esc(draft.title || '')}" maxlength="100" style="width:100%;font-size:15px;font-weight:700;color:#ffffff;background:rgba(0,0,0,0.3);border:1.5px solid rgba(255,255,255,0.2);border-radius:12px;padding:10px 14px;box-sizing:border-box" />
+            <input type="text" id="j-title" placeholder="Note Title or Thought Headline…" value="${esc(draft.title || '')}" maxlength="100" style="width:100%;font-size:15px;font-weight:700;color:#ffffff;background:rgba(0,0,0,0.35);border:1.5px solid rgba(255,255,255,0.22);border-radius:14px;padding:12px 16px;box-sizing:border-box" />
           </div>
 
-          <!-- Mood Selector -->
-          <div class="j-mood-picker" style="display:flex;flex-direction:column;gap:6px">
-            <span style="font-size:12px;font-weight:700;color:#ffd166">Mood Right Now:</span>
-            <div class="j-mood-chips" style="display:flex;gap:6px;flex-wrap:wrap">
-              ${['🌟 Hopeful', '😌 Peaceful', '😊 Joyful', '😐 Neutral', '🌱 Reflective', '🌧️ Tough Day', '🔥 Determined'].map(m => `
-                <button class="j-mood-btn ${draft.mood === m ? 'active' : ''}" data-mood="${m}" style="background:rgba(255,255,255,0.08);border:1px solid ${draft.mood === m ? '#ffd166' : 'rgba(255,255,255,0.2)'};color:#ffffff;border-radius:10px;padding:5px 10px;font-size:11.5px;font-weight:700;cursor:pointer;transition:all 0.15s">${m}</button>
-              `).join('')}
+          <!-- Harmonious Meta Selectors Row: Quick Tag & Current Mood Dropdowns -->
+          <div class="j-meta-selectors-row" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px">
+            <div class="j-select-group" style="display:flex;flex-direction:column;gap:5px">
+              <label for="j-tag-select" style="font-size:11px;font-weight:800;letter-spacing:0.5px;color:#ffd166;text-transform:uppercase">🏷️ Quick Tag</label>
+              <select id="j-tag-select" class="j-glass-select">
+                <option value="">(Select a tag…)</option>
+                <option value="💭 Thought">💭 Thought</option>
+                <option value="🌸 Gratitude">🌸 Gratitude</option>
+                <option value="🎯 Goal">🎯 Goal</option>
+                <option value="💡 Idea">💡 Idea</option>
+                <option value="🌿 Healing">🌿 Healing</option>
+                <option value="📝 Todo">📝 Todo</option>
+                <option value="❤️ Heart">❤️ Heart</option>
+              </select>
+            </div>
+
+            <div class="j-select-group" style="display:flex;flex-direction:column;gap:5px">
+              <label for="j-mood-select" style="font-size:11px;font-weight:800;letter-spacing:0.5px;color:#ffd166;text-transform:uppercase">🎭 Current Mood</label>
+              <select id="j-mood-select" class="j-glass-select">
+                <option value="🌟 Hopeful" ${selectedMood === '🌟 Hopeful' ? 'selected' : ''}>🌟 Hopeful</option>
+                <option value="😌 Peaceful" ${selectedMood === '😌 Peaceful' ? 'selected' : ''}>😌 Peaceful</option>
+                <option value="😊 Joyful" ${selectedMood === '😊 Joyful' ? 'selected' : ''}>😊 Joyful</option>
+                <option value="😐 Neutral" ${selectedMood === '😐 Neutral' ? 'selected' : ''}>😐 Neutral</option>
+                <option value="🌱 Reflective" ${selectedMood === '🌱 Reflective' ? 'selected' : ''}>🌱 Reflective</option>
+                <option value="🌧️ Tough Day" ${selectedMood === '🌧️ Tough Day' ? 'selected' : ''}>🌧️ Tough Day</option>
+                <option value="🔥 Determined" ${selectedMood === '🔥 Determined' ? 'selected' : ''}>🔥 Determined</option>
+              </select>
             </div>
           </div>
 
           <!-- Formatting Toolbar -->
-          <div class="j-format-bar" style="display:flex;gap:6px;background:rgba(0,0,0,0.28);padding:6px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);align-items:center;flex-wrap:wrap">
-            <button class="btn-fmt" data-fmt="bold" title="Bold Text" style="background:rgba(255,255,255,0.1);border:0;color:#fff;font-weight:800;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px"><b>B</b></button>
-            <button class="btn-fmt" data-fmt="italic" title="Italic Text" style="background:rgba(255,255,255,0.1);border:0;color:#fff;font-style:italic;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px"><i>I</i></button>
-            <button class="btn-fmt" data-fmt="bullet" title="Bullet List" style="background:rgba(255,255,255,0.1);border:0;color:#fff;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px">• List</button>
-            <button class="btn-fmt" data-fmt="todo" title="Checkbox Task" style="background:rgba(255,255,255,0.1);border:0;color:#fff;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px">☑ Task</button>
-            <button class="btn-fmt" data-fmt="quote" title="Quote" style="background:rgba(255,255,255,0.1);border:0;color:#fff;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px">“ ” Quote</button>
-            <button class="btn-fmt" data-fmt="spark" title="Insert Spark Prompt" style="background:rgba(255,209,102,0.2);border:1px solid #ffd166;color:#ffd166;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;margin-left:auto">✨ Add Spark</button>
+          <div class="j-format-bar" style="display:flex;gap:6px;background:rgba(0,0,0,0.32);padding:7px 10px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);align-items:center;flex-wrap:wrap">
+            <button class="btn-fmt" data-fmt="bold" title="Bold Text" style="background:rgba(255,255,255,0.1);border:0;color:#fff;font-weight:800;border-radius:6px;padding:5px 9px;cursor:pointer;font-size:12px"><b>B</b></button>
+            <button class="btn-fmt" data-fmt="italic" title="Italic Text" style="background:rgba(255,255,255,0.1);border:0;color:#fff;font-style:italic;border-radius:6px;padding:5px 9px;cursor:pointer;font-size:12px"><i>I</i></button>
+            <button class="btn-fmt" data-fmt="bullet" title="Bullet List" style="background:rgba(255,255,255,0.1);border:0;color:#fff;border-radius:6px;padding:5px 9px;cursor:pointer;font-size:12px">• List</button>
+            <button class="btn-fmt" data-fmt="todo" title="Checkbox Task" style="background:rgba(255,255,255,0.1);border:0;color:#fff;border-radius:6px;padding:5px 9px;cursor:pointer;font-size:12px">☑ Task</button>
+            <button class="btn-fmt" data-fmt="quote" title="Quote" style="background:rgba(255,255,255,0.1);border:0;color:#fff;border-radius:6px;padding:5px 9px;cursor:pointer;font-size:12px">“ ” Quote</button>
+            <button class="btn-fmt" data-fmt="spark" title="Insert Spark Prompt" style="background:rgba(255,209,102,0.22);border:1px solid #ffd166;color:#ffd166;border-radius:6px;padding:5px 9px;cursor:pointer;font-size:12px;margin-left:auto;font-weight:700">✨ Add Spark</button>
           </div>
 
           <!-- Note Body Textarea -->
@@ -4507,17 +4521,31 @@ routes.journal = (args = []) => {
       });
     });
 
-    app.querySelectorAll('.j-mood-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        app.querySelectorAll('.j-mood-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        selectedMood = btn.dataset.mood;
-        updateCounts();
-      });
+    $('#j-mood-select')?.addEventListener('change', e => {
+      selectedMood = e.target.value;
+      updateCounts();
+    });
+
+    $('#j-tag-select')?.addEventListener('change', e => {
+      const tag = e.target.value;
+      if (tag && titleEl) {
+        if (!titleEl.value.includes(tag)) {
+          titleEl.value = tag + (titleEl.value ? ' — ' + titleEl.value : '');
+          updateCounts();
+        }
+      }
     });
 
     $('#j-shuffle-prompt')?.addEventListener('click', () => {
-      $('#j-prompt-text').textContent = pick(MM.JOURNAL_PROMPTS);
+      const p = pick(MM.JOURNAL_PROMPTS);
+      const el = $('#j-prompt-text');
+      if (el) {
+        el.style.opacity = '0';
+        setTimeout(() => {
+          el.textContent = p;
+          el.style.opacity = '1';
+        }, 150);
+      }
     });
 
     let aiDebounce = null;
