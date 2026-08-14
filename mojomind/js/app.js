@@ -1677,68 +1677,6 @@ routes.home = () => {
         <p class="lead">${esc(wc.tail)}</p>
       </div>
 
-      <!-- AI Adaptive Resilience Recommender -->
-      ${(() => {
-        const hr = new Date().getHours();
-        const recentMood = S.moods?.slice(-1)[0]?.mood;
-        const acts = actsDone();
-
-        let rec = {
-          icon: '✨',
-          tag: 'CREATIVE EXPLORATION',
-          title: 'Daily Spark & Creative Ritual',
-          desc: 'Charge your daily constellation and discover mindful creative prompts.',
-          route: '#/spark',
-          btnText: 'Open Daily Spark ✨',
-        };
-
-        if (recentMood === 'bad' || recentMood === 'heavy') {
-          rec = {
-            icon: '🌊',
-            tag: 'EMOTIONAL GROUNDING',
-            title: '4-6-7 Mindful Breath & 432Hz Calm',
-            desc: 'Center your mind with natural 432Hz harmonic soundscapes and guided breathing.',
-            route: '#/help',
-            btnText: 'Breathe & Center 🌊',
-          };
-        } else if (acts < 8 && acts < currentWeek()) {
-          rec = {
-            icon: '🎨',
-            tag: 'CREATIVE VOICE',
-            title: `Week ${currentWeek()} Art Studio: Moja Vision 2.0`,
-            desc: 'Express yourself through digital painting with on-device art psychology & color insights.',
-            route: '#/art',
-            btnText: 'Open Art Studio 🎨',
-          };
-        } else if (hr >= 18 || hr < 5) {
-          rec = {
-            icon: '🌙',
-            tag: 'EVENING REFLECTION',
-            title: 'Writer Journal & Acoustic Reflection',
-            desc: 'Speak or write your evening thoughts in your private AES-256 encrypted vault.',
-            route: '#/journal/write',
-            btnText: 'Open Evening Journal 📖',
-          };
-        }
-
-        return `
-          <div class="ai-recommender-card">
-            <div class="air-head">
-              <span class="spark-badge">${rec.tag}</span>
-              <span class="air-ai-pill">🧠 Adaptive Micro-AI</span>
-            </div>
-            <div class="air-body">
-              <span class="air-icon">${rec.icon}</span>
-              <div class="air-info">
-                <h3>${rec.title}</h3>
-                <p>${rec.desc}</p>
-              </div>
-            </div>
-            <button class="btn btn-primary btn-block air-btn" onclick="nav('${rec.route}')">${rec.btnText}</button>
-          </div>
-        `;
-      })()}
-
       <button class="next-step" id="next-step" aria-label="Suggested next step">
         <span class="ns-emoji" style="display:inline-flex;align-items:center">${talkingFlowerSVG(40, true)}</span>
         <span class="grow">
