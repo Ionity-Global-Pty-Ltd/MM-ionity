@@ -1442,21 +1442,31 @@ body::before {
 .hdr-a11y:active { transform: scale(.9); background: rgba(255,255,255,.24); }
 
 /* ── Accessibility modal & modes ─────────────────────────── */
-.a11y-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 2px; border-top: 1px solid var(--line); }
-.a11y-row > span { font-size: 13.6px; font-weight: 600; color: var(--ink); }
-.a11y-seg { display: inline-flex; border-radius: 12px; overflow: hidden; border: 1.6px solid var(--line); }
-.a11y-seg button {
-  min-width: 44px; padding: 8px 10px; border: 0; cursor: pointer;
-  background: #f7f4fb; color: var(--ink); font: 700 12px var(--font);
+.a11y-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 2px; border-top: 1px solid rgba(255, 255, 255, 0.16); }
+.a11y-row > span { font-size: 14px; font-weight: 700; color: #ffffff !important; letter-spacing: .2px; }
+.a11y-seg {
+  display: inline-flex; border-radius: 14px; overflow: hidden;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
 }
-.a11y-seg button + button { border-left: 1.6px solid var(--line); }
-.a11y-seg button.active { background: linear-gradient(135deg, var(--pink-500), var(--violet-600)); color: #fff; }
+.a11y-seg button {
+  min-width: 46px; padding: 8px 12px; border: 0; cursor: pointer;
+  background: rgba(255, 255, 255, 0.06); color: #ffffff !important; font: 700 13px var(--font);
+  transition: all .15s ease;
+}
+.a11y-seg button + button { border-left: 1.5px solid rgba(255, 255, 255, 0.2); }
+.a11y-seg button.active {
+  background: linear-gradient(135deg, var(--pink-500), #8a2eae) !important;
+  color: #ffffff !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
 
-body.hc { --ink: #14091f; --ink-soft: #372850; --line: #b9aed0; }
-body.hc .hero-card p, body.hc .hero-card h2 { text-shadow: 0 1px 3px rgba(0,0,0,.55); }
-body.hc .opt { border-width: 3px; }
-body.hc .tile .lbl, body.hc .garden-title { text-shadow: 0 1px 4px rgba(0,0,0,.7); }
-body.hc .chip { background: rgba(0,0,0,.5); }
+body.hc { --ink: #ffffff; --ink-soft: #ffffff; --line: rgba(255, 255, 255, 0.5); }
+body.hc * { color: #ffffff; }
+body.hc .hero-card p, body.hc .hero-card h2 { text-shadow: 0 1px 3px rgba(0,0,0,.75); }
+body.hc .opt { border-width: 2.5px; border-color: rgba(255, 255, 255, 0.6) !important; }
+body.hc .tile .lbl, body.hc .garden-title { text-shadow: 0 1px 4px rgba(0,0,0,.9); }
+body.hc .chip { background: rgba(0,0,0,.6); }
 body.rm *, body.rm *::before, body.rm *::after {
   animation-duration: .01ms !important; animation-iteration-count: 1 !important;
   transition-duration: .01ms !important; scroll-behavior: auto !important;
@@ -2131,9 +2141,15 @@ body.hc .draw-canvas { box-shadow: 0 14px 40px rgba(0,0,0,.6), inset 0 0 0 2px #
 /* The switch was born on the dark auth screen; on white cards an
    unchecked knob track vanished. Give it a visible light track. */
 .set-row .switch .knob,
-.a11y-row .switch .knob { background: #d5cce3; }
+.a11y-row .switch .knob {
+  background: rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
 .set-row .switch input:checked + .knob,
-.a11y-row .switch input:checked + .knob { background: var(--pink-500); }
+.a11y-row .switch input:checked + .knob {
+  background: linear-gradient(135deg, var(--pink-500), #8a2eae);
+  border-color: #ffd166;
+}
 .set-row .switch input:disabled + .knob { opacity: .45; }
 .set-row .switch, .a11y-row .switch { gap: 0; }
 
