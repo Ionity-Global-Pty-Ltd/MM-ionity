@@ -1947,7 +1947,7 @@ function ionityFooter() {
       <img class="io-logo-img" src="./assets/branding/ionity-global-white.png" alt="IONITY GLOBAL" />
     </div>
     <div class="io-credits">
-      <span>Crafted by <a href="https://www.ionity.co.za" target="_blank" rel="noopener"><b>IONITY GLOBAL</b></a> · <a class="io-url" href="https://www.ionity.co.za" target="_blank" rel="noopener">www.ionity.co.za</a></span>
+      <span>Offline Design · <a href="https://www.ionity.co.za" target="_blank" rel="noopener"><b>IONITY GLOBAL</b></a> · <a class="io-url" href="https://www.ionity.co.za" target="_blank" rel="noopener">www.ionity.co.za</a></span>
     </div>
   </footer>`;
 }

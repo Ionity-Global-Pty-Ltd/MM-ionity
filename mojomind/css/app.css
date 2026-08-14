@@ -1855,7 +1855,19 @@ body.rm *, body.rm *::before, body.rm *::after {
 .next-step em { display: block; font-style: normal; font-size: 11.5px; color: rgba(255,255,255,.9); line-height: 1.45; }
 .next-step .ns-go { font-size: 26px; color: #ffd166; font-weight: 700; }
 
-.partner-strip { text-align: center; color: rgba(255,255,255,.5); font-size: 10.4px; font-weight: 600; letter-spacing: .3px; margin: 4px 0 0; }
+.partner-strip {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.2px;
+  margin: 20px auto 0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  width: 100%;
+  box-sizing: border-box;
+}
 
 /* ── Surveys: blurbs, notes, locks ───────────────────────── */
 .survey-blurb p { font-size: 13px; }
@@ -1865,7 +1877,6 @@ body.rm *, body.rm *::before, body.rm *::after {
   color: #ffffff !important;
   font-size: 11.8px !important; line-height: 1.55 !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35), 0 0 10px rgba(255, 209, 102, 0.25);
-}
   text-align: center !important; width: 100%; box-sizing: border-box;
 }
 .survey-card .s-name .s-count { display: block; font-size: 10.6px; font-weight: 600; color: #9b93aa; margin-top: 2px; }
@@ -2736,17 +2747,55 @@ body.rm .beacon-title::after {
 
 /* ── IONITY Brand Footer ─────────────────────────────────── */
 .ionity-foot {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 3px; padding: 10px 12px 6px; margin-top: auto; text-align: center;
-  opacity: 0.82;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 14px 16px;
+  margin-top: 4px;
+  text-align: center;
+  opacity: 0.88;
 }
-.io-logo-wrap { width: 68px; max-width: 75px; display: flex; justify-content: center; margin-bottom: 2px; }
-.io-logo-img { width: 100%; height: auto; object-fit: contain; opacity: 0.85; }
-.io-credits { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-.io-credits span { color: rgba(255, 255, 255, 0.75); font-size: 10px; font-weight: 500; }
-.io-credits a { color: #ffffff; text-decoration: none; font-weight: 600; }
-.io-credits a:hover { text-decoration: underline; }
-.io-url { color: #93c5fd !important; font-size: 9.5px; font-weight: 600; text-decoration: none; }
+.io-logo-wrap {
+  width: 60px;
+  max-width: 68px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+.io-logo-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  opacity: 0.9;
+}
+.io-credits {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.io-credits span {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.io-credits a {
+  color: #ffd166;
+  text-decoration: none;
+  font-weight: 700;
+}
+.io-credits a:hover {
+  text-decoration: underline;
+}
+.io-url {
+  color: #6ec1ff !important;
+  font-size: 9.5px;
+  font-weight: 600;
+  text-decoration: none;
+}
 .timer-chip { font-variant-numeric: tabular-nums; }
 
 /* ── Games Hub ─────────────────────────────────────────────── */
