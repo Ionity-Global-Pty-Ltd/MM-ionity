@@ -2415,24 +2415,25 @@ body.rm .beacon-title::after {
 .orbit-hud { margin-bottom: 2px; justify-content: center; }
 .orbit-frame {
   position: relative; width: 100%; height: 65vh; min-height: 420px; max-height: 620px;
-  border-radius: 20px; overflow: hidden;
-  background: #020005; border: 2px solid rgba(51,102,255,.55);
-  box-shadow: 0 12px 36px rgba(51,102,255,.35);
+  border-radius: 22px; overflow: hidden;
+  background: #020617; border: 1.5px solid rgba(255, 209, 102, 0.45);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 24px rgba(51, 102, 255, 0.3);
   touch-action: none;
 }
 #orbit-canvas { width: 100%; height: 100%; display: block; }
 .orbit-controls-overlay {
-  position: absolute; bottom: 12px; right: 12px;
+  position: absolute; bottom: 14px; right: 14px;
   z-index: 10; pointer-events: auto;
 }
 .orbit-boost-btn {
-  background: linear-gradient(135deg, #3366FF, #8a2eae);
-  color: #fff; border: 1.5px solid #6ec1ff;
-  border-radius: 999px; padding: 8px 16px;
-  font: 800 12px var(--font); letter-spacing: .6px;
-  box-shadow: 0 4px 18px rgba(51,102,255,.5);
-  cursor: pointer; transition: transform .12s;
+  background: linear-gradient(135deg, #ffd700 0%, #ff9e00 50%, #f3256b 100%);
+  color: #ffffff; border: 1.5px solid rgba(255, 255, 255, 0.85);
+  border-radius: 999px; padding: 9px 18px;
+  font: 800 12.5px var(--font); letter-spacing: .6px;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  cursor: pointer; transition: transform .12s ease, box-shadow .2s ease;
 }
+.orbit-boost-btn:hover { transform: scale(1.04); box-shadow: 0 8px 24px rgba(245, 158, 11, 0.7); }
 .orbit-boost-btn:active { transform: scale(.92); }
 
 /* ── Writer / Journal (Translucent Glassmorphism) ─────────── */

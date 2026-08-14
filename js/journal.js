@@ -1,9 +1,10 @@
 /* ============================================================
-   MojaMind — Writer / Personal Journal 📖✍️
-   A private creative reflection space with real-time speech-to-text,
-   smart Tiny AI companion reflections, and Tiny OCR text extraction.
+   MojaMind — Writer & Private Note Space 📖✍️
+   A state-of-the-art, encrypted private note-taking and reflection
+   suite with rich formatting, voice notes, drawing studio integration,
+   photo attachments, search/filter, and Tiny AI insights.
    
-   All entries are encrypted at rest with AES-GCM 256 via Vault.
+   All entries are stored safely on-device with AES-GCM 256 encryption.
    
    © IONITY Global (Pty) Ltd · Solutionist: Johan Wilhelm van Antwerp
    Antwerp Designs · www.ionity.co.za
@@ -13,11 +14,37 @@
 const MMJournal = (() => {
   let rec = null;
   let isListening = false;
+  let activeSpeechUtterance = null;
 
   const J = () => {
-    if (!S.journal) S.journal = [];
-    return S.journal;
+    if (!globalThis.S) globalThis.S = {};
+    if (!globalThis.S.journal) globalThis.S.journal = [];
+    return globalThis.S.journal;
   };
+
+  /* ── Draft Auto-Save & Recovery ──────────────────────────── */
+  const DRAFT_KEY = 'mm_journal_draft_v2';
+
+  function saveDraft(draft) {
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    } catch (e) { /* ignore */ }
+  }
+
+  function getDraft() {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function clearDraft() {
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+    } catch (e) { /* ignore */ }
+  }
 
   /* ── Speech to Text Dictation ────────────────────────────── */
   function hasSpeech() {
@@ -26,7 +53,7 @@ const MMJournal = (() => {
 
   function startDictation(onResult, onState) {
     if (!hasSpeech()) {
-      toast('Speech recognition not available on this browser 🎤');
+      if (typeof toast === 'function') toast('Speech recognition not available on this browser 🎤');
       return false;
     }
     const SR = globalThis.SpeechRecognition || globalThis.webkitSpeechRecognition;
@@ -38,7 +65,7 @@ const MMJournal = (() => {
     rec.onstart = () => {
       isListening = true;
       onState && onState(true);
-      toast('Listening… speak naturally 🎙️', 2000);
+      if (typeof toast === 'function') toast('Listening… speak naturally 🎙️', 2000);
     };
 
     rec.onresult = e => {
@@ -78,6 +105,42 @@ const MMJournal = (() => {
     }
     isListening = false;
     onState && onState(false);
+  }
+
+  /* ── Text-to-Speech Read Aloud ───────────────────────────── */
+  function readAloud(text, onEnd) {
+    if (!('speechSynthesis' in globalThis)) {
+      if (typeof toast === 'function') toast('Speech playback not supported 🔊');
+      return;
+    }
+    window.speechSynthesis.cancel();
+    if (!text || !text.trim()) return;
+
+    // Clean markdown tags or bracketed attachments
+    const clean = text.replace(/\[.*?\]/g, '').trim();
+    const utter = new SpeechSynthesisUtterance(clean);
+    utter.rate = 0.95;
+    utter.pitch = 1.0;
+    utter.lang = 'en-ZA';
+
+    utter.onend = () => {
+      activeSpeechUtterance = null;
+      onEnd && onEnd();
+    };
+    utter.onerror = () => {
+      activeSpeechUtterance = null;
+      onEnd && onEnd();
+    };
+
+    activeSpeechUtterance = utter;
+    window.speechSynthesis.speak(utter);
+  }
+
+  function stopReading() {
+    if ('speechSynthesis' in globalThis) {
+      window.speechSynthesis.cancel();
+    }
+    activeSpeechUtterance = null;
   }
 
   /* ── Tiny Connected AI Companion ────────────────────────── */
@@ -193,19 +256,32 @@ const MMJournal = (() => {
     });
   }
 
-  /* ── Save & Delete Journal Entry ─────────────────────────── */
+  /* ── Save, Toggle Pin, Edit & Delete Journal Entry ────────── */
   function saveEntry(entry) {
     const list = J();
     if (!entry.id) entry.id = 'jn-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
     entry.updatedAt = Date.now();
     if (!entry.createdAt) entry.createdAt = entry.updatedAt;
+    if (entry.pinned == null) entry.pinned = false;
 
     const existing = list.findIndex(x => x.id === entry.id);
     if (existing >= 0) list[existing] = entry;
     else list.unshift(entry);
 
-    save();
+    if (typeof save === 'function') save();
+    clearDraft();
     return entry;
+  }
+
+  function togglePin(id) {
+    const list = J();
+    const entry = list.find(x => x.id === id);
+    if (entry) {
+      entry.pinned = !entry.pinned;
+      if (typeof save === 'function') save();
+      return entry.pinned;
+    }
+    return false;
   }
 
   function deleteEntry(id) {
@@ -213,18 +289,32 @@ const MMJournal = (() => {
     const idx = list.findIndex(x => x.id === id);
     if (idx >= 0) {
       list.splice(idx, 1);
-      save();
+      if (typeof save === 'function') save();
+      return true;
     }
+    return false;
+  }
+
+  function getEntry(id) {
+    const list = J();
+    return list.find(x => x.id === id) || null;
   }
 
   return {
     hasSpeech,
     startDictation,
     stopDictation,
+    readAloud,
+    stopReading,
     generateAiReflection,
     performTinyOCR,
     saveEntry,
+    togglePin,
     deleteEntry,
+    getEntry,
     getEntries: () => J(),
+    saveDraft,
+    getDraft,
+    clearDraft,
   };
 })();
