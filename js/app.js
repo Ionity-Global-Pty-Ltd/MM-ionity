@@ -10,26 +10,26 @@
    ============================================================ */
 'use strict';
 
-/* ── Icons (inline SVG) ──────────────────────────────────── */
+/* ── Icons (inline SVG - Uniform 24x24 geometry, 2px stroke) ─ */
 const I = {
-  back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>',
+  back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>',
   home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/></svg>',
   headset: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13a8 8 0 0 1 16 0"/><rect x="2.5" y="13" width="4" height="7" rx="2"/><rect x="17.5" y="13" width="4" height="7" rx="2"/><path d="M19.5 20a4 4 0 0 1-4 2h-2"/></svg>',
   doc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5"/><path d="M9 12h6M9 16h6"/></svg>',
   clipboardCheck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1H9z"/><path d="m9 13.5 2.2 2.2L15.5 11"/></svg>',
   clipboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1H9z"/><path d="M9 11h6M9 15h6"/></svg>',
-  palette: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9 9 0 1 1 9-9c0 2.2-1.8 3-3.5 3H15a2 2 0 0 0-1.4 3.4c.6.6.4 2.6-1.6 2.6Z"/><circle cx="7.5" cy="11.5" r="1.15" fill="currentColor" stroke="none"/><circle cx="10.5" cy="7.5" r="1.15" fill="currentColor" stroke="none"/><circle cx="15.5" cy="7.5" r="1.15" fill="currentColor" stroke="none"/><circle cx="18" cy="11.5" r="1.15" fill="currentColor" stroke="none"/></svg>',
-  chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H4l2.3-2.9A8 8 0 1 1 21 12Z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></svg>',
+  palette: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9 9 0 1 1 9-9c0 2.2-1.8 3-3.5 3H15a2 2 0 0 0-1.4 3.4c.6.6.4 2.6-1.6 2.6Z"/><circle cx="7.5" cy="11.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="10.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="18" cy="11.5" r="1.2" fill="currentColor" stroke="none"/></svg>',
+  chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8 8 0 0 1-8 8H4l2.3-2.9A8 8 0 1 1 21 11.5Z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg>',
   info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg>',
-  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
   phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v2a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 3.1 4.2 2 2 0 0 1 5.1 2h2a2 2 0 0 1 2 1.7c.13.96.36 1.9.7 2.8a2 2 0 0 1-.45 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.25a2 2 0 0 1 2.1-.45c.9.34 1.84.57 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>',
   send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>',
   play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.54.84l10-6.5a1 1 0 0 0 0-1.68l-10-6.5A1 1 0 0 0 8 5.5Z"/></svg>',
   camera: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h2.4l1.2-2.4A1 1 0 0 1 8.5 5h7a1 1 0 0 1 .9.6L17.6 8H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="14" r="3.4"/></svg>',
   pencil: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>',
-  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
   heart: (on) => `<svg viewBox="0 0 24 24" fill="${on ? '#f3256b' : '#c9c3d1'}"><path d="M12 21s-7.5-4.7-10-9.3C.4 8.6 2.3 4.9 6 4.5c2-.2 3.9.8 6 3 2.1-2.2 4-3.2 6-3 3.7.4 5.6 4.1 4 7.2C19.5 16.3 12 21 12 21Z"/></svg>`,
-  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
   compass: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/></svg>',
   sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M4.3 4.3 6 6M18 18l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.3 19.7 6 18M18 6l1.7-1.7"/></svg>',
   shieldHeart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-3.6 8-10V5.2L12 2 4 5.2V12c0 6.4 8 10 8 10Z"/><path d="M12 15.5s-3.2-2-4.2-4c-.7-1.3.1-2.9 1.7-3 .9-.1 1.7.4 2.5 1.3.8-.9 1.6-1.4 2.5-1.3 1.6.1 2.4 1.7 1.7 3-1 2-4.2 4-4.2 4Z"/></svg>',
@@ -390,17 +390,15 @@ function bootSplash() {
           <div class="splash-logos">
             <img src="./assets/branding/shout-it-now-logo.png" alt="SHOUT-IT-NOW" class="splash-shout" />
             <span class="splash-amp">&amp;</span>
-            <span class="splash-partner-mark su">
-              <img src="./assets/partners/stellenbosch-transparent.png" alt="Stellenbosch University" class="su-trans-logo" onerror="this.src='./assets/partners/stellenbosch.png'" onload="this.parentNode.classList.add('has-img')" />
-              <span class="wordmark">Stellenbosch<br/>UNIVERSITY</span>
+            <span class="splash-partner-mark su has-img">
+              <img src="./assets/partners/stellenbosch-transparent.svg" alt="Stellenbosch University" class="su-trans-logo" />
             </span>
           </div>
         </div>
         <div class="splash-powered">
           <span class="splash-lbl">made possible by</span>
-          <span class="splash-partner-mark gilead">
-            <img src="./assets/partners/gilead.png" alt="Gilead Sciences" onerror="this.remove()" onload="this.parentNode.classList.add('has-img')" />
-            <span class="wordmark gilead-word">GILEAD</span>
+          <span class="splash-partner-mark gilead has-img">
+            <img src="./assets/partners/gilead.svg" alt="Gilead Sciences" class="gilead-trans-logo" />
           </span>
         </div>
       </div>
@@ -1423,6 +1421,12 @@ routes.home = () => {
         <button class="chip" id="go-cert-chip" style="background:rgba(255,215,0,0.15);border-color:#ffd700;color:#ffd700;cursor:pointer">🎓 Certificate</button>
       </div>
 
+      <div class="hero-card home-hero">
+        <h2>${esc(wc.title)}</h2>
+        <p>${esc(wc.body)}</p>
+        <p class="lead">${esc(wc.tail)}</p>
+      </div>
+
       <!-- AI Adaptive Resilience Recommender -->
       ${(() => {
         const hr = new Date().getHours();
@@ -1430,12 +1434,12 @@ routes.home = () => {
         const acts = actsDone();
 
         let rec = {
-          icon: '🐝',
-          tag: '3D SUNRAY FLIGHT',
-          title: 'Moja Bee 3D: River & Meadow Flight',
-          desc: 'Fly over blooming sunflower fields and sparkling winding rivers to gather radiant sunrays.',
-          route: '#/game3d',
-          btnText: 'Fly Moja Bee 3D 🐝',
+          icon: '✨',
+          tag: 'CREATIVE EXPLORATION',
+          title: 'Daily Spark & Creative Ritual',
+          desc: 'Charge your daily constellation and discover mindful creative prompts.',
+          route: '#/spark',
+          btnText: 'Open Daily Spark ✨',
         };
 
         if (recentMood === 'bad' || recentMood === 'heavy') {
@@ -1485,11 +1489,6 @@ routes.home = () => {
         `;
       })()}
 
-      <div class="hero-card home-hero">
-        <h2>${esc(wc.title)}</h2>
-        <p>${esc(wc.body)}</p>
-        <p class="lead">${esc(wc.tail)}</p>
-      </div>
       <button class="next-step" id="next-step" aria-label="Suggested next step">
         <span class="ns-emoji">${step.icon}</span>
         <span class="grow">
@@ -1524,6 +1523,20 @@ routes.home = () => {
         <div class="garden-subtitle">${S.moods.length ? `${S.moods.length + 1} flowers growing with you` : 'Your first flower is already here — check in to help it grow'}</div>
         ${gardenSVG()}
       </div>
+
+      <!-- Moja Bee 3D Launch Card at the Bottom -->
+      <div class="game3d-bottom-card" onclick="nav('#/game3d')" role="button" tabindex="0" aria-label="Play Moja Bee 3D Sunray Flight">
+        <div class="g3b-inner">
+          <div class="g3b-icon">🐝✨</div>
+          <div class="g3b-text">
+            <div class="g3b-tag">3D SUNRAY FLIGHT • GAME ENGINE</div>
+            <b>Moja Bee 3D: River &amp; Meadow Flight</b>
+            <p>Fly over blooming sunflower fields and sparkling winding rivers to gather radiant sunrays.</p>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block g3b-btn">Fly Moja Bee 3D 🐝</button>
+      </div>
+
       <button class="privacy-strip" id="go-privacy">
         ${I.shield}<span><b>${Vault.encrypted() ? 'Your journal is encrypted on this phone' : 'Storage is not encrypted here'}</b><small>${Vault.hasPin() ? 'PIN lock on' : 'Tap to add a PIN, export or erase your data'}</small></span><em>›</em>
       </button>

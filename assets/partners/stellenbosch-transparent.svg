@@ -1,34 +1,76 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 90" fill="none" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 96" fill="none" width="100%" height="100%">
   <defs>
-    <linearGradient id="su-maroon-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#801b2a" />
-      <stop offset="100%" stop-color="#560e19" />
+    <linearGradient id="su-shield-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8c1d2e" />
+      <stop offset="60%" stop-color="#6e1321" />
+      <stop offset="100%" stop-color="#4e0a14" />
     </linearGradient>
     <linearGradient id="su-gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ffd166" />
-      <stop offset="100%" stop-color="#d4a329" />
+      <stop offset="0%" stop-color="#ffe082" />
+      <stop offset="50%" stop-color="#ffd54f" />
+      <stop offset="100%" stop-color="#c99726" />
     </linearGradient>
-    <filter id="su-glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.45" />
+    <filter id="su-soft-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000000" flood-opacity="0.6" />
     </filter>
   </defs>
 
-  <!-- Stellenbosch University Emblem & Crest -->
-  <g transform="translate(14, 10)" filter="url(#su-glow)">
-    <!-- Classic Crest Shield -->
-    <path d="M30 4 C 48 4, 56 12, 56 32 C 56 54, 30 68, 30 68 C 30 68, 4 54, 4 32 C 4 12, 12 4, 30 4 Z" fill="url(#su-maroon-grad)" stroke="#ffffff" stroke-width="1.8" />
-    <!-- Gold Acorn & Oak Leaves Emblem -->
-    <circle cx="30" cy="24" r="8" fill="url(#su-gold-grad)" />
-    <path d="M30 14 Q 35 6, 38 12 Q 42 22, 30 32 Q 18 22, 22 12 Q 25 6, 30 14 Z" fill="#ffd166" opacity="0.9" />
-    <path d="M22 36 Q 14 42, 20 48 Q 28 54, 30 44 Q 30 36, 22 36 Z" fill="#ffd166" />
-    <path d="M38 36 Q 46 42, 40 48 Q 32 54, 30 44 Q 30 36, 38 36 Z" fill="#ffd166" />
-    <path d="M28 46 L 32 46 L 30 58 Z" fill="#ffffff" />
+  <!-- Stellenbosch University Crest Shield -->
+  <g transform="translate(10, 8)" filter="url(#su-soft-glow)">
+    <!-- Classic Crest Shield with double border -->
+    <path d="M38 4 C 64 4, 72 16, 72 38 C 72 66, 38 80, 38 80 C 38 80, 4 66, 4 38 C 4 16, 12 4, 38 4 Z" 
+          fill="url(#su-shield-grad)" 
+          stroke="#ffffff" 
+          stroke-width="2" 
+          stroke-linejoin="round" />
+    
+    <path d="M38 9 C 60 9, 67 19, 67 38 C 67 62, 38 74, 38 74 C 38 74, 9 62, 9 38 C 9 19, 16 9, 38 9 Z" 
+          fill="none" 
+          stroke="url(#su-gold-grad)" 
+          stroke-width="1.2" />
+
+    <!-- Stylized Oak Acorn & Double Leaves (Stellenbosch Emblem) -->
+    <!-- Central Acorn -->
+    <path d="M34 26 C 34 20, 42 20, 42 26 C 42 32, 34 32, 34 26 Z" fill="url(#su-gold-grad)" />
+    <path d="M33 22 Q 38 18, 43 22" stroke="#ffffff" stroke-width="1.5" fill="none" stroke-linecap="round" />
+    <line x1="38" y1="18" x2="38" y2="15" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" />
+
+    <!-- Left Oak Leaf -->
+    <path d="M33 34 C 20 28, 16 38, 22 46 C 26 50, 34 46, 34 40 Z" fill="url(#su-gold-grad)" opacity="0.95" />
+    <path d="M33 34 Q 22 38, 24 45" stroke="#6e1321" stroke-width="1.2" fill="none" />
+
+    <!-- Right Oak Leaf -->
+    <path d="M43 34 C 56 28, 60 38, 54 46 C 50 50, 42 46, 42 40 Z" fill="url(#su-gold-grad)" opacity="0.95" />
+    <path d="M43 34 Q 54 38, 52 45" stroke="#6e1321" stroke-width="1.2" fill="none" />
+
+    <!-- Open Book / Chevron at Bottom of Shield -->
+    <path d="M26 54 L 38 60 L 50 54 L 48 58 L 38 64 L 28 58 Z" fill="#ffffff" />
   </g>
 
-  <!-- Official Stellenbosch University Trilingual Typography -->
-  <g fill="#ffffff" filter="url(#su-glow)" font-family="'Georgia', 'Times New Roman', serif">
-    <text x="82" y="32" font-size="11" font-weight="700" letter-spacing="3.2px" fill="#ffd166">UNIVERSITEIT</text>
-    <text x="82" y="52" font-size="19" font-weight="800" letter-spacing="2.2px" fill="#ffffff">STELLENBOSCH</text>
-    <text x="82" y="68" font-size="10.5" font-weight="700" letter-spacing="2.4px" fill="#ffffff">UNIVERSITY • iYUNIVESITHI</text>
+  <!-- Official Stellenbosch University Typography -->
+  <g transform="translate(94, 0)" filter="url(#su-soft-glow)">
+    <!-- UNIVERSITEIT -->
+    <text x="0" y="27" 
+          font-family="'Poppins', 'Montserrat', 'Segoe UI', sans-serif" 
+          font-size="11" 
+          font-weight="700" 
+          letter-spacing="4px" 
+          fill="#ffd54f">UNIVERSITEIT</text>
+    
+    <!-- STELLENBOSCH -->
+    <text x="0" y="54" 
+          font-family="'Poppins', 'Montserrat', 'Georgia', serif" 
+          font-size="22" 
+          font-weight="800" 
+          letter-spacing="2.5px" 
+          fill="#ffffff">STELLENBOSCH</text>
+    
+    <!-- UNIVERSITY • iYUNIVESITHI -->
+    <text x="0" y="74" 
+          font-family="'Poppins', 'Montserrat', 'Segoe UI', sans-serif" 
+          font-size="11" 
+          font-weight="600" 
+          letter-spacing="2.8px" 
+          fill="rgba(255, 255, 255, 0.9)">UNIVERSITY • iYUNIVESITHI</text>
   </g>
 </svg>

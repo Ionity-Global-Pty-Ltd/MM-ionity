@@ -2,7 +2,7 @@
    © IONITY Global (Pty) Ltd */
 'use strict';
 
-const VERSION = 'mojamind-v2.6.1';
+const VERSION = 'mojamind-v2.6.2';
 const SHELL = [
   './',
   './index.html',
@@ -25,10 +25,9 @@ const SHELL = [
   './assets/branding/ionity-logo.svg',
   './assets/branding/shout-colour-cloud.png',
   './assets/branding/shout-it-now-logo.png',
-  './assets/partners/stellenbosch-transparent.png',
-  './assets/partners/stellenbosch.png',
   './assets/partners/stellenbosch-transparent.svg',
   './assets/partners/stellenbosch.webp',
+  './assets/partners/gilead.svg',
   './assets/partners/gilead.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
