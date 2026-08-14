@@ -1655,33 +1655,70 @@ body::after {
 .splash-partners { margin-top: 30px; animation: splash-rise .7s ease both .62s; }
 .splash-welcome { margin: 0 0 12px; color: #ffd166; font-size: 17px; font-weight: 700; letter-spacing: .4px; }
 .splash-powered { display: flex; flex-direction: column; align-items: center; gap: 7px; margin-bottom: 16px; }
-.splash-lbl { color: rgba(255,255,255,.55); font-size: 10.4px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
-.splash-logos { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
-.splash-shout { width: 106px; height: 64px; object-fit: contain; filter: drop-shadow(0 4px 14px rgba(16,2,28,.4)); }
-.splash-amp { color: rgba(255,255,255,.65); font-size: 18px; font-weight: 700; }
+.splash-shout {
+  width: auto;
+  height: 48px;
+  max-width: 130px;
+  object-fit: contain;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1.8px solid #ffffff;
+  border-radius: 14px;
+  padding: 4px 12px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45), 0 0 14px rgba(255, 255, 255, 0.35);
+  transition: transform 0.2s ease;
+}
+.splash-shout:hover { transform: scale(1.05); }
+.splash-amp { color: rgba(255,255,255,.75); font-size: 18px; font-weight: 700; }
 .splash-partner-mark { display: inline-flex; align-items: center; gap: 8px; }
-.splash-partner-mark img { max-width: 120px; max-height: 52px; object-fit: contain; }
+.splash-partner-mark img { max-width: 130px; max-height: 52px; object-fit: contain; }
 .splash-partner-mark .wordmark {
   color: #fff; font-size: 15px; font-weight: 700; line-height: 1.25; letter-spacing: .4px; text-align: left;
   border-left: 3px solid #7c2529; padding-left: 9px;
 }
 .splash-partner-mark.su .wordmark { font-family: Georgia, 'Times New Roman', serif; }
-/* Transparent Stellenbosch University circular seal */
+
+/* Stellenbosch University High-Visibility Badge */
+.splash-partner-mark.su {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1.8px solid #ffffff;
+  border-radius: 14px;
+  padding: 4px 14px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45), 0 0 16px rgba(255, 255, 255, 0.35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+.splash-partner-mark.su:hover { transform: scale(1.05); }
 .splash-partner-mark.su img {
-  width: 58px; height: 58px;
-  max-width: 58px; max-height: 58px;
+  width: auto;
+  height: 40px;
+  max-width: 140px;
+  max-height: 44px;
   object-fit: contain;
-  background: transparent; border-radius: 50%; padding: 0;
-  box-shadow: none;
-  filter: drop-shadow(0 4px 14px rgba(0,0,0,.6));
+  filter: none;
 }
 .splash-partner-mark.has-img .wordmark { display: none; }
 
 /* Gilead Sciences vector mark */
+.splash-partner-mark.gilead {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1.8px solid #ffffff;
+  border-radius: 14px;
+  padding: 4px 16px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45), 0 0 14px rgba(255, 255, 255, 0.35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+.splash-partner-mark.gilead:hover { transform: scale(1.05); }
 .splash-partner-mark.gilead img {
-  max-width: 165px; max-height: 48px;
-  background: transparent;
-  filter: drop-shadow(0 3px 12px rgba(0,0,0,.5));
+  max-width: 140px;
+  max-height: 38px;
+  height: 34px;
+  object-fit: contain;
+  filter: none;
 }
 .gilead-word { border-left: 0 !important; padding-left: 0 !important; font-size: 21px; letter-spacing: 5px; font-weight: 800; color: #d3242c; text-shadow: 0 0 22px rgba(255,255,255,.22); }
 
@@ -1823,9 +1860,12 @@ body.rm *, body.rm *::before, body.rm *::after {
 /* ── Surveys: blurbs, notes, locks ───────────────────────── */
 .survey-blurb p { font-size: 13px; }
 .stellenbosch-note {
-  margin: 12px auto 0 auto !important; padding: 10px 14px; border-radius: 12px;
-  background: rgba(255, 255, 255, 0.09); border: 1px dashed rgba(255, 255, 255, 0.35);
+  margin: 12px auto 0 auto !important; padding: 10px 14px; border-radius: 14px;
+  background: rgba(140, 29, 46, 0.28); border: 1.5px solid rgba(255, 209, 102, 0.65);
+  color: #ffffff !important;
   font-size: 11.8px !important; line-height: 1.55 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35), 0 0 10px rgba(255, 209, 102, 0.25);
+}
   text-align: center !important; width: 100%; box-sizing: border-box;
 }
 .survey-card .s-name .s-count { display: block; font-size: 10.6px; font-weight: 600; color: #9b93aa; margin-top: 2px; }

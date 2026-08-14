@@ -432,7 +432,7 @@ function bootSplash() {
             <img src="./assets/branding/shout-it-now-logo.png" alt="SHOUT-IT-NOW" class="splash-shout" />
             <span class="splash-amp">&amp;</span>
             <span class="splash-partner-mark su has-img">
-              <img src="./assets/partners/stellenbosch-transparent.png" alt="Stellenbosch University" class="su-trans-logo" />
+              <img src="./assets/partners/stellenbosch-transparent.svg" alt="Stellenbosch University" class="su-trans-logo" />
             </span>
           </div>
         </div>
