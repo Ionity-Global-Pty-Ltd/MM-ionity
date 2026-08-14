@@ -3192,3 +3192,96 @@ body.rm .beacon-title::after {
   font-variant-numeric: tabular-nums;
   letter-spacing: .3px;
 }
+
+/* ── Floating Modern Glassmorphic Bottom Navigation Bar ── */
+#tabbar {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 24px);
+  max-width: 440px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 6px;
+  background: rgba(26, 26, 26, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1.6px solid rgba(51, 102, 255, 0.45);
+  border-radius: 26px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65), 0 0 20px rgba(51, 102, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  z-index: 990;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+}
+#tabbar.hidden {
+  display: none !important;
+}
+.no-nav {
+  padding-bottom: 20px !important;
+}
+#app:not(.no-nav) {
+  padding-bottom: 90px !important;
+}
+
+.nav-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: transparent;
+  border: 0;
+  color: rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 16px;
+  transition: all 0.2s ease;
+  position: relative;
+  min-width: 50px;
+}
+.nav-tab .nav-icon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease;
+}
+.nav-tab .nav-icon svg {
+  width: 22px;
+  height: 22px;
+}
+.nav-tab .nav-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  transition: color 0.2s ease;
+}
+.nav-tab:hover {
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+.nav-tab.active {
+  color: #ffffff;
+  background: linear-gradient(135deg, rgba(51, 102, 255, 0.35), rgba(138, 46, 174, 0.35));
+  border: 1px solid rgba(255, 209, 102, 0.6);
+  box-shadow: 0 4px 14px rgba(51, 102, 255, 0.35), 0 0 10px rgba(255, 209, 102, 0.3);
+}
+.nav-tab.active .nav-icon {
+  transform: scale(1.15);
+  color: #ffd166;
+}
+.nav-tab.active .nav-lbl {
+  color: #ffd166;
+  text-shadow: 0 0 8px rgba(255, 209, 102, 0.5);
+}
+.nav-tab.is-locked {
+  opacity: 0.5;
+}
+.nav-tab .nav-lock {
+  position: absolute;
+  top: 2px;
+  right: 6px;
+  font-size: 9px;
+}
