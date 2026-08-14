@@ -952,7 +952,7 @@ function applyStageReset(stage) {
     MM.PRE_SURVEYS.forEach(id => S.surveys.pre[id] = { answers: {}, completedAt: wk(7), demo: true });
     S.artAboutSeen = true;
     MM.ACTIVITIES.forEach((a, i) => {
-      S.activities[a.id] = { option: i % 5, uploads: [], voice: [], reflections: { 0: 'A moment from my journey.' }, startedAt: wk(7) + i * 6 * 864e5, submittedAt: wk(7) + i * 6.5 * 864e5 };
+      S.activities[a.id] = { option: i % 5, uploads: [], voice: [], reflections: { 0: 'A moment from my journey.' }, startedAt: wk(7) + i * 6 * 864e5 };
     });
   }
   save();
@@ -2273,8 +2273,8 @@ function surveyList(phase, isBack) {
       <div class="hero-card">
         <h2>${esc(intro.title)}</h2>
         <p>${esc(intro.body)}</p>
-        <button class="video-btn" id="survey-video-btn" style="margin-top:10px"><span class="play">${I.play}</span>Watch ${title} Guide Video 🎬</button>
-        <p class="stellenbosch-note" style="margin-top:12px">🎓 ${esc(intro.note)}</p>
+        <button class="video-btn" id="survey-video-btn"><span class="play">${I.play}</span>Watch ${title} Guide Video 🎬</button>
+        <p class="stellenbosch-note">🎓 ${esc(intro.note)}</p>
       </div>
       ${ids.map((id, i) => {
         const def = MM.SURVEYS[id];
@@ -2398,7 +2398,7 @@ function artAbout() {
     <div class="body-pad">
       <div class="hero-card">
         <p class="lead">${esc(MM.ART_ABOUT.heroBody)}</p>
-        <button class="video-btn" id="about-vid-btn" style="margin-top:10px"><span class="play">${I.play}</span>Watch Creative Resilience Walkthrough 🎬</button>
+        <button class="video-btn" id="about-vid-btn"><span class="play">${I.play}</span>Watch Creative Resilience Walkthrough 🎬</button>
       </div>
       <div class="info-card">
         <h3><span class="ic">${I.palette}</span>${esc(MM.ART_ABOUT.lead)}</h3>
@@ -2432,38 +2432,33 @@ function artList(isBack) {
       </div>
       ${MM.ACTIVITIES.map((a, i) => {
         const st = actState(a.id);
-        const locked = a.week > week && !st;
         const [c1, c2] = MM.ACT_COLORS[i % MM.ACT_COLORS.length];
         const done = !!st?.submittedAt;
         const started = !!st && !done;
         const hasVideo = !!MM.ACTIVITY_VIDEOS[a.id];
-        return `<div class="act-card ${done ? 'done' : ''} ${locked ? 'locked' : ''}" data-id="${a.id}" data-locked="${locked}" style="animation-delay:${i * .05}s" role="button" tabindex="0">
+        return `<div class="act-card ${done ? 'done' : ''}" data-id="${a.id}" data-locked="false" style="animation-delay:${i * .05}s" role="button" tabindex="0">
           <span class="acttile" style="background:linear-gradient(160deg, ${c1}, ${c2})">
             <span>Activity</span><b>${a.id}</b><em>Week ${a.week}</em>
           </span>
           <span class="a-name">${esc(a.name)}${hasVideo ? `<small class="a-video">${I.video} video guides</small>` : ''}</span>
           <span class="a-status">
             ${done
-              ? `<span class="st-ic" style="background:#fdf2f8;color:#f3256b">${I.heart(true)}</span><em>Completed</em>`
-              : locked
-                ? `<span class="st-ic" style="background:#f0edf4;color:#9b93aa">${I.lock}</span><em>Locked</em>`
-                : started
-                  ? `<span class="st-ic" style="background:#fff7ed;color:#e8891d">${I.pencil}</span><em>In progress</em>`
-                  : `<span class="st-ic" style="border:2.4px solid #c9c3d1;color:transparent">${I.check}</span><em>Not Started</em>`}
+              ? `<span class="st-ic" style="background:rgba(51,102,255,0.2);color:#3366FF">${I.heart(true)}</span><em>Completed</em>`
+              : started
+                ? `<span class="st-ic" style="background:rgba(255,209,102,0.2);color:#ffd166">${I.pencil}</span><em>In progress</em>`
+                : `<span class="st-ic" style="border:2px solid rgba(255,255,255,0.3);color:transparent">${I.check}</span><em>Open</em>`}
           </span>
         </div>`;
       }).join('')}
     </div>
   `, { theme: 'theme-purple', backAnim: isBack });
   app.querySelectorAll('.act-card').forEach(c => c.addEventListener('click', () => {
-    if (c.dataset.locked === 'true') return toast(`This activity unlocks in week ${MM.ACTIVITIES.find(a => a.id == c.dataset.id).week} 🌱`);
     nav(`#/art/${c.dataset.id}`);
   }));
 }
 
 function artOptions(a) {
   const st = actState(a.id);
-  const locked = !!st?.submittedAt;
   let sel = st?.option ?? null;
   render(`
     ${header(`Activity ${a.id}`, { backTo: '#/art' })}
@@ -2471,12 +2466,12 @@ function artOptions(a) {
       <div class="hero-card">
         <h2>${esc(a.name)}</h2>
         <p>${esc(a.about)}</p>
-        <p class="lead">${locked ? 'This activity has been submitted — your choice is locked in. 🔒' : 'Please select one of the options below.'}</p>
+        <p class="lead">Please select one of the options below.</p>
       </div>
       ${a.options.map((opt, i) => {
         const kind = MM.ART_OPTION_KINDS[i];
         const [title, desc] = opt.split(/:\s(.+)/);
-        return `<button class="opt-choice ${sel === i ? 'sel' : ''} ${locked && sel !== i ? 'dim' : ''}" data-i="${i}" style="animation-delay:${i * .06}s" ${locked ? 'disabled' : ''}>
+        return `<button class="opt-choice ${sel === i ? 'sel' : ''}" data-i="${i}" style="animation-delay:${i * .06}s">
           <span class="oc-radio"></span>
           <span class="grow">
             <h5><span class="oc-emoji">${kind.emoji}</span>Option ${i + 1} — ${esc(title)}</h5>
@@ -2486,16 +2481,14 @@ function artOptions(a) {
       }).join('')}
     </div>
     <div class="act-foot-btns">
-      <button class="btn btn-primary" id="opt-next" style="min-width:150px">${locked ? 'View my work' : 'Next'}</button>
+      <button class="btn btn-primary" id="opt-next" style="min-width:150px">Next</button>
     </div>
   `, { theme: 'theme-purple' });
-  if (!locked) {
-    app.querySelectorAll('.opt-choice').forEach(b => b.addEventListener('click', () => {
-      sel = +b.dataset.i;
-      app.querySelectorAll('.opt-choice').forEach(x => x.classList.toggle('sel', x === b));
-      if (navigator.vibrate) navigator.vibrate(8);
-    }));
-  }
+  app.querySelectorAll('.opt-choice').forEach(b => b.addEventListener('click', () => {
+    sel = +b.dataset.i;
+    app.querySelectorAll('.opt-choice').forEach(x => x.classList.toggle('sel', x === b));
+    if (navigator.vibrate) navigator.vibrate(8);
+  }));
   $('#opt-next').onclick = () => {
     if (sel == null) return toast('Choose the option that feels right for you 🎨');
     if (!locked) {
@@ -2715,7 +2708,7 @@ function scheduleReflectionNote(idx, text, immediate = false) {
 function artDetail(a, tab) {
   const st = actState(a.id);
   if (!st || st.option == null) return nav(`#/art/${a.id}`);
-  const locked = !!st.submittedAt;
+  const locked = false; // NEVER auto-lock activities
   const kind = MM.ART_OPTION_KINDS[st.option];
   const tabs = [['start', 'Start Here'], ['materials', 'Materials'], ['pictures', 'Pictures'], ['voice', 'Voice'], ['reflections', 'Reflections']];
   const uploadSrc = upload => typeof upload === 'string' ? upload : upload.src;
@@ -2797,14 +2790,23 @@ function artDetail(a, tab) {
       </div>`;
   } else if (tab === 'voice') {
     body = `
-      <div class="info-card voice-card">
-        <h3><span class="ic">${I.mic}</span>Speak your story</h3>
-        <p>Record a voice note for ${esc(a.name)} — MojaMind writes down what it hears, on your device, so your spoken words can become reflections too.</p>
-        <div class="rec-stage" id="rec-stage">
-          <button class="rec-btn" id="rec-btn" aria-label="Start recording">${I.mic}</button>
-          <div class="rec-meta">
-            <b id="rec-clock">0:00 / 1:30</b>
-            <p class="rec-live" id="rec-live">Tap the microphone to start</p>
+      <div class="info-card voice-card" style="background:rgba(255,255,255,0.09);backdrop-filter:blur(16px);border:1.5px solid rgba(51,102,255,0.45);border-radius:20px;padding:20px;text-align:left">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <span style="font-size:24px;line-height:1">🎙️</span>
+          <h3 style="margin:0;font-size:16px;font-weight:800;color:#ffffff">Speak Your Story</h3>
+        </div>
+        <p style="font-size:13px;line-height:1.55;color:rgba(255,255,255,0.88);margin:0 0 16px">
+          Record a voice note for ${esc(a.name)} — MojaMind captures your voice and writes down what it hears on your phone.
+        </p>
+
+        <!-- Big Glowing Microphone Recording Stage -->
+        <div class="rec-stage" id="rec-stage" style="display:flex;align-items:center;gap:16px;background:rgba(0,0,0,0.35);padding:14px 18px;border-radius:18px;border:1.5px solid rgba(255,209,102,0.4);box-shadow:inset 0 2px 10px rgba(0,0,0,0.4)">
+          <button class="rec-btn" id="rec-btn" aria-label="Start recording" style="flex:0 0 64px;width:64px;height:64px;border-radius:50%;border:0;cursor:pointer;color:#fff;background:linear-gradient(135deg,#f3256b,#8a2eae);box-shadow:0 6px 20px rgba(243,37,107,0.5);display:grid;place-items:center;transition:transform 0.15s">
+            ${I.mic}
+          </button>
+          <div class="rec-meta" style="flex:1">
+            <b id="rec-clock" style="font-size:14px;color:#ffd166;letter-spacing:0.5px;display:block">0:00 / 1:30</b>
+            <p class="rec-live" id="rec-live" style="margin:4px 0 0;font-size:12.5px;color:#ffffff;font-style:italic">Tap the microphone to start recording 🎙️</p>
           </div>
         </div>
       </div>
