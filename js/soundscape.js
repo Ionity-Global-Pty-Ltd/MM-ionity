@@ -266,6 +266,66 @@ const MMSoundscape = (() => {
     });
   }
 
+  function showModal() {
+    if (typeof modal !== 'function') return;
+    const m = modal(`
+      <div class="soundscape-modal-inner">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:28px">🎧</span>
+          <div>
+            <h3 style="margin:0">432Hz Soundscapes &amp; Nature</h3>
+            <p style="margin:2px 0 0;font-size:12px;color:rgba(255,255,255,0.75)">Zero-data procedural audio for relaxation &amp; focus</p>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+          ${Object.entries(PRESETS).map(([k, v]) => `
+            <button class="opt-choice ${currentPreset === k && isPlaying ? 'active' : ''}" data-sc-preset="${k}" style="border:1.6px solid ${currentPreset === k && isPlaying ? '#ffd166' : 'rgba(255,255,255,0.18)'};background:${currentPreset === k && isPlaying ? 'rgba(51,102,255,0.35)' : 'rgba(255,255,255,0.06)'};border-radius:14px;padding:12px;display:flex;align-items:center;gap:12px;cursor:pointer;width:100%">
+              <span style="font-size:24px;width:34px;display:grid;place-items:center">${v.icon}</span>
+              <span class="grow" style="text-align:left">
+                <b style="font-size:14px;color:#fff">${esc(v.name)} ${currentPreset === k && isPlaying ? '🔊 Playing' : ''}</b>
+                <p style="font-size:12px;color:rgba(255,255,255,0.8);margin:2px 0 0">${esc(v.desc)}</p>
+              </span>
+            </button>
+          `).join('')}
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(0,0,0,0.3);padding:10px 14px;border-radius:14px;margin-bottom:16px">
+          <span style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.8)">Volume</span>
+          <input type="range" id="sc-volume-slider" min="0" max="1" step="0.05" value="0.5" style="flex:1;accent-color:#ffd166;cursor:pointer" />
+        </div>
+
+        <div class="modal-btns">
+          <button class="btn btn-ghost" id="sc-stop-btn">${isPlaying ? '⏹ Stop Sound' : 'Close'}</button>
+          <button class="btn btn-primary" id="sc-done-btn">Keep Playing in Background ✨</button>
+        </div>
+      </div>
+    `);
+
+    m.querySelectorAll('[data-sc-preset]').forEach(b => {
+      b.onclick = () => {
+        const k = b.dataset.scPreset;
+        start(k);
+        closeModal();
+        showModal();
+        if (typeof toast === 'function') toast(`Playing ${PRESETS[k].name} 🎧`);
+      };
+    });
+
+    const vol = m.querySelector('#sc-volume-slider');
+    if (vol) vol.oninput = () => setVolume(parseFloat(vol.value));
+
+    m.querySelector('#sc-stop-btn').onclick = () => {
+      if (isPlaying) { stop(); if (typeof toast === 'function') toast('Soundscape stopped'); }
+      closeModal();
+    };
+    m.querySelector('#sc-done-btn').onclick = () => {
+      if (!isPlaying) start('432hz');
+      closeModal();
+      if (typeof toast === 'function') toast('Soundscape active in background 🎧✨');
+    };
+  }
+
   return {
     PRESETS,
     start,
@@ -276,5 +336,6 @@ const MMSoundscape = (() => {
     currentPreset: () => currentPreset,
     soundscapeBarHTML,
     wireEvents,
+    showModal,
   };
 })();

@@ -592,6 +592,7 @@ function header(title, { home = false, backTo = null } = {}) {
       ? `<span class="brand-flower">${flowerSVG(34)}</span>`
       : `<button class="back" data-act="back" data-to="${backTo || ''}" aria-label="Back">${I.back}</button>`}
     <h1>${esc(title)}</h1>
+    <button class="hdr-sound ${MMSoundscape.isPlaying() ? 'on' : ''}" data-act="soundscape" aria-label="Ambient 432Hz Soundscapes" title="Ambient 432Hz Soundscapes">🎧</button>
     ${home ? `<button class="hdr-reset" data-act="reset" aria-label="Reset demo" title="Reset demo">${I.reset}</button>` : ''}
     ${MMVoice.supported() ? `<button class="hdr-voice ${MMVoice.isOn() ? 'on' : ''}" data-act="voice" aria-label="Voice navigation" aria-pressed="${MMVoice.isOn()}" title="Voice navigation">${I.mic}</button>` : ''}
     <button class="hdr-a11y" data-act="a11y" aria-label="Accessibility options" title="Accessibility">${I.a11y}</button>
@@ -751,6 +752,7 @@ app.addEventListener('click', e => {
   if (act === 'reset') resetModal();
   if (act === 'a11y') a11yModal();
   if (act === 'voice') toggleVoiceNav();
+  if (act === 'soundscape') MMSoundscape.showModal();
 });
 
 /* ── Voice navigation ────────────────────────────────────── */

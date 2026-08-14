@@ -215,6 +215,28 @@ body::after {
 .hdr-reset svg { width: 17px; height: 17px; }
 .hdr-reset:active { transform: rotate(-180deg) scale(.9); background: rgba(255,255,255,.24); }
 
+.hdr-sound {
+  flex: 0 0 auto;
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,.45);
+  background: rgba(255,255,255,.12);
+  color: #fff; display: grid; place-items: center;
+  font-size: 16px;
+  cursor: pointer; transition: transform .2s cubic-bezier(.34,1.56,.64,1), background .15s, border-color .15s, box-shadow .15s;
+}
+.hdr-sound:hover { transform: scale(1.1); border-color: #ffd166; }
+.hdr-sound:active { transform: scale(.92); }
+.hdr-sound.on {
+  background: linear-gradient(135deg, rgba(51, 102, 255, 0.4), rgba(255, 209, 102, 0.35));
+  border-color: #ffd166;
+  box-shadow: 0 0 12px rgba(255, 209, 102, 0.6);
+  animation: sound-pulse 2s infinite ease-in-out;
+}
+@keyframes sound-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); box-shadow: 0 0 16px rgba(255, 209, 102, 0.85); }
+}
+
 .body-pad { padding: 4px 16px 24px; display: flex; flex-direction: column; gap: 14px; }
 
 /* ── Intro / hero cards ──────────────────────────────────── */
