@@ -583,25 +583,26 @@ body::before {
 #modal-root:empty { display: none; }
 .modal-veil {
   position: fixed; inset: 0; z-index: 90;
-  background: rgba(18, 4, 28, .62);
+  background: rgba(0, 0, 0, 0.72);
   display: grid; place-items: center; padding: 22px;
   animation: veil-in .25s both;
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 @keyframes veil-in { from { opacity: 0; } to { opacity: 1; } }
 .modal {
   width: 100%; max-width: 392px; max-height: 86dvh; overflow-y: auto;
-  background: rgba(28, 7, 44, 0.94);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  background: rgba(26, 26, 26, 0.82) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
   border-radius: 26px;
   padding: 26px 22px 22px;
-  box-shadow: 0 30px 70px rgba(0,0,0,.6), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
   animation: modal-in .38s cubic-bezier(.34,1.4,.64,1) both;
 }
 @keyframes modal-in { from { opacity: 0; transform: translateY(46px) scale(.94); } to { opacity: 1; transform: none; } }
-.modal h3 { margin: 0 0 14px; font-size: 17px; font-weight: 700; color: #ffffff; text-align: center; }
+.modal h3 { margin: 0 0 14px; font-size: 19px; font-weight: 800; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; text-align: center; }
 
 /* Mood modal */
 .mood-list { display: flex; flex-direction: column; gap: 16px; padding: 6px 4px 18px; }
@@ -1249,12 +1250,25 @@ body::before {
 
 /* ── Completion overlay ──────────────────────────────────── */
 .celebrate {
-  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
-  padding: 10px 6px 4px;
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;
+  padding: 14px 8px 6px;
 }
-.celebrate .big-heart { width: 92px; height: 92px; animation: heart-beat .8s cubic-bezier(.34,1.56,.64,1) both; }
-.celebrate h3 { font-size: 19px; margin: 6px 0 2px; }
-.celebrate p { margin: 0 0 10px; color: var(--ink-soft); font-size: 13.4px; line-height: 1.6; }
+.celebrate .big-heart {
+  width: 88px; height: 88px;
+  animation: heart-beat .8s cubic-bezier(.34,1.56,.64,1) both;
+  filter: drop-shadow(0 6px 18px rgba(243, 37, 107, 0.55));
+}
+.celebrate h3 {
+  font-size: 20px; font-weight: 800; margin: 8px 0 4px;
+  color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  letter-spacing: .2px;
+}
+.celebrate p {
+  margin: 0 0 16px;
+  color: rgba(255, 255, 255, 0.92) !important;
+  font-size: 13.8px; line-height: 1.6;
+}
 
 #fx { position: fixed; inset: 0; z-index: 200; pointer-events: none; }
 
@@ -2262,19 +2276,10 @@ body.hc .draw-canvas { box-shadow: 0 14px 40px rgba(0,0,0,.6), inset 0 0 0 2px #
 .mood-title,
 .modal h3 {
   position: relative;
-  background: linear-gradient(
-    115deg,
-    var(--ink) 0%,
-    var(--ink) 38%,
-    #8a2eae 48%,
-    #f3256b 52%,
-    var(--ink) 62%,
-    var(--ink) 100%
-  );
-  background-size: 220% 100%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: heading-glare 6.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background: none !important;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
 }
 
 .hero-card h2::after,

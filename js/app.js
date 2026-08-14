@@ -73,24 +73,13 @@ function flowerSVG(size = 34, opts = {}) {
   </svg>`;
 }
 
-/* Rainbow knot logo for the sign-in screen (original MojaMind mark) */
-function knotSVG(size = 84) {
-  return `<svg viewBox="0 0 100 100" width="${size}" height="${size}" class="auth-logo" aria-label="MojaMind logo">
-    <defs>
-      <linearGradient id="mmrb" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#f0813c"/><stop offset=".28" stop-color="#ee2b63"/>
-        <stop offset=".55" stop-color="#8a2eae"/><stop offset=".8" stop-color="#3f6ad8"/>
-        <stop offset="1" stop-color="#34c759"/>
-      </linearGradient>
-    </defs>
-    <g fill="none" stroke="url(#mmrb)" stroke-width="7" stroke-linecap="round">
-      <path d="M50 52 C 24 20, 56 8, 54 30 C 52 46, 30 58, 22 44"/>
-      <path d="M50 52 C 76 20, 44 8, 46 30 C 48 46, 70 58, 78 44"/>
-      <path d="M50 52 C 30 78, 62 94, 60 70 C 58 54, 34 50, 28 66"/>
-      <path d="M50 52 C 70 78, 38 94, 40 70 C 42 54, 66 50, 72 66"/>
-    </g>
-    <circle cx="50" cy="51" r="7.5" fill="url(#mmrb)"/>
-  </svg>`;
+/* Official Mojo Mind logo mark */
+function knotSVG(size = 88) {
+  return `<img src="./assets/branding/mojomind-logo.png" alt="Mojo Mind" class="auth-logo mm-brand-logo" style="width:${size}px;height:auto;max-width:100%;border-radius:22px;filter:drop-shadow(0 8px 24px rgba(51,102,255,0.45));display:inline-block" />`;
+}
+
+function mojoLogoHTML(size = 92) {
+  return `<img src="./assets/branding/mojomind-logo.png" alt="Mojo Mind" class="auth-logo mm-brand-logo" style="width:${size}px;height:auto;max-width:100%;border-radius:22px;filter:drop-shadow(0 8px 24px rgba(51,102,255,0.45));display:inline-block" />`;
 }
 
 function faceSVG(kind, color, size = 62) {
@@ -380,8 +369,8 @@ function bootSplash() {
   el.setAttribute('role', 'status');
   el.innerHTML = `
     <div class="splash-inner">
-      <div class="splash-flower">${flowerSVG(92)}</div>
-      <h1 class="splash-name">MojaMind</h1>
+      <div class="splash-flower">${mojoLogoHTML(110)}</div>
+      <h1 class="splash-name">Mojo Mind</h1>
       <p class="splash-sub">Creative Resilience</p>
       <div class="splash-partners">
         <p class="splash-welcome">${esc(MM.PARTNERS.headline)}</p>
@@ -580,7 +569,7 @@ function header(title, { home = false, backTo = null } = {}) {
 function lockScreen(message = '') {
   app.innerHTML = `<div class="screen theme-auth">
     <div class="auth-wrap lock-wrap">
-      <div class="lock-mark">${flowerSVG(84)}</div>
+      <div class="lock-mark">${mojoLogoHTML(88)}</div>
       <h1 class="auth-title">Welcome back</h1>
       <p class="sub" style="color:#ffffff !important">Your journal is encrypted on this device. Enter your PIN to open it.</p>
       <div class="field">${I.lock}<input id="lock-pin" type="text" placeholder="Enter PIN (or Master Code)" autocomplete="current-password" maxlength="16" /></div>
@@ -1039,12 +1028,15 @@ routes.signin = () => {
         <button class="auth-back" id="f-back" aria-label="Back to welcome screen">${I.back}</button>
         <button class="auth-admin" id="f-admin">🎓 Admin login</button>
       </div>
-      <div class="auth-brand-lockup">
-        <img src="./assets/branding/shout-it-now-logo.png" alt="SHOUT-IT-NOW" />
-        <span>Creative Resilience with ${MM.APP_NAME}</span>
+      <div class="auth-brand-lockup" style="flex-direction:column;align-items:center;gap:8px">
+        ${mojoLogoHTML(96)}
+        <div style="display:flex;align-items:center;gap:8px">
+          <img src="./assets/branding/shout-it-now-logo.png" alt="SHOUT-IT-NOW" style="height:20px;width:auto" />
+          <span style="font-size:12px;color:rgba(255,255,255,0.85)">Creative Resilience</span>
+        </div>
       </div>
-      <h1 class="auth-title">Mobile Number Sign In</h1>
-      <p class="sub">Welcome to ${MM.APP_NAME}</p>
+      <h1 class="auth-title">Sign In</h1>
+      <p class="sub">Welcome to Mojo Mind</p>
       <div class="field">${I.phone}<input id="f-phone" type="tel" inputmode="tel" placeholder="Mobile Number" autocomplete="tel" /></div>
       <div class="field">${I.keyIc}<input id="f-pass" type="password" placeholder="Password" autocomplete="current-password" /></div>
       <div class="group-pick" role="group" aria-label="Study group">
@@ -1112,8 +1104,8 @@ routes.terms = () => {
 routes.welcome = () => {
   render(`
     <div class="auth-wrap" style="justify-content:center;text-align:center;align-items:center">
-      ${flowerSVG(96)}
-      <h1 style="font-size:26px;margin-top:18px">${esc(MM.ONBOARD.title)}</h1>
+      ${mojoLogoHTML(105)}
+      <h1 style="font-size:26px;margin-top:16px">${esc(MM.ONBOARD.title)}</h1>
       <p class="sub" style="line-height:1.7;margin-top:10px">${esc(MM.ONBOARD.body)}</p>
       <div class="welcome-partners">${esc(MM.PARTNERS.line)}</div>
       <p style="color:#fff;font-weight:700;margin:22px 0 14px">${esc(MM.ONBOARD.ready)}</p>
@@ -2491,10 +2483,8 @@ function artOptions(a) {
   }));
   $('#opt-next').onclick = () => {
     if (sel == null) return toast('Choose the option that feels right for you 🎨');
-    if (!locked) {
-      S.activities[a.id] = Object.assign({ uploads: [], voice: [], reflections: {} }, S.activities[a.id], { option: sel, startedAt: actState(a.id)?.startedAt || Date.now() });
-      save();
-    }
+    S.activities[a.id] = Object.assign({ uploads: [], voice: [], reflections: {} }, S.activities[a.id], { option: sel, startedAt: actState(a.id)?.startedAt || Date.now() });
+    save();
     nav(`#/art/${a.id}/detail/start`);
   };
 }
