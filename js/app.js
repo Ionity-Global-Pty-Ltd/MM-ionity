@@ -1609,7 +1609,10 @@ routes.spark = () => {
         <button class="spark-orb" id="spark-orb" aria-label="${todayDone ? 'Today’s spark' : 'Hold to charge your spark'}">
           ${flowerSVG(70, { petal: '#fff' })}
         </button>
-        <div class="spark-hint" id="spark-hint">${todayDone ? 'Today’s spark is lit ✨' : 'Press & hold the orb.<br/>Breathe in while it charges…'}</div>
+      </div>
+      <div class="spark-bottom-wording">
+        <div class="spark-hint" id="spark-hint">${todayDone ? 'Today’s spark is lit ✨' : 'Press &amp; hold the orb.<br/>Breathe in while it charges…'}</div>
+        <p class="spark-count">${S.sparks.length ? `⭐ ${S.sparks.length} spark${S.sparks.length > 1 ? 's' : ''} collected on your journey` : 'Collect a spark every day — build your constellation'}</p>
       </div>
       <div class="spark-card ${todayDone ? '' : 'hidden'}" id="spark-card">
         <div class="spark-q">“${esc(spark.text)}”</div>
@@ -1621,7 +1624,6 @@ routes.spark = () => {
           <button class="btn btn-primary" id="spark-home">Carry it with me</button>
         </div>
       </div>
-      <p class="spark-count">${S.sparks.length ? `⭐ ${S.sparks.length} spark${S.sparks.length > 1 ? 's' : ''} collected on your journey` : 'Collect a spark every day — build your constellation'}</p>
     </div>
   `, { theme: 'theme-spark' });
 
@@ -3381,11 +3383,88 @@ function chatThread(scope, actId) {
   $('#chat-in').addEventListener('keydown', e => { if (e.key === 'Enter') sendMsg(); });
 }
 
-/* ── Games Hub ─────────────────────────────────────────────── */
+/* ── Games Hub & How-to Engine ─────────────────────────────── */
+function showGameHowToModal(gameKey) {
+  const guide = {
+    meadow: {
+      title: '🌸 How to Play: Moja Meadow',
+      subtitle: '2D Peaceful Garden Sanctuary · 2-Minute Mindfulness',
+      route: '#/game',
+      btnText: 'Start Relaxing 🌸',
+      items: [
+        { icon: '🌱', title: 'Plant & Water', desc: 'Tap any soil patch to plant seeds, then tap growing buds with water to nourish them.' },
+        { icon: '🌟', title: 'Sky Blooms (+50 pts)', desc: 'Keep watering fully open flowers until they transform into giant radiant Sky Blooms!' },
+        { icon: '🐛', title: 'Garden Friends (+2 to +3 💧)', desc: 'Tap soil worms and worker ants to hydrate them for bonus water energy.' },
+        { icon: '🦋', title: 'Visiting Butterflies (+5 to +10 pts)', desc: 'Offer sweet dewdrop nectar when butterflies float past to deepen tranquility.' },
+        { icon: '🌧️', title: 'Summer Rain & Stars (+5 pts)', desc: 'Tap the sky to summon rain showers and catch glittering falling Rain Stars.' },
+      ]
+    },
+    game3d: {
+      title: '🐝 How to Play: Moja Bee 3D',
+      subtitle: '3D Sunray Flight & River Exploration · Hardware-Accelerated',
+      route: '#/game3d',
+      btnText: 'Take Flight 🐝',
+      items: [
+        { icon: '👆', title: 'Touch & Glide Flight', desc: 'Touch & drag anywhere on the screen (or move pointer) to steer your bee freely in 3D.' },
+        { icon: '☀️', title: 'Collect Sunrays (+10 pts)', desc: 'Fly through golden glowing sunray rings floating high above the sunflower fields.' },
+        { icon: '🍯', title: 'Pollen Pods (+15 pts)', desc: 'Collect pink blossom pods to charge your Honey Rush turbo booster.' },
+        { icon: '⚡', title: 'Honey Rush Turbo', desc: 'Tap the Honey Rush button when charged for supersonic speed and temporary invulnerability!' },
+        { icon: '⛈️', title: 'Dodge Storm Clouds', desc: 'Steer clear of dark storm clouds that cause a dizzy wobble slowdown.' },
+      ]
+    },
+    bubble: {
+      title: '🫧 How to Play: Moja Pop',
+      subtitle: 'Serenity Bubble Odyssey · 432Hz Harmonic Pop',
+      route: '#/gamebubble',
+      btnText: 'Pop Bubbles 🫧',
+      items: [
+        { icon: '🎯', title: 'Laser Trajectory Aim', desc: 'Drag to align your trajectory laser with realistic wall bounces. Release to fire!' },
+        { icon: '🫧', title: 'Harmonic Match 3+', desc: 'Connect 3 or more matching bubbles to pop them with soothing 432Hz soundscapes.' },
+        { icon: '💥', title: 'Mega Avalanches', desc: 'Sever root anchor bubbles to drop all floating clusters below for huge score multipliers!' },
+        { icon: '🔄', title: 'Bubble Swap', desc: 'Tap the Swap button or cannon bubble to switch between active and on-deck bubbles.' },
+        { icon: '💣', title: 'Hope Supernova Bomb', desc: 'Build consecutive match combos to trigger and detonate the Hope Supernova cluster bomb!' },
+      ]
+    }
+  }[gameKey];
+
+  if (!guide) return;
+
+  const content = `
+    <div class="how-to-modal">
+      <div class="modal-head">
+        <h3 style="margin:0;font-size:18px;font-weight:800;color:#ffffff">${esc(guide.title)}</h3>
+        <p style="margin:4px 0 0;font-size:12px;color:rgba(255,255,255,0.75)">${esc(guide.subtitle)}</p>
+      </div>
+      <div class="how-to-list">
+        ${guide.items.map(it => `
+          <div class="how-to-item">
+            <span class="hti-icon">${it.icon}</span>
+            <div>
+              <b>${esc(it.title)}</b>
+              <p>${esc(it.desc)}</p>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="modal-btns" style="display:flex;gap:10px;margin-top:16px">
+        <button class="btn btn-ghost" id="m-ht-close" style="flex:0 0 80px">Close</button>
+        <button class="btn btn-primary" id="m-ht-play" style="flex:1">${esc(guide.btnText)}</button>
+      </div>
+    </div>
+  `;
+
+  const m = modal(content);
+  m.querySelector('#m-ht-close').onclick = () => closeModal();
+  m.querySelector('#m-ht-play').onclick = () => {
+    closeModal();
+    nav(guide.route);
+  };
+}
+
 routes.games = () => {
   render(`
     ${header('Games & Resilience Hub 🎮', { backTo: '#/home' })}
-    <div class="body-pad" style="gap:14px">
+    <div class="body-pad" style="gap:16px">
       <div class="hero-card games-hero">
         <span class="spark-badge">RELAX &amp; PLAY</span>
         <h2 class="hdr-glare">Choose Your Resilience Game</h2>
@@ -3394,55 +3473,63 @@ routes.games = () => {
 
       <div class="game-hub-grid">
         <!-- Game 1: Moja Meadow 2D -->
-        <div class="card game-card">
+        <div class="game-card">
           <div class="game-card-head">
             <span class="game-badge">2D PEACEFUL GARDEN</span>
             <span class="game-icon">🌸</span>
           </div>
           <h3>Moja Meadow</h3>
-          <p>Nourish flowers to the sky (Giant Mega Bloom +50 🌟), hydrate soil worms (+3 💧) and ants (+2 💧), offer dewdrop nectar to butterflies (+5 / +10), summon summer rain (🌧️), and catch falling Rain Stars (⭐ +5) in a peaceful 2-minute retreat.</p>
+          <p>Nourish flowers to the sky, hydrate garden creatures, and catch falling Rain Stars in a peaceful 2-minute retreat.</p>
           <div class="game-stats-row">
             <span class="chip">🌸 <b>${S.game.blooms}</b> Blooms</span>
             <span class="chip">🌟 <b>${S.game.megaBlooms || 0}</b> Sky Blooms</span>
             <span class="chip">⭐ <b>${S.game.rainStars || 0}</b> Rain Stars</span>
-            <span class="chip">🐛 <b>${S.game.wormsHydrated || 0}</b> Worms</span>
             <span class="chip">⏳ <b>2:00</b></span>
           </div>
-          <button class="btn btn-primary btn-block" onclick="nav('#/game')">Play Moja Meadow 🌸</button>
+          <div class="game-card-actions">
+            <button class="btn btn-how-to" onclick="showGameHowToModal('meadow')">📖 How to Play</button>
+            <button class="btn btn-primary" onclick="nav('#/game')">Play Moja Meadow 🌸</button>
+          </div>
         </div>
 
         <!-- Game 2: Moja Bee 3D -->
-        <div class="card game-card">
+        <div class="game-card">
           <div class="game-card-head">
-            <span class="game-badge" style="background:#ffb703;color:#1c1917">3D SUNRAY FLIGHT</span>
+            <span class="game-badge" style="background:linear-gradient(135deg,#ffb703,#e02043);color:#fff">3D SUNRAY FLIGHT</span>
             <span class="game-icon">🐝</span>
           </div>
           <h3>Moja Bee 3D: Sunray Flight</h3>
-          <p>Fly your happy bumblebee through sunny 3D skies. Collect glowing Sunrays (+10) and Pollen Blossom pods (+15 &amp; Honey Rush!), dodge storm clouds, and enjoy realistic crash slowdown wobble.</p>
+          <p>Fly your happy bumblebee through sunny 3D skies. Collect glowing Sunrays and Pollen Blossom pods to trigger supersonic Honey Rush!</p>
           <div class="game-stats-row">
             <span class="chip">🏆 High: <b>${S.game3d?.highScore || 0}</b> pts</span>
             <span class="chip">☀️ <b>${S.game3d?.sunrays || 0}</b> Sunrays</span>
             <span class="chip">🍯 <b>${S.game3d?.pollen || 0}</b> Pollen</span>
             <span class="chip">⏳ <b>2:00</b></span>
           </div>
-          <button class="btn btn-primary btn-block" style="background:linear-gradient(135deg,#ffb703,#f3256b);color:#fff" onclick="nav('#/game3d')">Fly Moja Bee 3D 🐝</button>
+          <div class="game-card-actions">
+            <button class="btn btn-how-to" onclick="showGameHowToModal('game3d')">📖 How to Play</button>
+            <button class="btn btn-primary" style="background:linear-gradient(135deg,#ffb703,#f3256b);color:#fff" onclick="nav('#/game3d')">Fly Moja Bee 3D 🐝</button>
+          </div>
         </div>
 
         <!-- Game 3: Moja Pop Bubble Odyssey -->
-        <div class="card game-card">
+        <div class="game-card">
           <div class="game-card-head">
-            <span class="game-badge" style="background:#8a2eae;color:#fff">BUBBLE SHOOTER</span>
+            <span class="game-badge" style="background:linear-gradient(135deg,#8a2eae,#3366ff);color:#fff">BUBBLE SHOOTER</span>
             <span class="game-icon">🫧</span>
           </div>
           <h3>Moja Pop: Bubble Odyssey</h3>
-          <p>Aim with precision trajectory lasers! Match 3+ glossy bubbles with harmonic pentatonic chimes, trigger cascading floating avalanches, and detonate Hope Supernova Bombs in 2 action-packed minutes.</p>
+          <p>Aim with laser trajectory reflections to match 3+ bubbles with 432Hz harmonic chimes and trigger mega floating avalanches.</p>
           <div class="game-stats-row">
             <span class="chip">🏆 High: <b>${S.gameBubble?.highScore || 0}</b> pts</span>
             <span class="chip">🫧 <b>${S.gameBubble?.bubblesPopped || 0}</b> Popped</span>
             <span class="chip">🔥 Best: <b>x${S.gameBubble?.combos || 1}</b></span>
             <span class="chip">⏳ <b>2:00</b></span>
           </div>
-          <button class="btn btn-primary btn-block" style="background:linear-gradient(135deg,#8a2eae,#3366ff);color:#fff" onclick="nav('#/gamebubble')">Play Moja Pop 🫧</button>
+          <div class="game-card-actions">
+            <button class="btn btn-how-to" onclick="showGameHowToModal('bubble')">📖 How to Play</button>
+            <button class="btn btn-primary" style="background:linear-gradient(135deg,#8a2eae,#3366ff);color:#fff" onclick="nav('#/gamebubble')">Play Moja Pop 🫧</button>
+          </div>
         </div>
       </div>
 
