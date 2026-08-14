@@ -339,8 +339,15 @@ body::before {
 .q-intro { font-size: 13px; color: rgba(255, 255, 255, 0.88); line-height: 1.55; margin: -6px 0 0; }
 .q-item { display: flex; flex-direction: column; gap: 10px; scroll-margin-top: 96px; }
 .q-item .stmt { font-size: 14.5px; font-weight: 700; color: #ffffff; line-height: 1.5; }
-.q-item.missing .stmt { color: #ff6b8b; }
-.q-item.missing .stmt::after { content: " — please answer"; font-weight: 600; font-size: 12px; color: #ff8fa3; }
+.q-item.missing {
+  border-left: 3.5px solid #f3256b;
+  padding-left: 12px;
+  border-radius: 8px;
+  background: rgba(243, 37, 107, 0.08);
+  padding: 8px 12px;
+  transition: all .2s ease;
+}
+.q-item.missing .stmt { color: #ffffff; }
 
 /* ── Option pills (Transparent Living Glassmorphism) ──────────────── */
 .opt {

@@ -1156,7 +1156,7 @@ function runnerHTML(def, savedAnswers, { pageLabel, blurb = '' }) {
       const scale = MM.SCALES[sec.scale];
       return `<div class="q-sec">
         <div class="q-section-title"><h3>${esc(sec.title)}<span class="req">*</span></h3>
-        <span class="req-note">This question requires an answer.</span></div>
+        <span class="req-note">Please select one response for each statement.</span></div>
         ${sec.scaleName ? `<div class="q-scale-head">${esc(sec.scaleName)}</div>` : ''}
         ${sec.intro ? `<p class="q-intro">${esc(sec.intro)}</p>` : ''}
         ${sec.items.map((item, ii) => {

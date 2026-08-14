@@ -2,7 +2,7 @@
    © IONITY Global (Pty) Ltd */
 'use strict';
 
-const VERSION = 'mojamind-v2.7.6';
+const VERSION = 'mojamind-v2.7.7';
 const SHELL = [
   './',
   './index.html',
