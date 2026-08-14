@@ -29,7 +29,7 @@ const MMGame3D = (() => {
   let ac = null;
 
   // 3D Flight Session State
-  const MISSION_MS = 120000; // 2-Minute Flight Challenge (120s)
+  const MISSION_MS = 30000; // 30-Second Flight Challenge (30s)
   let sessionStart = 0;
   let missionCompleted = false;
 
@@ -293,23 +293,13 @@ const MMGame3D = (() => {
       player.vz = player.boosting ? 18.0 : 9.5;
     }
 
-    // 3) Smooth Steering & Pointer Physics
-    if (pointer.active) {
-      const dx = (pointer.curX - pointer.startX) / (W * 0.38);
-      const dy = (pointer.curY - pointer.startY) / (H * 0.38);
-      player.targetX = Math.max(-380, Math.min(380, dx * 380));
-      player.targetY = Math.max(-210, Math.min(210, dy * 210));
-    } else {
-      player.targetX *= 0.94;
-      player.targetY *= 0.94;
-    }
+    // 3) Smooth Steering & Aerodynamic Flight Physics
+    player.x += (player.targetX - player.x) * 0.16;
+    player.y += (player.targetY - player.y) * 0.16;
 
-    player.x += (player.targetX - player.x) * 0.12;
-    player.y += (player.targetY - player.y) * 0.12;
-
-    player.roll = (player.targetX - player.x) * -0.0035;
-    player.pitch = (player.targetY - player.y) * 0.004;
-    player.wingPhase += player.boosting ? 0.38 : player.crashed ? 0.08 : 0.24;
+    player.roll = (player.targetX - player.x) * -0.004;
+    player.pitch = (player.targetY - player.y) * 0.0045;
+    player.wingPhase += player.boosting ? 0.42 : player.crashed ? 0.08 : 0.26;
 
     if (player.crashed) {
       player.dizzyAngle += 0.14;
@@ -1221,7 +1211,7 @@ const MMGame3D = (() => {
     ctx.restore();
   }
 
-  /* ── 2-Minute Flight Celebration Modal ───────────────────── */
+  /* ── 30-Second Flight Celebration Modal ───────────────────── */
   function celebrate2MinComplete() {
     confetti();
     buzz([40, 100, 180]);
@@ -1235,7 +1225,7 @@ const MMGame3D = (() => {
     modal(`
       <div style="text-align:center;padding:14px 6px;color:#ffffff">
         <div style="font-size:48px;margin-bottom:8px">🐝✨</div>
-        <h3 style="font-size:22px;font-weight:800;color:#ffffff;margin-bottom:6px">2-Minute Flight Complete!</h3>
+        <h3 style="font-size:22px;font-weight:800;color:#ffffff;margin-bottom:6px">30-Second Flight Complete!</h3>
         <p style="font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.88);margin:6px 0 16px">
           Your happy bumblebee gathered <b>${player.sunrays} Sunrays</b> and <b>${player.pollen} Pollen Nectar pods</b> over <b>${player.distanceMeters}m</b>!
         </p>
@@ -1277,6 +1267,11 @@ const MMGame3D = (() => {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
+  function steer(dx, dy) {
+    player.targetX = Math.max(-380, Math.min(380, player.targetX + dx));
+    player.targetY = Math.max(-210, Math.min(210, player.targetY + dy));
+  }
+
   function mount() {
     stop();
     canvas = $('#orbit-canvas');
@@ -1287,6 +1282,7 @@ const MMGame3D = (() => {
     sessionStart = Date.now();
     missionCompleted = false;
     player.x = 0; player.y = 0; player.z = 0;
+    player.targetX = 0; player.targetY = 0;
     player.vx = 0; player.vy = 0; player.vz = 9.5;
     player.sunrays = 0; player.pollen = 0; player.score = 0;
     player.boosting = false; player.crashed = false;
@@ -1301,34 +1297,40 @@ const MMGame3D = (() => {
       const rect = canvas.getBoundingClientRect();
       const nx = ((clientX - rect.left) / rect.width) * 2 - 1;
       const ny = ((clientY - rect.top) / rect.height) * 2 - 1;
-      player.targetX = Math.max(-390, Math.min(390, nx * 390));
-      player.targetY = Math.max(-230, Math.min(230, (ny - 0.15) * 260));
+      player.targetX = Math.max(-380, Math.min(380, nx * 380));
+      player.targetY = Math.max(-210, Math.min(210, (ny - 0.1) * 230));
     }
 
-    canvas.addEventListener('pointerdown', e => {
+    const onPointerDown = e => {
       pointer.active = true;
+      try { canvas.setPointerCapture(e.pointerId); } catch {}
       updatePointerPos(e.clientX, e.clientY);
-    });
+    };
 
-    window.addEventListener('pointermove', e => {
-      if (pointer.active) {
+    const onPointerMove = e => {
+      if (pointer.active || e.pointerType === 'mouse') {
         updatePointerPos(e.clientX, e.clientY);
       }
-    });
+    };
 
-    window.addEventListener('pointerup', () => {
+    const onPointerUp = e => {
       pointer.active = false;
-    });
+      try { canvas.releasePointerCapture(e.pointerId); } catch {}
+    };
+
+    canvas.addEventListener('pointerdown', onPointerDown);
+    canvas.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+    window.addEventListener('pointercancel', onPointerUp);
 
     const onKey = e => {
-      if (['ArrowLeft', 'a', 'A'].includes(e.key)) { e.preventDefault(); player.targetX = Math.max(-380, player.targetX - 45); }
-      if (['ArrowRight', 'd', 'D'].includes(e.key)) { e.preventDefault(); player.targetX = Math.min(380, player.targetX + 45); }
-      if (['ArrowUp', 'w', 'W'].includes(e.key)) { e.preventDefault(); player.targetY = Math.max(-220, player.targetY - 35); }
-      if (['ArrowDown', 's', 'S'].includes(e.key)) { e.preventDefault(); player.targetY = Math.min(220, player.targetY + 35); }
+      if (['ArrowLeft', 'a', 'A'].includes(e.key)) { e.preventDefault(); steer(-40, 0); }
+      if (['ArrowRight', 'd', 'D'].includes(e.key)) { e.preventDefault(); steer(40, 0); }
+      if (['ArrowUp', 'w', 'W'].includes(e.key)) { e.preventDefault(); steer(0, -35); }
+      if (['ArrowDown', 's', 'S'].includes(e.key)) { e.preventDefault(); steer(0, 35); }
       if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); triggerBoost(); }
     };
     window.addEventListener('keydown', onKey);
-
     window.addEventListener('resize', resize);
 
     last = 0;
@@ -1348,5 +1350,5 @@ const MMGame3D = (() => {
     objects = []; groundFlowers = []; butterflies = []; skyParticles = []; particles = []; popups = [];
   }
 
-  return { mount, stop, triggerBoost, getHighScore: () => G3().highScore || 0 };
+  return { mount, stop, triggerBoost, steer, getHighScore: () => G3().highScore || 0 };
 })();

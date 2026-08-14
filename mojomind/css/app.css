@@ -876,7 +876,7 @@ body::after {
 .floating-exercise-tab {
   position: fixed;
   right: 0;
-  top: 52%;
+  top: 26%;
   transform: translateY(-50%);
   z-index: 900;
   display: flex;
@@ -1574,7 +1574,7 @@ body::after {
 .floating-spark-tab {
   position: fixed;
   right: 0;
-  top: 42%;
+  top: 16%;
   transform: translateY(-50%);
   z-index: 900;
   display: flex;
@@ -2847,19 +2847,91 @@ body.rm .beacon-title::after {
 }
 #orbit-canvas { width: 100%; height: 100%; display: block; }
 .orbit-controls-overlay {
-  position: absolute; bottom: 14px; right: 14px;
-  z-index: 10; pointer-events: auto;
+  position: absolute; bottom: 12px; left: 12px; right: 12px;
+  z-index: 10; pointer-events: none;
+  display: flex; align-items: flex-end; justify-content: space-between;
+}
+.orbit-dpad {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  pointer-events: auto;
+}
+.dpad-row {
+  display: flex; gap: 4px;
+}
+.dpad-btn {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: rgba(22, 7, 36, 0.85); backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255, 209, 102, 0.5);
+  color: #ffd700; font-size: 14px; font-weight: 800;
+  display: grid; place-items: center; cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  touch-action: manipulation; user-select: none;
+  transition: transform 0.1s ease, background 0.15s ease;
+}
+.dpad-btn:active {
+  transform: scale(0.9);
+  background: rgba(51, 102, 255, 0.85);
+  border-color: #6ec1ff;
+  color: #ffffff;
 }
 .orbit-boost-btn {
+  pointer-events: auto;
   background: linear-gradient(135deg, #ffd700 0%, #ff9e00 50%, #f3256b 100%);
   color: #ffffff; border: 1.5px solid rgba(255, 255, 255, 0.85);
-  border-radius: 999px; padding: 9px 18px;
+  border-radius: 999px; padding: 10px 18px;
   font: 800 12.5px var(--font); letter-spacing: .6px;
   box-shadow: 0 6px 20px rgba(245, 158, 11, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.4);
   cursor: pointer; transition: transform .12s ease, box-shadow .2s ease;
+  touch-action: manipulation;
 }
 .orbit-boost-btn:hover { transform: scale(1.04); box-shadow: 0 8px 24px rgba(245, 158, 11, 0.7); }
 .orbit-boost-btn:active { transform: scale(.92); }
+
+/* ── Study Groups Admin Billboard ─────────────────────────── */
+.group-billboard-card {
+  background: linear-gradient(145deg, rgba(32, 10, 52, 0.95), rgba(16, 4, 28, 0.98));
+  border: 1.8px solid #ffd166;
+  border-radius: 20px;
+  padding: 16px 14px;
+  margin-bottom: 14px;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5), 0 0 16px rgba(255, 209, 102, 0.25);
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+.gb-badge-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase;
+  color: #ffd700; letter-spacing: 0.5px;
+}
+.gb-pinned-pill {
+  background: linear-gradient(135deg, #f3256b, #8a2eae);
+  color: #ffffff; padding: 3px 9px; border-radius: 8px;
+  font-size: 10px; font-weight: 700; border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.gb-title {
+  font-size: 16px; font-weight: 800; color: #ffffff; margin: 0 0 6px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+.gb-announcement-box {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px dashed rgba(255, 209, 102, 0.45);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 12.5px; line-height: 1.55;
+  color: rgba(255, 255, 255, 0.92);
+  margin-bottom: 10px;
+}
+.gb-meta-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11.5px;
+}
+.gb-meta-item {
+  background: rgba(0, 0, 0, 0.3); padding: 7px 10px; border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.gb-meta-item small { color: #6ec1ff; font-weight: 600; font-size: 10px; }
+.gb-meta-item b { color: #ffffff; font-size: 11.5px; }
 
 /* ── Writer / Journal (Translucent Glassmorphism) ─────────── */
 .journal-card {

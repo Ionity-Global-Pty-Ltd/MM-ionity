@@ -1660,7 +1660,7 @@ routes.home = () => {
         </div>
         <div class="greet-actions">
           <button class="chip chip-cta chip-hope" id="go-hope">🌟<span>Hope</span></button>
-          <button class="chip chip-cta" id="go-spark">${I.sparkle}<span>Daily Spark${(S.sparks || []).some(s => s.day === dayKey()) ? ' ✨' : ''}</span></button>
+          <button class="chip chip-cta chip-spark" id="go-spark" onclick="nav('#/spark')">${I.sparkle}<span>Daily Spark${(S.sparks || []).some(s => s.day === dayKey()) ? ' ✨' : ''}</span></button>
         </div>
       </div>
       ${journeyDots()}
@@ -1748,16 +1748,8 @@ routes.home = () => {
         </span>
         <span class="ns-go">›</span>
       </button>
-      <div class="tile-grid">
-        ${tile(I.info, 'Instructions', '#/instructions')}
-        ${tile(I.headset, 'Support Services', '#/support')}
-        ${tile(I.doc, 'Pre-Survey', '#/pre', { badge: preDone() ? '✓' : `${preCount}/3`, badgeDone: preDone() })}
-        ${hasArt() ? tile(I.palette, 'Art Activities', '#/art', { locked: !artOpen(), badge: artOpen() && actsDone() ? `${actsDone()}/8` : null }) : ''}
-        ${hasChat() ? tile(I.chat, 'Chat', '#/chat', { locked: !chatOpen() }) : ''}
-        ${tile(I.clipboardCheck, 'Post-Survey', '#/post', { locked: !postOpen(), badge: postOpen() ? (postDone() ? '✓' : `${postCount}/4`) : null, badgeDone: postDone() })}
-        ${tile(I.gamepad, 'Games Hub (2D & 3D)', '#/games', { badge: '3 Games 🎮' })}
-        ${tile(I.journal, 'Writer & Journal', '#/journal', { badge: S.journal?.length ? `${S.journal.length}` : 'New' })}
-      </div>
+
+      <!-- Jump Back In Quick Predictions (High Priority) -->
       ${(() => {
         const guesses = Predict.next('home', 3);
         return guesses.length ? `
@@ -1768,23 +1760,35 @@ routes.home = () => {
             </div>
           </div>` : '';
       })()}
-      <div class="garden-wrap">
-        <div class="garden-title">Your mood garden</div>
-        <div class="garden-subtitle">${S.moods.length ? `${S.moods.length + 1} flowers growing with you` : 'Your first flower is already here — check in to help it grow'}</div>
-        ${gardenSVG()}
-      </div>
 
-      <!-- Moja Bee 3D Launch Card at the Bottom -->
+      <!-- Moja Bee 3D Featured Quick Play Block -->
       <div class="game3d-bottom-card" onclick="nav('#/game3d')" role="button" tabindex="0" aria-label="Play Moja Bee 3D Sunray Flight">
         <div class="g3b-inner">
           <div class="g3b-icon">🐝✨</div>
           <div class="g3b-text">
-            <div class="g3b-tag">3D SUNRAY FLIGHT • GAME ENGINE</div>
+            <div class="g3b-tag">3D SUNRAY FLIGHT • 30S CHALLENGE</div>
             <b>Moja Bee 3D: River &amp; Meadow Flight</b>
             <p>Fly over blooming sunflower fields and sparkling winding rivers to gather radiant sunrays.</p>
           </div>
         </div>
         <button class="btn btn-primary btn-block g3b-btn">Fly Moja Bee 3D 🐝</button>
+      </div>
+
+      <div class="tile-grid">
+        ${tile(I.info, 'Instructions', '#/instructions')}
+        ${tile(I.headset, 'Support Services', '#/support')}
+        ${tile(I.doc, 'Pre-Survey', '#/pre', { badge: preDone() ? '✓' : `${preCount}/3`, badgeDone: preDone() })}
+        ${hasArt() ? tile(I.palette, 'Art Activities', '#/art', { locked: !artOpen(), badge: artOpen() && actsDone() ? `${actsDone()}/8` : null }) : ''}
+        ${hasChat() ? tile(I.chat, 'Chat', '#/chat', { locked: !chatOpen() }) : ''}
+        ${tile(I.clipboardCheck, 'Post-Survey', '#/post', { locked: !postOpen(), badge: postOpen() ? (postDone() ? '✓' : `${postCount}/4`) : null, badgeDone: postDone() })}
+        ${tile(I.gamepad, 'Games Hub (2D & 3D)', '#/games', { badge: '3 Games 🎮' })}
+        ${tile(I.journal, 'Writer & Journal', '#/journal', { badge: S.journal?.length ? `${S.journal.length}` : 'New' })}
+      </div>
+
+      <div class="garden-wrap">
+        <div class="garden-title">Your mood garden</div>
+        <div class="garden-subtitle">${S.moods.length ? `${S.moods.length + 1} flowers growing with you` : 'Your first flower is already here — check in to help it grow'}</div>
+        ${gardenSVG()}
       </div>
 
       <button class="privacy-strip" id="go-privacy">
@@ -2531,6 +2535,35 @@ routes.privacy = (_, isBack) => {
 function groupChangeModal() {
   let picked = S.group;
   const m = modal(`
+    <div class="group-billboard-card">
+      <div class="gb-badge-top">
+        <span>📌 Study Admin Billboard</span>
+        <span class="gb-pinned-pill">Admin Broadcast</span>
+      </div>
+      <h4 class="gb-title">Study Facilitator Noticeboard</h4>
+      <div class="gb-announcement-box">
+        📢 <b>Cohort Protocol Active</b>: Welcome to your MojaMind study cohort. Remember to complete your weekly check-ins, journal reflections, and creative art sessions to unlock your authenticated Stellenbosch University certificate!
+      </div>
+      <div class="gb-meta-grid">
+        <div class="gb-meta-item">
+          <small>Active Group</small>
+          <b>${esc(MM.GROUPS[S.group]?.name || 'Group ' + S.group)}</b>
+        </div>
+        <div class="gb-meta-item">
+          <small>Facilitator Line</small>
+          <b>0800 000 700</b>
+        </div>
+        <div class="gb-meta-item">
+          <small>Support Hours</small>
+          <b>Mon–Fri: 08:00–17:00</b>
+        </div>
+        <div class="gb-meta-item">
+          <small>Ethics Protocol</small>
+          <b>#SU-HREC-2026</b>
+        </div>
+      </div>
+    </div>
+
     <h3>Change study group</h3>
     <p style="font-size:12.8px;line-height:1.6;color:#ffffff;margin:0 0 12px">
       Only change this if your facilitator asked you to. Your surveys, activities and reflections
@@ -4156,12 +4189,20 @@ routes.game3d = () => {
         <span class="hud-chip">⭐ High: <b id="orbit-high">${S.game3d?.highScore || 0}</b></span>
         <span class="hud-chip">☀️ <b id="orbit-sunrays">0</b></span>
         <span class="hud-chip">🍯 <b id="orbit-pollen">0</b></span>
-        <span class="hud-chip timer-chip">⏳ <span id="orbit-timer">2:00</span></span>
+        <span class="hud-chip timer-chip" title="30-Second Flight Challenge">⏳ <span id="orbit-timer">0:30</span></span>
         <span class="hud-chip">📏 <span id="orbit-dist">0m</span></span>
       </div>
       <div class="orbit-frame">
         <canvas id="orbit-canvas" aria-label="Moja Bee 3D Sunray Flight"></canvas>
         <div class="orbit-controls-overlay">
+          <div class="orbit-dpad">
+            <button class="dpad-btn dpad-up" id="bee-up" aria-label="Fly Up">▲</button>
+            <div class="dpad-row">
+              <button class="dpad-btn dpad-left" id="bee-left" aria-label="Steer Left">◀</button>
+              <button class="dpad-btn dpad-down" id="bee-down" aria-label="Fly Down">▼</button>
+              <button class="dpad-btn dpad-right" id="bee-right" aria-label="Steer Right">▶</button>
+            </div>
+          </div>
           <button class="orbit-boost-btn" id="orbit-boost" style="background:linear-gradient(135deg,#ffb703,#e02043);border-color:#ffe066" title="Honey Rush Boost">⚡ HONEY RUSH</button>
         </div>
       </div>
@@ -4170,14 +4211,16 @@ routes.game3d = () => {
         <button class="btn btn-secondary btn-block" onclick="nav('#/gamebubble')">🫧 Play Moja Pop</button>
       </div>
       <p class="meadow-hint" style="text-align:center">
-        <b>Touch &amp; drag anywhere</b> to steer bumblebee · Collect <b>☀️ Sunrays (+10)</b> · Gather <b>🍯 Pollen (+25 &amp; Rush!)</b> · Storm clouds cause a dizzy wobble slowdown!
+        <b>Touch &amp; drag anywhere or use D-Pad</b> to steer bumblebee · Collect <b>☀️ Sunrays (+10)</b> · Gather <b>🍯 Pollen (+25 &amp; Rush!)</b> · Storm clouds cause a dizzy wobble slowdown!
       </p>
     </div>
   `);
 
-  $('#orbit-boost')?.addEventListener('click', () => {
-    MMGame3D.triggerBoost();
-  });
+  $('#orbit-boost')?.addEventListener('click', () => MMGame3D.triggerBoost());
+  $('#bee-up')?.addEventListener('click', () => MMGame3D.steer(0, -45));
+  $('#bee-down')?.addEventListener('click', () => MMGame3D.steer(0, 45));
+  $('#bee-left')?.addEventListener('click', () => MMGame3D.steer(-50, 0));
+  $('#bee-right')?.addEventListener('click', () => MMGame3D.steer(50, 0));
 
   MMGame3D.mount();
 };
@@ -4196,7 +4239,7 @@ routes.gamebubble = () => {
         <span class="hud-chip">⭐ High: <b id="bubble-high">${S.gameBubble?.highScore || 0}</b></span>
         <span class="hud-chip">❤️ <span id="bubble-lives">❤️❤️❤️</span></span>
         <span class="hud-chip" id="bubble-pushback" style="color:#6ec1ff">🛡️ Push Back Ready</span>
-        <span class="hud-chip timer-chip" title="2-Minute Countdown Challenge">⏳ <span id="bubble-timer">2:00</span></span>
+        <span class="hud-chip timer-chip" title="30-Second Countdown Challenge">⏳ <span id="bubble-timer">0:30</span></span>
         <button class="hud-chip hud-btn" id="bubble-swap" title="Swap loaded bubble">🔄 Swap</button>
       </div>
       <div class="bubble-frame">
@@ -4207,7 +4250,7 @@ routes.gamebubble = () => {
         <button class="btn btn-primary btn-block" style="background:linear-gradient(135deg,#ffb703,#f3256b);color:#fff" onclick="nav('#/game3d')">🐝 Play Moja Bee 3D</button>
       </div>
       <p class="meadow-hint" style="text-align:center">
-        <b>Touch &amp; drag to aim laser</b> · Match 3+ bubbles · <b>2-Min or 3 Lives Challenge</b> · Touching danger line triggers <b>1 Reset Push Back 🛡️</b>, then life lost · Disconnect clusters for <b>💥 MEGA AVALANCHES</b>!
+        <b>Touch &amp; drag to aim laser</b> · Match 3+ bubbles · <b>30-Sec or 3 Lives Challenge</b> · Touching danger line triggers <b>1 Reset Push Back 🛡️</b>, then life lost · Disconnect clusters for <b>💥 MEGA AVALANCHES</b>!
       </p>
     </div>
   `);

@@ -30,7 +30,7 @@ const MMGame = (() => {
   const GROW_MS = 30000;           // seed → bloom, unwatered
   const SEASON_MS = 45000;         // auto-transition seasons every 45s
   const CHECKPOINT_MS = 15000;     // checkpoint interval
-  const MISSION_LIMIT_MS = 120000; // 2-Minute Session Countdown (120s)
+  const MISSION_LIMIT_MS = 30000;  // 30-Second Session Countdown (30s)
 
   let canvas = null, ctx = null, W = 0, H = 0, dpr = 1;
   let raf = 0, last = 0, t = 0, mounted = false;
@@ -703,7 +703,7 @@ const MMGame = (() => {
     ctx.beginPath(); ctx.arc(0, 0, R * 0.22, 0, Math.PI * 2); ctx.fill();
   }
 
-  /* ── 2-Minute Session Challenge Celebration Modal ────────── */
+  /* ── 30-Second Session Challenge Celebration Modal ────────── */
   function celebrate2MinSession() {
     confetti();
     buzz([30, 80, 120]);
@@ -713,9 +713,9 @@ const MMGame = (() => {
     modal(`
       <div style="text-align:center;padding:14px 6px;color:#ffffff">
         <div style="font-size:46px;margin-bottom:8px">🌸✨</div>
-        <h3 style="font-size:20px;font-weight:800;color:#ffffff;margin-bottom:6px">2-Minute Meadow Challenge Complete!</h3>
+        <h3 style="font-size:20px;font-weight:800;color:#ffffff;margin-bottom:6px">30-Second Meadow Challenge Complete!</h3>
         <p style="font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.85);margin:6px 0 16px">
-          You spent 2 peaceful minutes nurturing botanical life, caring for garden creatures, and experiencing changing seasons.
+          You spent 30 peaceful seconds nurturing botanical life, caring for garden creatures, and experiencing changing seasons.
         </p>
         <div style="background:rgba(255,255,255,0.08);backdrop-filter:blur(16px);border:1.5px solid rgba(51,102,255,0.4);border-radius:18px;padding:14px;margin-bottom:18px;text-align:left">
           <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:rgba(255,255,255,0.9)"><span>🌸 Blooms Nourished:</span><b>${G().blooms}</b></div>
@@ -1257,7 +1257,7 @@ routes.game = () => {
         <span class="hud-chip" title="Flowers bloomed">🌸 <b id="m-blooms">${S.game?.blooms || 0}</b></span>
         <span class="hud-chip" title="Serenity Points">💜 <b id="m-ser">${S.game?.serenity || 0}</b></span>
         <button class="hud-chip hud-btn" id="m-season-btn" title="Cycle Season (Spring, Summer, Autumn, Winter)">🍂 <span id="m-season">🌸 Spring</span></button>
-        <span class="hud-chip timer-chip" title="2-Minute Countdown Challenge">⏳ <span id="m-timer">2:00</span></span>
+        <span class="hud-chip timer-chip" title="30-Second Countdown Challenge">⏳ <span id="m-timer">0:30</span></span>
         <button class="hud-chip hud-btn" id="m-rain" title="Summon Rain Shower & Catch Falling Stars">🌧️ Rain</button>
         <button class="hud-chip hud-btn" id="m-sound" aria-pressed="${S.game?.sound}">${S.game?.sound ? '🔔 Sound' : '🔕 Mute'}</button>
         <button class="hud-chip hud-btn" id="m-clear">🌱 New</button>

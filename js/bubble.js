@@ -25,7 +25,7 @@ const MMBubble = (() => {
   let raf = 0, last = 0, t = 0, mounted = false;
   let ac = null;
 
-  const MISSION_MS = 120000; // 2-Minute Countdown Challenge (120s)
+  const MISSION_MS = 30000; // 30-Second Countdown Challenge (30s)
   const MAX_LIVES = 3;
   let sessionStart = 0;
   let gameOver = false;
