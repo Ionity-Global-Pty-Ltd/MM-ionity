@@ -1283,10 +1283,12 @@ body {
   border-left: 3px solid #7c2529; padding-left: 9px;
 }
 .splash-partner-mark.su .wordmark { font-family: Georgia, 'Times New Roman', serif; }
-/* Transparent Stellenbosch University logo on dark splash background */
+/* Transparent Stellenbosch University circular seal */
 .splash-partner-mark.su img {
-  max-width: 175px; max-height: 54px;
-  background: transparent; border-radius: 0; padding: 0;
+  width: 58px; height: 58px;
+  max-width: 58px; max-height: 58px;
+  object-fit: contain;
+  background: transparent; border-radius: 50%; padding: 0;
   box-shadow: none;
   filter: drop-shadow(0 4px 14px rgba(0,0,0,.6));
 }
@@ -1299,7 +1301,21 @@ body {
   filter: drop-shadow(0 3px 12px rgba(0,0,0,.5));
 }
 .gilead-word { border-left: 0 !important; padding-left: 0 !important; font-size: 21px; letter-spacing: 5px; font-weight: 800; color: #d3242c; text-shadow: 0 0 22px rgba(255,255,255,.22); }
-.splash-foot { margin-top: 26px; color: #ffffff; font-size: 11.2px; font-weight: 600; letter-spacing: .5px; animation: splash-rise .7s ease both .8s; text-shadow: 0 1px 6px rgba(0,0,0,.6); }
+
+.splash-io-brand {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 22px;
+  animation: splash-rise .7s ease both .8s;
+}
+.splash-io-logo {
+  height: 34px; width: auto; object-fit: contain;
+  filter: drop-shadow(0 4px 14px rgba(0,0,0,.6));
+}
+.splash-foot {
+  margin: 0; color: #ffffff; font-size: 11.5px; font-weight: 600; letter-spacing: .5px;
+  text-shadow: 0 1px 6px rgba(0,0,0,.6);
+}
+.splash-foot a { color: #ffd700; text-decoration: none; font-weight: 700; }
+.splash-foot a:hover { text-decoration: underline; }
 
 /* ── Header accessibility button ─────────────────────────── */
 .hdr-a11y {

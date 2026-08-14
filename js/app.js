@@ -391,7 +391,7 @@ function bootSplash() {
             <img src="./assets/branding/shout-it-now-logo.png" alt="SHOUT-IT-NOW" class="splash-shout" />
             <span class="splash-amp">&amp;</span>
             <span class="splash-partner-mark su has-img">
-              <img src="./assets/partners/stellenbosch-transparent.svg" alt="Stellenbosch University" class="su-trans-logo" />
+              <img src="./assets/partners/stellenbosch-transparent.png" alt="Stellenbosch University" class="su-trans-logo" />
             </span>
           </div>
         </div>
@@ -402,7 +402,10 @@ function bootSplash() {
           </span>
         </div>
       </div>
-      <p class="splash-foot">Crafted by IONITY GLOBAL (PTY) LTD · www.ionity.co.za</p>
+      <div class="splash-io-brand">
+        <img src="./assets/branding/ionity-global.png" alt="IONITY GLOBAL" class="splash-io-logo" />
+        <p class="splash-foot">Crafted by <a href="https://www.ionity.today" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a> · <a href="https://www.ionity.today" target="_blank" rel="noopener">www.ionity.today</a></p>
+      </div>
     </div>`;
   document.body.appendChild(el);
   const dismiss = () => {
@@ -1056,7 +1059,7 @@ routes.signin = () => {
       </div>
       <button class="btn btn-primary btn-block" id="f-login">Sign in with number</button>
       <p class="datafree-note">📶 DataFree friendly — works offline once installed</p>
-      <p class="auth-foot">${MM.APP_NAME} · Creative Resilience Intervention<br/>${esc(MM.PARTNERS.line)}<br/>Crafted with ❤ by <a href="https://www.ionity.co.za" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a> · <a class="io-url" href="https://www.ionity.co.za" target="_blank" rel="noopener">www.ionity.co.za</a></p>
+      <p class="auth-foot">${MM.APP_NAME} · Creative Resilience Intervention<br/>${esc(MM.PARTNERS.line)}<br/><img src="./assets/branding/ionity-global.png" alt="IONITY GLOBAL" style="height:26px;margin:6px auto;display:block;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.4))" />Crafted with ❤ by <a href="https://www.ionity.today" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a> · <a class="io-url" href="https://www.ionity.today" target="_blank" rel="noopener">www.ionity.today</a></p>
     </div>
   `, { theme: 'theme-auth' });
   app.querySelectorAll('.gp-btn').forEach(b => b.addEventListener('click', () => {
@@ -1115,7 +1118,7 @@ routes.welcome = () => {
       <div class="welcome-partners">${esc(MM.PARTNERS.line)}</div>
       <p style="color:#fff;font-weight:700;margin:22px 0 14px">${esc(MM.ONBOARD.ready)}</p>
       <button class="btn btn-primary" id="w-next" style="min-width:200px">Next</button>
-      <p class="auth-foot">A Creative Resilience journey by <a href="https://www.ionity.co.za" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a><br/><a class="io-url" href="https://www.ionity.co.za" target="_blank" rel="noopener">www.ionity.co.za</a></p>
+      <p class="auth-foot">A Creative Resilience journey by <br/><img src="./assets/branding/ionity-global.png" alt="IONITY GLOBAL" style="height:26px;margin:6px auto;display:block;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.4))" /><a href="https://www.ionity.today" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a><br/><a class="io-url" href="https://www.ionity.today" target="_blank" rel="noopener">www.ionity.today</a></p>
     </div>
   `, { theme: 'theme-auth' });
   $('#w-next').onclick = () => { S.onboarded = true; save(); nav('#/home'); };
@@ -1690,11 +1693,11 @@ routes.spark = () => {
 function ionityFooter() {
   return `<footer class="ionity-foot">
     <div class="io-logo-wrap">
-      <img class="io-logo-img" src="./assets/branding/ionity-logo.svg" alt="IONITY GLOBAL" />
+      <img class="io-logo-img" src="./assets/branding/ionity-global.png" alt="IONITY GLOBAL" />
     </div>
     <div class="io-credits">
-      <span>Crafted by <a href="https://www.ionity.co.za" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a></span>
-      <a class="io-url" href="https://www.ionity.co.za" target="_blank" rel="noopener">www.ionity.co.za</a>
+      <span>Crafted by <a href="https://www.ionity.today" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a></span>
+      <a class="io-url" href="https://www.ionity.today" target="_blank" rel="noopener">www.ionity.today</a>
     </div>
   </footer>`;
 }
