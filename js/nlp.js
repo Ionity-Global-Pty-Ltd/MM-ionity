@@ -341,7 +341,7 @@ const MMNLP = (() => {
     for (const k of Object.keys(THEME_PATTERNS)) counts[k] = 0;
 
     for (const e of entries) {
-      const txt = (e.text || '') + ' ' + (e.title || '') + ' ' + (e.notes || '');
+      const txt = (e.body || '') + ' ' + (e.text || '') + ' ' + (e.title || '') + ' ' + (e.notes || '') + ' ' + (e.mood || '');
       const themes = extractThemes(txt);
       for (const th of themes) counts[th.key] = (counts[th.key] || 0) + 1;
     }
@@ -355,9 +355,49 @@ const MMNLP = (() => {
     }));
   }
 
+  /* ── Micro-AI Cognitive Reframing & Empathy Engine ──────── */
+  function getReframingSuggestion(text) {
+    if (!text || text.length < 5) return null;
+    const lower = text.toLowerCase();
+
+    if (/failure|ruined|can'?t do anything|i am stupid|worthless|hopeless/i.test(lower)) {
+      return {
+        icon: '🌱',
+        title: 'Compassionate Reframe',
+        prompt: 'Notice the harsh judgment. Can you whisper to yourself: "I am learning, I am human, and one difficult moment does not define my worth."?',
+      };
+    }
+    if (/always|never|everybody hates|no one cares/i.test(lower)) {
+      return {
+        icon: '🌊',
+        title: 'Perspective Shift',
+        prompt: 'Strong emotions make things feel all-or-nothing. Look for one tiny exception where someone or something showed you kindness.',
+      };
+    }
+    if (/overwhelmed|too much|drowning|exploding/i.test(lower)) {
+      return {
+        icon: '🌿',
+        title: 'Grounding Seed',
+        prompt: 'Break the mountain into a single pebble. What is just one small thing you can do or let go of in the next 10 minutes?',
+      };
+    }
+    if (/hope|ithemba|tsholofelo|grateful|thank/i.test(lower)) {
+      return {
+        icon: '✨',
+        title: 'Resilience Anchor',
+        prompt: 'Anchor this warm light into your memory. When storms arrive, this feeling is your compass.',
+      };
+    }
+    return {
+      icon: '💜',
+      title: 'Gentle Reflection',
+      prompt: 'Writing this out gives you clarity and space. Honor how much courage it takes to listen to your inner self.',
+    };
+  }
+
   return {
     analyse, analyseDeep, lexSentiment, riskOf, topicsOf,
-    extractThemes, resilienceConstellation, THEME_PATTERNS,
+    extractThemes, resilienceConstellation, getReframingSuggestion, THEME_PATTERNS,
     enableTransformer, disableTransformer, transformerReady, transformerInfo,
     MODELS,
   };

@@ -2714,9 +2714,26 @@ function artDetail(a, tab) {
         : st.uploads.length ? `<button class="btn btn-ghost read-colours" id="read-colours">${I.sparkle} Read colours</button>` : ''}
       <input type="file" id="file-in" accept="image/*" multiple class="hidden" />
       ${locked ? '' : `
-        <div class="make-row">
-          <button class="make-btn" id="upload-btn">${I.camera}<b>Upload a photo</b><small>of art you made off the phone</small></button>
-          <button class="make-btn draw" id="draw-btn">${I.brush}<b>Draw it here</b><small>finger or pen, right on your screen</small></button>
+        <div class="art-creator-hub">
+          <div class="art-choice-card draw-choice" id="draw-btn" role="button" tabindex="0">
+            <div class="acc-head">
+              <span class="acc-badge">🎨 DIGITAL PAINT STUDIO</span>
+              <span class="acc-icon">🖌️</span>
+            </div>
+            <b>Draw &amp; Paint Directly on Screen</b>
+            <p>Full paintbrush suite, custom colors, neon glow, stamps &amp; live on-device Moja Vision AI analysis.</p>
+            <button class="btn btn-primary btn-block" style="margin-top:4px">Launch Drawing Studio 🎨</button>
+          </div>
+
+          <div class="art-choice-card photo-choice" id="upload-btn" role="button" tabindex="0">
+            <div class="acc-head">
+              <span class="acc-badge" style="background:linear-gradient(135deg,#3366ff,#8a2eae)">📷 PHYSICAL ARTWORK</span>
+              <span class="acc-icon">📸</span>
+            </div>
+            <b>Upload or Snap a Photo</b>
+            <p>Take a picture of paintings, crafts, nature collages, or drawings made with physical materials.</p>
+            <button class="btn btn-outline btn-block" style="margin-top:4px">Upload Photo 📷</button>
+          </div>
         </div>`}
       <div class="act-foot-btns" style="padding:0;justify-content:flex-end">
         <button class="btn btn-primary" data-go="reflections">Reflect</button>
@@ -3277,8 +3294,17 @@ function chatThread(scope, actId) {
       ${msgs.map(bubbleHTML).join('')}
     </div>
     <div class="chat-input-row">
-      <input id="chat-in" placeholder="${S.adminMode ? 'Reply as Facilitator…' : 'Type a message…'}" autocomplete="off" maxlength="600" />
-      <button class="send ${S.adminMode ? 'adm' : ''}" id="chat-send" aria-label="Send">${I.send}</button>
+      <div class="chat-prompts-strip" role="toolbar" aria-label="Suggested quick questions">
+        <button class="chat-prompt-pill" data-q="🌸 How do I get started with ${esc(a.name)}?">🌸 How do I start?</button>
+        <button class="chat-prompt-pill" data-q="✨ Can you give me feedback on my artwork?">✨ Artwork feedback</button>
+        <button class="chat-prompt-pill" data-q="🌱 What materials do I need for this?">🌱 What do I need?</button>
+        <button class="chat-prompt-pill" data-q="💜 I am feeling a bit stuck on reflections.">💜 Need reflection tip</button>
+        <button class="chat-prompt-pill" data-q="🌟 Feeling proud of completing this week!">🌟 Celebrate progress</button>
+      </div>
+      <div class="chat-input-bar">
+        <input id="chat-in" placeholder="${S.adminMode ? 'Reply as Facilitator…' : 'Type a message or tap a prompt…'}" autocomplete="off" maxlength="600" />
+        <button class="send ${S.adminMode ? 'adm' : ''}" id="chat-send" aria-label="Send">${I.send}</button>
+      </div>
     </div>
   `, { theme: 'theme-purple' });
 
@@ -3381,6 +3407,17 @@ function chatThread(scope, actId) {
   };
   $('#chat-send').onclick = sendMsg;
   $('#chat-in').addEventListener('keydown', e => { if (e.key === 'Enter') sendMsg(); });
+  app.querySelectorAll('.chat-prompt-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const q = pill.dataset.q;
+      if (!q) return;
+      const inp = $('#chat-in');
+      if (inp) {
+        inp.value = q;
+        sendMsg();
+      }
+    });
+  });
 }
 
 /* ── Games Hub & How-to Engine ─────────────────────────────── */

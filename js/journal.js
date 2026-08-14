@@ -83,12 +83,15 @@ const MMJournal = (() => {
   /* ── Tiny Connected AI Companion ────────────────────────── */
   function generateAiReflection(text) {
     if (!text || text.trim().length < 6) return null;
-    let score = 0, flagged = false;
+    let score = 0, flagged = false, reframing = null;
     try {
       if (typeof MMNLP !== 'undefined' && MMNLP.analyse) {
         const nlp = MMNLP.analyse(text);
         score = nlp.sentiment?.score || 0;
         flagged = nlp.risk?.flagged || false;
+        if (MMNLP.getReframingSuggestion) {
+          reframing = MMNLP.getReframingSuggestion(text);
+        }
       }
     } catch (e) {
       console.warn('NLP analysis safe fallback:', e);
@@ -99,6 +102,14 @@ const MMJournal = (() => {
         type: 'care',
         icon: '💜',
         message: 'Thank you for writing down how heavy things feel. Please remember Support Services and human care are right here for you.',
+      };
+    }
+
+    if (reframing) {
+      return {
+        type: 'reframing',
+        icon: reframing.icon,
+        message: `${reframing.title}: ${reframing.prompt}`,
       };
     }
 
