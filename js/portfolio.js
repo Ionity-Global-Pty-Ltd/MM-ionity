@@ -9,15 +9,43 @@
 'use strict';
 
 const MMPortfolio = (() => {
-  async function generateVerificationHash(participantId = 'MOJA-STUDY') {
-    const raw = `${participantId}-${Date.now()}-${S.study?.week || 1}-${S.game?.serenity || 0}`;
+  const MANDELA_QUOTES = [
+    { text: "It always seems impossible until it is done.", author: "Nelson Mandela" },
+    { text: "The greatest glory in living lies not in never falling, but in rising every time we fall.", author: "Nelson Mandela" },
+    { text: "May your choices reflect your hopes, not your fears.", author: "Nelson Mandela" },
+    { text: "There is no passion to be found playing small — in settling for a life that is less than the one you are capable of living.", author: "Nelson Mandela" },
+    { text: "After climbing a great hill, one only finds that there are many more hills to climb.", author: "Nelson Mandela" }
+  ];
+
+  function getMandelaQuote() {
+    if (!S.mandelaQuote) {
+      const pick = MANDELA_QUOTES[Math.floor(Math.random() * MANDELA_QUOTES.length)];
+      S.mandelaQuote = pick;
+      if (typeof save === 'function') save();
+    }
+    return S.mandelaQuote;
+  }
+
+  function getParticipantCryptonicId() {
+    if (!S.participantCertId) {
+      const rawBytes = Array.from(crypto.getRandomValues(new Uint8Array(4)));
+      const hex = rawBytes.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+      S.participantCertId = `MM-${hex}-2026`;
+      if (typeof save === 'function') save();
+    }
+    return S.participantCertId;
+  }
+
+  async function generateVerificationHash() {
+    const cryptId = getParticipantCryptonicId();
+    const raw = `${cryptId}-${S.startedAt || Date.now()}-${S.study?.week || 1}`;
     try {
       const enc = new TextEncoder().encode(raw);
       const hashBuf = await crypto.subtle.digest('SHA-256', enc);
       const hashArr = Array.from(new Uint8Array(hashBuf));
-      return 'IONITY-' + hashArr.slice(0, 6).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+      return 'MM-CERT-' + hashArr.slice(0, 6).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
     } catch {
-      return 'IONITY-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+      return 'MM-CERT-' + Math.random().toString(36).substring(2, 10).toUpperCase();
     }
   }
 
@@ -53,68 +81,72 @@ const MMPortfolio = (() => {
       ctx.fill();
     }
 
-    // 2) Header Partners & Crest
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '700 13px Poppins, sans-serif';
+    // 2) Header Partners & Crest — IONITY Global listed last
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    ctx.font = '700 12.5px Poppins, sans-serif';
     ctx.textAlign = 'center';
-    ctx.letterSpacing = '2px';
-    ctx.fillText('IONITY GLOBAL (PTY) LTD  ·  STELLENBOSCH UNIVERSITY  ·  SHOUT-IT-NOW', 600, 80);
+    ctx.letterSpacing = '1.8px';
+    ctx.fillText('SHOUT-IT-NOW  ·  STELLENBOSCH UNIVERSITY  ·  POWERED BY GILEAD  ·  AUTHENTICATED BY IONITY GLOBAL', 600, 78);
 
     // Main Certificate Heading
     ctx.fillStyle = '#ffd700';
     ctx.font = '800 34px Poppins, sans-serif';
-    ctx.fillText('CERTIFICATE OF CREATIVE RESILIENCE', 600, 140);
+    ctx.fillText('CERTIFICATE OF CREATIVE RESILIENCE', 600, 136);
 
     ctx.fillStyle = 'rgba(255,255,255,0.85)';
     ctx.font = '500 15px Poppins, sans-serif';
-    ctx.fillText('This official study credential honors the dedicated engagement and courageous reflection of', 600, 185);
+    ctx.fillText('This official study credential honors the dedicated engagement and courageous reflection of', 600, 178);
 
-    // Participant Title / Pseudonym
+    // Participant Cryptonic Account Pseudonym
+    const cryptId = getParticipantCryptonicId();
     ctx.fillStyle = '#ffffff';
-    ctx.font = '800 32px Poppins, sans-serif';
-    const pName = S.user?.nick || `Participant #${S.user?.pin ? 'Verified' : '7721'}`;
-    ctx.fillText(pName, 600, 240);
+    ctx.font = '800 30px Poppins, sans-serif';
+    ctx.fillText(`Participant Account #${cryptId}`, 600, 230);
 
     // Gold separator line
-    ctx.strokeStyle = 'linear-gradient(90deg, transparent, #ffd700, transparent)';
+    ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.moveTo(350, 260); ctx.lineTo(850, 260);
+    ctx.moveTo(350, 252); ctx.lineTo(850, 252);
     ctx.stroke();
 
     // Body Text
     ctx.fillStyle = 'rgba(255,255,255,0.92)';
-    ctx.font = '400 15px Poppins, sans-serif';
-    ctx.fillText('for completing weekly creative art interventions, reflective journaling, and mindful resilience practices', 600, 295);
-    ctx.fillText('fostering emotional wellbeing, self-advocacy, and long-term health resilience.', 600, 320);
+    ctx.font = '400 14.5px Poppins, sans-serif';
+    ctx.fillText('for completing weekly creative art interventions, reflective journaling, and mindful resilience practices', 600, 286);
+    ctx.fillText('fostering emotional wellbeing, self-advocacy, and long-term health resilience.', 600, 310);
 
-    // 3) Key Accomplishment Stats Box
+    // 3) Nelson Mandela Quote & Milestone Box (Replacing rays/serenity stats)
+    const quote = getMandelaQuote();
     ctx.fillStyle = 'rgba(255,255,255,0.06)';
-    ctx.strokeStyle = 'rgba(255,209,102,0.35)';
+    ctx.strokeStyle = 'rgba(255,209,102,0.45)';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.roundRect(140, 360, 920, 150, 16);
+    ctx.roundRect(140, 345, 920, 160, 16);
     ctx.fill();
     ctx.stroke();
 
-    const stats = [
-      { label: 'Weekly Activities', val: `${Object.keys(S.activities || {}).length} / 8 Completed`, icon: '🎨' },
-      { label: 'Serenity Points', val: `${S.game?.serenity || 120} pts`, icon: '🌸' },
-      { label: 'Encrypted Notes', val: `${(S.journal || []).length} Reflections`, icon: '📖' },
-      { label: '3D Sunrays Gathered', val: `${S.game3d?.sunrays || 0} Rays`, icon: '🐝' },
-    ];
+    // Mandela Quote inside box
+    ctx.fillStyle = '#ffd166';
+    ctx.font = '600 19px Poppins, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(`“${quote.text}”`, 600, 405);
 
-    stats.forEach((st, i) => {
-      const x = 255 + i * 230;
-      ctx.textAlign = 'center';
-      ctx.font = '24px sans-serif';
-      ctx.fillText(st.icon, x, 405);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '700 18px Poppins, sans-serif';
-      ctx.fillText(st.val, x, 440);
-      ctx.fillStyle = '#ffd166';
-      ctx.font = '500 12px Poppins, sans-serif';
-      ctx.fillText(st.label, x, 465);
-    });
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.font = '500 14px Poppins, sans-serif';
+    ctx.fillText(`— ${quote.author}`, 600, 440);
+
+    // Progress Badge inside box
+    const completedCount = Object.keys(S.activities || {}).length;
+    ctx.fillStyle = 'rgba(51,102,255,0.3)';
+    ctx.strokeStyle = 'rgba(51,102,255,0.6)';
+    ctx.beginPath();
+    ctx.roundRect(380, 465, 440, 28, 14);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '700 12px Poppins, sans-serif';
+    ctx.fillText(`🌿 8-Week Creative Pathway · ${completedCount}/8 Activities Completed`, 600, 484);
 
     // 4) Verification & Signatures Footer
     const hash = await generateVerificationHash();
@@ -122,14 +154,16 @@ const MMPortfolio = (() => {
 
     // Date & Study Lead
     ctx.textAlign = 'left';
-    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
     ctx.font = '12px Poppins, sans-serif';
-    ctx.fillText(`Issued: ${dateStr}`, 140, 580);
-    ctx.fillText(`Study ID: SHOUT-MOJAMIND-RCT`, 140, 600);
+    ctx.fillText(`Issued: ${dateStr}`, 140, 565);
+    ctx.fillText(`Study ID: SHOUT-MOJAMIND-RCT`, 140, 585);
+    ctx.fillText(`Account CryptID: ${cryptId}`, 140, 605);
 
     ctx.textAlign = 'right';
-    ctx.fillText('Chief Solutionist & System Architect', 1060, 580);
-    ctx.fillText('IONITY Global · Antwerp Designs', 1060, 600);
+    ctx.fillText('Chief Solutionist & System Architect', 1060, 565);
+    ctx.fillText('Johan Wilhelm van Antwerp · Antwerp Designs', 1060, 585);
+    ctx.fillText('IONITY Global (Pty) Ltd · www.ionity.co.za', 1060, 605);
 
     // Cryptographic Seal Box
     ctx.textAlign = 'center';
@@ -137,21 +171,26 @@ const MMPortfolio = (() => {
     ctx.strokeStyle = '#ffd700';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.roundRect(420, 650, 360, 55, 10);
+    ctx.roundRect(380, 645, 440, 55, 10);
     ctx.fill();
     ctx.stroke();
 
     ctx.fillStyle = '#ffd700';
     ctx.font = '700 11px Poppins, sans-serif';
-    ctx.fillText('🔒 ON-DEVICE CRYPTOGRAPHIC INTEGRITY HASH', 600, 672);
+    ctx.fillText('🔒 ON-DEVICE CRYPTOGRAPHIC INTEGRITY SEAL', 600, 667);
     ctx.fillStyle = '#ffffff';
     ctx.font = '600 13px monospace';
-    ctx.fillText(hash, 600, 693);
+    ctx.fillText(hash, 600, 688);
+
+    // Bottom Remembrance Note (Item 2)
+    ctx.fillStyle = 'rgba(255,209,102,0.9)';
+    ctx.font = '600 12px Poppins, sans-serif';
+    ctx.fillText('* For personal remembrance.', 600, 740);
 
     // Disclaimer
     ctx.fillStyle = 'rgba(255,255,255,0.45)';
     ctx.font = '10.5px Poppins, sans-serif';
-    ctx.fillText('Private & Confidential · Verified offline through WebCrypto AES-GCM & SHA-256', 600, 750);
+    ctx.fillText('Private & Confidential · Verified offline through WebCrypto AES-GCM & SHA-256 · www.ionity.today', 600, 765);
 
     return cvs;
   }

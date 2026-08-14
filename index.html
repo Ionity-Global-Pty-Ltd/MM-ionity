@@ -60,6 +60,14 @@
   <div id="phone">
     <main id="app" aria-live="polite"></main>
     <nav id="tabbar" class="hidden" aria-label="Main navigation"></nav>
+    <button class="floating-spark-tab hidden" id="floating-spark-tab" onclick="nav('#/spark')" title="Daily Spark &amp; Creative Exploration" aria-label="Open Creative Exploration Daily Spark">
+      <span class="fst-star">✨</span>
+      <span class="fst-label">Daily Spark</span>
+    </button>
+    <button class="floating-exercise-tab hidden" id="floating-exercise-tab" onclick="nav('#/pixelthoughts')" title="Cosmic Thought Release &amp; Mindfulness Exercises" aria-label="Open Cosmic Thought Release Exercise">
+      <span class="fet-icon">🧘</span>
+      <span class="fet-label">Cosmic Release</span>
+    </button>
   </div>
   <div id="modal-root"></div>
   <div id="toast-root" aria-live="assertive"></div>
@@ -68,6 +76,8 @@
   <script src="./js/data.js?v=2.8.1"></script>
   <!-- Encrypted-at-rest storage (AES-GCM 256 via WebCrypto) -->
   <script src="./js/vault.js?v=2.8.1"></script>
+  <!-- Pixel Thoughts — 60-Second Cosmic Release Mindfulness Exercise -->
+  <script src="./js/pixelthoughts.js?v=2.8.1"></script>
   <!-- On-device language understanding: MojaLex, plus optional quantized DistilBERT/MobileBERT -->
   <script src="./js/nlp.js?v=2.8.1"></script>
   <!-- On-Device Micro-LLM & Neural Resilience Intelligence Engine -->

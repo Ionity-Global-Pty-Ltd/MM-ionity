@@ -1,0 +1,27 @@
+{
+  "name": "mojamind-creative-resilience",
+  "version": "2.2.0",
+  "private": true,
+  "description": "MojaMind — an 8-week creative resilience intervention PWA. Powered by SHOUT-IT-NOW and Stellenbosch University, made possible by Gilead. Crafted by IONITY Global (Pty) Ltd.",
+  "homepage": "https://www.hellion.solutions",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ionity-Global-Pty-Ltd/MM-ionity.git"
+  },
+  "author": "Johan Wilhelm van Antwerp — IONITY Global (Pty) Ltd <https://www.ionity.co.za>",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "scripts": {
+    "start": "python -m http.server 8123",
+    "serve": "npx serve . -l 8123",
+    "icons": "pwsh ./tools/make-icons.ps1",
+    "check": "node --check js/data.js && node --check js/app.js"
+  },
+  "keywords": [
+    "pwa",
+    "mental-health",
+    "creative-resilience",
+    "mojamind",
+    "stellenbosch",
+    "ionity"
+  ]
+}

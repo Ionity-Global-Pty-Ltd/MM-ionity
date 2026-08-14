@@ -378,24 +378,25 @@ MM.ART_ABOUT = {
 
 /* ── Art activities (8 weeks) ────────────────────────────── */
 MM.ART_OPTION_KINDS = [
-  { key: 'art',     emoji: '🎨', name: 'Express with ART' },
+  { key: 'art',     emoji: '🎨', name: 'Physical Art & Paper' },
+  { key: 'draw',    emoji: '🖌️', name: 'Draw on Device (Digital Studio)' },
   { key: 'write',   emoji: '✍️', name: 'Write It Out' },
-  { key: 'speak',   emoji: '🎤', name: 'Speak Up' },
+  { key: 'speak',   emoji: '🎤', name: 'Speak Up (Voice Note)' },
   { key: 'nature',  emoji: '🌿', name: 'Use Nature' },
-  { key: 'digital', emoji: '📱', name: 'Get Digital' },
+  { key: 'digital', emoji: '📱', name: 'Get Digital (Photo & Collage)' },
 ];
 
 /* Activities with published inspiration videos (id → options with video files
    at ./assets/videos/activity-<id>/option-<n>.mp4 or animated interactive canvas videos). */
 MM.ACTIVITY_VIDEOS = {
-  1: [1, 2, 3, 4, 5],
-  2: [1, 2, 3, 4, 5],
-  3: [1, 2, 3, 4, 5],
-  4: [1, 2, 3, 4, 5],
-  5: [1, 2, 3, 4, 5],
-  6: [1, 2, 3, 4, 5],
-  7: [1, 2, 3, 4, 5],
-  8: [1, 2, 3, 4, 5],
+  1: [1, 2, 3, 4, 5, 6],
+  2: [1, 2, 3, 4, 5, 6],
+  3: [1, 2, 3, 4, 5, 6],
+  4: [1, 2, 3, 4, 5, 6],
+  5: [1, 2, 3, 4, 5, 6],
+  6: [1, 2, 3, 4, 5, 6],
+  7: [1, 2, 3, 4, 5, 6],
+  8: [1, 2, 3, 4, 5, 6],
 };
 
 MM.ACTIVITIES = [
@@ -403,7 +404,8 @@ MM.ACTIVITIES = [
     id: 1, name: 'Self-Portrait', week: 1,
     about: 'Who are you right now? This week is about seeing yourself with kindness and curiosity.',
     options: [
-      'Express with ART: Draw or paint yourself using colours that match your vibe.',
+      'Physical Artwork: Draw or paint yourself on paper using colours that match your vibe.',
+      'Draw on Device: Draw and paint your self-portrait directly on your screen with the digital paint studio.',
       'Write It Out: Write a poem, letter, or powerful words about who you are or who you’re becoming.',
       'Speak Up: Record a voice note, poem, or song that tells your story.',
       'Use Nature: Tell your story using natural materials around you.',
@@ -416,8 +418,8 @@ MM.ACTIVITIES = [
       ['Draw your self-portrait.', 'You can show your face, body, or symbols and shapes that represent you.'],
     ],
     materials: [
-      'A blank page (journal, sketchbook, or paper)',
-      'Pencils, pens, crayons, kokis, or anything to draw with',
+      'A blank page (journal, sketchbook, or paper) or your phone screen',
+      'Pencils, pens, crayons, kokis, or the digital drawing studio',
       'A mirror or selfie for inspiration',
     ],
     reflections: [
@@ -431,7 +433,8 @@ MM.ACTIVITIES = [
     id: 2, name: 'My Safe Space', week: 2,
     about: 'Everyone deserves a place where they feel calm and protected. This week you create yours.',
     options: [
-      'Express with ART: Draw or paint the place (real or imagined) where you feel safest.',
+      'Physical Artwork: Draw or paint on paper the place (real or imagined) where you feel safest.',
+      'Draw on Device: Paint your safe space directly on your screen using brushes, stamps & glow tools.',
       'Write It Out: Describe your safe space in words—what you see, hear, and feel there.',
       'Speak Up: Record yourself describing your safe space as if guiding a friend into it.',
       'Use Nature: Build or arrange a small safe-space scene using natural materials.',
@@ -444,8 +447,8 @@ MM.ACTIVITIES = [
       ['Bring it to life.', 'Recreate your safe space in the medium you chose.'],
     ],
     materials: [
-      'A blank page (journal, sketchbook, or paper)',
-      'Pencils, pens, crayons, kokis, or anything to draw with',
+      'A blank page (journal, sketchbook, or paper) or your phone screen',
+      'Pencils, pens, crayons, kokis, or the digital drawing studio',
       'Magazines or photos for collage (optional)',
     ],
     reflections: [
@@ -459,7 +462,8 @@ MM.ACTIVITIES = [
     id: 3, name: 'My Family', week: 3,
     about: 'Family can mean many things. This week, express what family means to you.',
     options: [
-      'Express with ART: Draw or paint the people (or pets!) you consider family.',
+      'Physical Artwork: Draw or paint the people (or pets!) you consider family on paper.',
+      'Draw on Device: Draw your family or loved ones directly on screen with the digital canvas.',
       'Write It Out: Write a letter, poem, or memory about someone who feels like home.',
       'Speak Up: Record a story or message about the people who matter most to you.',
       'Use Nature: Use stones, leaves, or flowers to represent each person in your family.',
@@ -472,8 +476,8 @@ MM.ACTIVITIES = [
       ['Create your piece.', 'Take your time and let it be honest.'],
     ],
     materials: [
-      'A blank page (journal, sketchbook, or paper)',
-      'Pencils, pens, crayons, kokis, or anything to draw with',
+      'A blank page (journal, sketchbook, or paper) or your phone screen',
+      'Pencils, pens, crayons, kokis, or the digital drawing studio',
       'Family photos for inspiration (optional)',
     ],
     reflections: [
@@ -487,7 +491,8 @@ MM.ACTIVITIES = [
     id: 4, name: 'My Journey', week: 4,
     about: 'Your story so far—the highs, the lows, and everything that made you stronger.',
     options: [
-      'Express with ART: Draw a road, river, or path that shows your life’s journey so far.',
+      'Physical Artwork: Draw a road, river, or path on paper that shows your life’s journey so far.',
+      'Draw on Device: Trace and paint your life journey path directly on your screen.',
       'Write It Out: Write about a moment that changed you and how far you’ve come.',
       'Speak Up: Record your journey as a spoken story, rap, or song.',
       'Use Nature: Lay out a path with stones or leaves—each one a chapter of your life.',
@@ -500,8 +505,8 @@ MM.ACTIVITIES = [
       ['Mark where you are now.', 'And maybe where you’re heading next.'],
     ],
     materials: [
-      'A blank page (journal, sketchbook, or paper)',
-      'Pencils, pens, crayons, kokis, or anything to draw with',
+      'A blank page (journal, sketchbook, or paper) or your phone screen',
+      'Pencils, pens, crayons, kokis, or the digital drawing studio',
       'Old photos or keepsakes for inspiration (optional)',
     ],
     reflections: [
@@ -515,7 +520,8 @@ MM.ACTIVITIES = [
     id: 5, name: 'My Homestead', week: 5,
     about: 'Home, community, and belonging—celebrate the places and people that ground you.',
     options: [
-      'Express with ART: Draw or paint your home, village, or neighbourhood.',
+      'Physical Artwork: Draw or paint your home, village, or neighbourhood on paper.',
+      'Draw on Device: Paint your homestead, favorite room, or community scene on your phone screen.',
       'Write It Out: Describe the sounds, smells, and moments that make your home yours.',
       'Speak Up: Record the sounds of home or narrate a walk through your community.',
       'Use Nature: Collect materials from around your home to build a mini homestead.',
@@ -528,8 +534,8 @@ MM.ACTIVITIES = [
       ['Create your homestead.', 'Show what belonging looks like for you.'],
     ],
     materials: [
-      'A blank page (journal, sketchbook, or paper)',
-      'Pencils, pens, crayons, kokis, or anything to draw with',
+      'A blank page (journal, sketchbook, or paper) or your phone screen',
+      'Pencils, pens, crayons, kokis, or the digital drawing studio',
       'Natural or found materials from around home (optional)',
     ],
     reflections: [
@@ -543,7 +549,8 @@ MM.ACTIVITIES = [
     id: 6, name: 'Vision Board', week: 6,
     about: 'Dream forward! Build a picture of the future you’re growing towards.',
     options: [
-      'Express with ART: Draw or paint symbols of your dreams and goals.',
+      'Physical Artwork: Draw or paint symbols of your dreams and goals on paper.',
+      'Draw on Device: Paint your future vision board directly on your screen with glowing colours and stamps.',
       'Write It Out: Write your future story—where you’ll be in 5 years.',
       'Speak Up: Record a message to your future self about your dreams.',
       'Use Nature: Arrange natural objects to represent your hopes and goals.',
@@ -556,9 +563,9 @@ MM.ACTIVITIES = [
       ['Build your board.', 'Arrange everything into one inspiring picture.'],
     ],
     materials: [
-      'A blank page, cardboard, or poster',
+      'A blank page, cardboard, or poster, or your phone screen',
       'Magazines, newspapers, printed pictures, scissors and glue',
-      'Pencils, pens, crayons or kokis for drawing and words',
+      'Pencils, pens, crayons or the digital drawing studio',
     ],
     reflections: [
       'What made you choose this option, and how do you feel about your choice?',
@@ -571,7 +578,8 @@ MM.ACTIVITIES = [
     id: 7, name: 'Letter to Myself', week: 7,
     about: 'Speak to yourself with the kindness you’d give a best friend.',
     options: [
-      'Express with ART: Illustrate a letter or card addressed to yourself.',
+      'Physical Artwork: Illustrate a letter or card addressed to yourself on paper.',
+      'Draw on Device: Draw a decorative letter, card, or seal directly on screen.',
       'Write It Out: Write a compassionate letter to your past, present, or future self.',
       'Speak Up: Record a voice message of encouragement to yourself.',
       'Use Nature: Create a small gift from nature for yourself, with a message.',
@@ -584,8 +592,8 @@ MM.ACTIVITIES = [
       ['Sign it with love.', 'End your letter in a way that feels warm.'],
     ],
     materials: [
-      'A blank page (journal, sketchbook, or paper)',
-      'Pencils, pens, crayons, kokis, or anything to write with',
+      'A blank page (journal, sketchbook, or paper) or your phone screen',
+      'Pencils, pens, crayons, kokis, or the digital drawing studio',
       'An envelope to keep it safe (optional)',
     ],
     reflections: [
@@ -599,7 +607,8 @@ MM.ACTIVITIES = [
     id: 8, name: 'My Song of Strength', week: 8,
     about: 'Celebrate how far you’ve come—turn your resilience into rhythm, colour, or words.',
     options: [
-      'Express with ART: Paint or draw what your strength looks like in colour and shape.',
+      'Physical Artwork: Paint or draw what your strength looks like on paper.',
+      'Draw on Device: Paint your symbol of strength and power directly on your screen.',
       'Write It Out: Write a song, chant, or praise poem about your resilience.',
       'Speak Up: Record your song, beat, or spoken word of strength.',
       'Use Nature: Make an instrument or rhythm using natural materials and capture it.',
@@ -612,7 +621,7 @@ MM.ACTIVITIES = [
       ['Own your strength.', 'This one is a tribute to YOU.'],
     ],
     materials: [
-      'A blank page or your phone’s recorder',
+      'A blank page or your phone’s digital drawing studio / recorder',
       'Pencils, pens, crayons, kokis, or anything creative',
       'Anything that makes a sound (optional!)',
     ],

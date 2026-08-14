@@ -2,3 +2,10 @@
 Thumbs.db
 .DS_Store
 desktop.ini
+
+# Local development scratch & reference archives
+.new updates to impliment pasted/
+design-source/
+metadata/
+*.pptx
+*.code-workspace

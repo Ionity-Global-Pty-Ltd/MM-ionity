@@ -1,0 +1,27 @@
+{
+  "name": "MojaMind — Creative Resilience",
+  "short_name": "MojaMind",
+  "description": "An 8-week creative resilience intervention. Express yourself through art, voice and words, track your wellbeing, and find support anytime. Powered by SHOUT-IT-NOW and Stellenbosch University, made possible by Gilead. Crafted by Johan Wilhelm van Antwerp (Antwerp Designs) · IONITY Global (Pty) Ltd (www.ionity.co.za).",
+  "id": "mojamind-creative-resilience",
+  "start_url": "./index.html?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#5c1680",
+  "background_color": "#35094f",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["health", "lifestyle", "medical"],
+  "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Mood check-in", "short_name": "Mood", "url": "./index.html#/home", "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Help Now", "short_name": "Help", "url": "./index.html#/help", "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Games Hub", "short_name": "Games", "url": "./index.html#/games", "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Writer & Journal", "short_name": "Journal", "url": "./index.html#/journal", "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Art Activities", "short_name": "Art", "url": "./index.html#/art", "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

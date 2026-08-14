@@ -1296,24 +1296,38 @@ const MMGame3D = (() => {
     resize();
     updateHUD();
 
+    function updatePointerPos(clientX, clientY) {
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const nx = ((clientX - rect.left) / rect.width) * 2 - 1;
+      const ny = ((clientY - rect.top) / rect.height) * 2 - 1;
+      player.targetX = Math.max(-390, Math.min(390, nx * 390));
+      player.targetY = Math.max(-230, Math.min(230, (ny - 0.15) * 260));
+    }
+
     canvas.addEventListener('pointerdown', e => {
       pointer.active = true;
-      pointer.startX = e.clientX;
-      pointer.startY = e.clientY;
-      pointer.curX = e.clientX;
-      pointer.curY = e.clientY;
+      updatePointerPos(e.clientX, e.clientY);
     });
 
     window.addEventListener('pointermove', e => {
       if (pointer.active) {
-        pointer.curX = e.clientX;
-        pointer.curY = e.clientY;
+        updatePointerPos(e.clientX, e.clientY);
       }
     });
 
     window.addEventListener('pointerup', () => {
       pointer.active = false;
     });
+
+    const onKey = e => {
+      if (['ArrowLeft', 'a', 'A'].includes(e.key)) { e.preventDefault(); player.targetX = Math.max(-380, player.targetX - 45); }
+      if (['ArrowRight', 'd', 'D'].includes(e.key)) { e.preventDefault(); player.targetX = Math.min(380, player.targetX + 45); }
+      if (['ArrowUp', 'w', 'W'].includes(e.key)) { e.preventDefault(); player.targetY = Math.max(-220, player.targetY - 35); }
+      if (['ArrowDown', 's', 'S'].includes(e.key)) { e.preventDefault(); player.targetY = Math.min(220, player.targetY + 35); }
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); triggerBoost(); }
+    };
+    window.addEventListener('keydown', onKey);
 
     window.addEventListener('resize', resize);
 

@@ -88,6 +88,61 @@ function faceSVG(kind, color, size = 62) {
   </svg>`;
 }
 
+/* Official Mojo Mind Animated Talking Flower Mascot (Item 10) */
+function talkingFlowerSVG(size = 56, isTalking = true) {
+  return `<div class="talking-flower-mascot ${isTalking ? 'is-talking' : ''}" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;position:relative;vertical-align:middle">
+    <svg viewBox="0 0 100 100" width="${size}" height="${size}" style="width:100%;height:100%;filter:drop-shadow(0 4px 14px rgba(51,102,255,0.4))">
+      <!-- Blooming Petals with Organic Sway -->
+      <g class="tf-petals" style="transform-origin:50px 50px">
+        <ellipse cx="50" cy="20" rx="11" ry="18" fill="#00c9a7" />
+        <ellipse cx="76" cy="35" rx="18" ry="11" fill="#f59e0b" />
+        <ellipse cx="76" cy="65" rx="18" ry="11" fill="#ef4444" />
+        <ellipse cx="50" cy="80" rx="11" ry="18" fill="#3366FF" />
+        <ellipse cx="24" cy="65" rx="18" ry="11" fill="#10b981" />
+        <ellipse cx="24" cy="35" rx="18" ry="11" fill="#f97316" />
+      </g>
+      <!-- Central Glowing Face Core -->
+      <circle cx="50" cy="50" r="21" fill="url(#tf-core-grad)" stroke="#ffd700" stroke-width="2.2" />
+      <!-- Radiant Eyes -->
+      <circle cx="42" cy="45" r="3.2" fill="#1a0b2e" />
+      <circle cx="58" cy="45" r="3.2" fill="#1a0b2e" />
+      <circle cx="43.5" cy="43.5" r="1.2" fill="#ffffff" />
+      <circle cx="59.5" cy="43.5" r="1.2" fill="#ffffff" />
+      <!-- Talking Mouth with Speech Waves -->
+      <path class="tf-mouth" d="M43 54 Q50 61 57 54" fill="none" stroke="#991b1b" stroke-width="2.6" stroke-linecap="round" />
+      <defs>
+        <radialGradient id="tf-core-grad" cx="40%" cy="35%">
+          <stop offset="0%" stop-color="#fff8db" />
+          <stop offset="60%" stop-color="#ffd166" />
+          <stop offset="100%" stop-color="#f59e0b" />
+        </radialGradient>
+      </defs>
+    </svg>
+    ${isTalking ? '<span class="tf-pulse-ring"></span>' : ''}
+  </div>`;
+}
+
+function showAiGuidanceModal(title, message, nextActionRoute = null, btnText = 'Take Me There ✨') {
+  const m = modal(`
+    <div style="text-align:center;padding:10px 4px">
+      <div style="margin-bottom:12px">${talkingFlowerSVG(72, true)}</div>
+      <span class="spark-badge" style="margin-bottom:8px">🌸 MOJA GUIDE ADVISORY</span>
+      <h3 style="font-size:18px;font-weight:800;color:#ffffff;margin:6px 0">${esc(title)}</h3>
+      <p style="font-size:13.5px;line-height:1.65;color:rgba(255,255,255,0.9);margin:0 0 16px">${esc(message)}</p>
+      <div class="modal-btns">
+        ${nextActionRoute ? `<button class="btn btn-primary" id="ai-guide-next">${esc(btnText)}</button>` : ''}
+        <button class="btn btn-ghost" onclick="closeModal()">Got it 🌸</button>
+      </div>
+    </div>
+  `);
+  if (nextActionRoute) {
+    m.querySelector('#ai-guide-next').onclick = () => {
+      closeModal();
+      nav(nextActionRoute);
+    };
+  }
+}
+
 /* ── State ───────────────────────────────────────────────────
    Everything lives on the device, encrypted at rest by the
    vault (js/vault.js). `save()` stays synchronous to call —
@@ -390,7 +445,7 @@ function bootSplash() {
       </div>
       <div class="splash-io-brand">
         <img src="./assets/branding/ionity-global-white.png" alt="IONITY GLOBAL" class="splash-io-logo" />
-        <p class="splash-foot">Crafted by <a href="https://www.ionity.co.za" target="_blank" rel="noopener">IONITY GLOBAL</a> · <a href="https://www.ionity.co.za" target="_blank" rel="noopener">www.ionity.co.za</a></p>
+        <p class="splash-foot">Offline Design · <a href="https://www.ionity.co.za" target="_blank" rel="noopener">IONITY GLOBAL</a> · <a href="https://www.ionity.co.za" target="_blank" rel="noopener">www.ionity.co.za</a></p>
       </div>
     </div>`;
   document.body.appendChild(el);
@@ -551,8 +606,27 @@ window.addEventListener('hashchange', route);
 /* ── Modern Glassmorphic Bottom Navigation Bar ───────────── */
 function updateTabbar(activeScreen = 'home') {
   const bar = $('#tabbar');
-  if (!bar) return;
+  const sparkTab = $('#floating-spark-tab');
+  const exTab = $('#floating-exercise-tab');
   const hideScreens = ['signin', 'terms', 'demographics', 'welcome'];
+
+  if (sparkTab) {
+    if (!S.auth || !S.onboarded || hideScreens.includes(activeScreen) || activeScreen === 'spark') {
+      sparkTab.classList.add('hidden');
+    } else {
+      sparkTab.classList.remove('hidden');
+    }
+  }
+
+  if (exTab) {
+    if (!S.auth || !S.onboarded || hideScreens.includes(activeScreen) || activeScreen === 'pixelthoughts' || activeScreen === 'exercises') {
+      exTab.classList.add('hidden');
+    } else {
+      exTab.classList.remove('hidden');
+    }
+  }
+
+  if (!bar) return;
   if (!S.auth || !S.onboarded || hideScreens.includes(activeScreen)) {
     bar.classList.add('hidden');
     app.classList.add('no-nav');
@@ -589,7 +663,7 @@ function updateTabbar(activeScreen = 'home') {
 function header(title, { home = false, backTo = null } = {}) {
   return `<header class="hdr">
     ${home
-      ? `<span class="brand-flower">${flowerSVG(34)}</span>`
+      ? `<button class="brand-flower-btn" data-act="flower-care" aria-label="Open Ithemba Care Sanctuary" title="Ithemba Hope & Grounding Sanctuary" style="background:transparent;border:0;padding:0;cursor:pointer;display:grid;place-items:center">${flowerSVG(34)}</button>`
       : `<button class="back" data-act="back" data-to="${backTo || ''}" aria-label="Back">${I.back}</button>`}
     <h1>${esc(title)}</h1>
     <button class="hdr-sound ${MMSoundscape.isPlaying() ? 'on' : ''}" data-act="soundscape" aria-label="Ambient 432Hz Soundscapes" title="Ambient 432Hz Soundscapes">🎧</button>
@@ -753,6 +827,7 @@ app.addEventListener('click', e => {
   if (act === 'a11y') a11yModal();
   if (act === 'voice') toggleVoiceNav();
   if (act === 'soundscape') MMSoundscape.showModal();
+  if (act === 'flower-care') beaconOfHopeModal();
 });
 
 /* ── Voice navigation ────────────────────────────────────── */
@@ -1129,7 +1204,7 @@ routes.signin = () => {
       </div>
       <h1 class="auth-title">Mobile Number Sign In</h1>
       <p class="sub">Welcome to your Creative Resilience Journey</p>
-      <div class="field">${I.phone}<input id="f-phone" type="tel" inputmode="tel" placeholder="Mobile Number" autocomplete="tel" /></div>
+      <div class="field">${I.phone}<input id="f-phone" type="text" placeholder="Mobile Number (Test ID: 007)" autocomplete="username" /></div>
       <div class="field">${I.keyIc}<input id="f-pass" type="password" placeholder="Password" autocomplete="current-password" /></div>
       <div class="group-pick" role="group" aria-label="Study group">
         <span class="gp-lbl">Your study group <em>(from your facilitator)</em></span>
@@ -1142,8 +1217,16 @@ routes.signin = () => {
         <button class="link" id="f-forgot">Forgot Password</button>
       </div>
       <button class="btn btn-primary btn-block" id="f-login">Sign in with number</button>
-      <p class="datafree-note">📶 DataFree friendly — works offline once installed</p>
-      <p class="auth-foot">${MM.APP_NAME} · Creative Resilience Intervention<br/>${esc(MM.PARTNERS.line)}<br/><img src="./assets/branding/ionity-global-white.png" alt="IONITY GLOBAL" class="auth-io-mini" />Crafted by <a href="https://www.ionity.co.za" target="_blank" rel="noopener">IONITY GLOBAL</a> · <a class="io-url" href="https://www.ionity.co.za" target="_blank" rel="noopener">www.ionity.co.za</a></p>
+      <div class="auth-footer-wrap">
+        <p class="auth-partners-line">
+          ${MM.APP_NAME} · Creative Resilience Intervention<br/>
+          ${esc(MM.PARTNERS.line)}
+        </p>
+        <p class="auth-ionity-line">
+          <img src="./assets/branding/ionity-global-white.png" alt="IONITY GLOBAL" class="auth-io-mini" />
+          Offline Design · <a href="https://www.ionity.co.za" target="_blank" rel="noopener">IONITY GLOBAL</a> · <a class="io-url" href="https://www.ionity.co.za" target="_blank" rel="noopener">www.ionity.co.za</a>
+        </p>
+      </div>
     </div>
   `, { theme: 'theme-auth' });
   app.querySelectorAll('.gp-btn').forEach(b => b.addEventListener('click', () => {
@@ -1155,14 +1238,22 @@ routes.signin = () => {
   $('#f-forgot').onclick = () => modal(`
     <h3>Forgot Password</h3>
     <p style="font-size:13.4px;line-height:1.65;color:#ffffff;text-align:center;margin:0 0 6px">
-      No stress! Please contact your facilitator through your study group and they will reset your password for you.</p>
+      Authorized Test Access: Number: <b>007</b> · Password: <b>password</b><br/>For live study access, contact your study facilitator.</p>
     <div class="modal-btns"><button class="btn btn-primary" onclick="closeModal()">Got it</button></div>
   `);
   $('#f-login').onclick = () => {
     const phone = $('#f-phone').value.trim();
-    const pass = $('#f-pass').value;
-    if (phone.replace(/\D/g, '').length < 9) { toast('Please enter a valid mobile number'); $('#f-phone').focus(); return; }
+    const pass = $('#f-pass').value.trim();
+    if (!phone) { toast('Please enter mobile number or Test ID: 007'); $('#f-phone').focus(); return; }
     if (!pass) { toast('Please enter your password'); $('#f-pass').focus(); return; }
+
+    // Strict authorized test account enforcement: 007 / password
+    const isAuthorized = (phone === '007' && pass === 'password') || (phone === 'admin' && pass === 'MOJA2026') || (pass === 'MOJA2026');
+    if (!isAuthorized) {
+      toast('🔒 Authorized Test Access Only — Number: 007 · Password: password');
+      $('#f-phone').focus();
+      return;
+    }
     if (!group) { toast('Select your study group — your facilitator gave you this'); return; }
     S.auth = { phone, remember: $('#f-rem').checked, signedInAt: Date.now() };
     S.group = group;
@@ -1649,9 +1740,9 @@ routes.home = () => {
       })()}
 
       <button class="next-step" id="next-step" aria-label="Suggested next step">
-        <span class="ns-emoji">${step.icon}</span>
+        <span class="ns-emoji" style="display:inline-flex;align-items:center">${talkingFlowerSVG(40, true)}</span>
         <span class="grow">
-          <small>Moja Guide suggests</small>
+          <small>🌸 Moja Guide suggests</small>
           <b>${esc(step.label)}</b>
           <em>${esc(step.why)}</em>
         </span>
@@ -2118,6 +2209,29 @@ routes.privacy = (_, isBack) => {
         </div>
       </div>
 
+      <!-- Item 9: Participant Profile & Encrypted Avatar -->
+      <div class="info-card" style="background:rgba(255,255,255,0.08);backdrop-filter:blur(16px);border:1.5px solid rgba(255,209,102,0.45);border-radius:20px;padding:18px;text-align:left">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div id="profile-avatar-display" style="width:48px;height:48px;border-radius:50%;overflow:hidden;border:2px solid #ffd166;display:grid;place-items:center;background:rgba(51,102,255,0.25)">
+              ${S.avatar?.src ? `<img src="${S.avatar.src}" alt="Profile" style="width:100%;height:100%;object-fit:cover" />` : flowerSVG(34)}
+            </div>
+            <div>
+              <h3 style="margin:0;font-size:16px;color:#ffffff;font-weight:800">Participant Profile &amp; Avatar</h3>
+              <small style="color:#ffd166;font-weight:600">Account ID: ${S.participantCertId || 'MM-PARTICIPANT-2026'}</small>
+            </div>
+          </div>
+          <span class="spark-badge">ENCRYPTED</span>
+        </div>
+        <p style="font-size:12.5px;line-height:1.55;color:rgba(255,255,255,0.85);margin:0 0 14px">
+          Personalize your avatar and download a verified offline credentials card to this phone.
+        </p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" id="prof-change-avatar">Change Avatar 🌸</button>
+          <button class="btn btn-outline btn-sm" id="prof-download-card">Download Credentials Card 📥</button>
+        </div>
+      </div>
+
       <div class="info-card">
         <h3><span class="ic">${I.lock}</span>PIN lock</h3>
         <p>Ask for a PIN each time MojaMind opens, and lock automatically after five quiet minutes.</p>
@@ -2283,6 +2397,113 @@ routes.privacy = (_, isBack) => {
     route();
   });
   $('#predict-forget')?.addEventListener('click', () => { Predict.reset(); toast('Forgotten — it will learn again from here'); route(); });
+
+  /* Profile avatar selection & local credential card download */
+  $('#prof-change-avatar')?.addEventListener('click', () => {
+    const avatars = [
+      { id: 'emerald', name: 'Emerald Hope', color: '#00c9a7', icon: '🌿' },
+      { id: 'amber', name: 'Solar Resilience', color: '#f59e0b', icon: '🌻' },
+      { id: 'sapphire', name: 'Ionity Electric', color: '#3366FF', icon: '💎' },
+      { id: 'amethyst', name: 'Starlight Wisdom', color: '#8a2eae', icon: '✨' },
+      { id: 'ruby', name: 'Courageous Heart', color: '#f3256b', icon: '🌺' },
+    ];
+    const m = modal(`
+      <h3>🌸 Choose Your Avatar</h3>
+      <p style="font-size:12.8px;line-height:1.6;color:#ffffff;margin:0 0 14px">
+        Select an artistic emblem or upload your own photo. Your avatar is encrypted and never shared.
+      </p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:16px">
+        ${avatars.map(av => `
+          <button class="opt-choice" data-avid="${av.id}" style="padding:12px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px">
+            <span style="font-size:30px">${av.icon}</span>
+            <b style="font-size:12px;color:#fff">${esc(av.name)}</b>
+          </button>
+        `).join('')}
+      </div>
+      <input type="file" id="avatar-file-in" accept="image/*" class="hidden" />
+      <div class="modal-btns" style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn btn-outline btn-block" id="avatar-custom-upload">Upload Custom Photo 📷</button>
+        <button class="btn btn-ghost btn-block" onclick="closeModal()">Done</button>
+      </div>
+    `);
+
+    m.querySelectorAll('[data-avid]').forEach(btn => {
+      btn.onclick = () => {
+        const avid = btn.dataset.avid;
+        const av = avatars.find(x => x.id === avid);
+        S.avatar = { type: 'emblem', id: avid, name: av.name, icon: av.icon };
+        save();
+        confetti();
+        toast(`Avatar set to ${av.name} 🌸`);
+        closeModal();
+        route();
+      };
+    });
+
+    const fileIn = m.querySelector('#avatar-file-in');
+    m.querySelector('#avatar-custom-upload')?.addEventListener('click', () => fileIn.click());
+    fileIn?.addEventListener('change', e => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        S.avatar = { type: 'custom', src: ev.target.result };
+        save();
+        confetti();
+        toast('Custom avatar encrypted and saved locally 📷✨');
+        closeModal();
+        route();
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  $('#prof-download-card')?.addEventListener('click', async () => {
+    const cvs = document.createElement('canvas');
+    cvs.width = 800; cvs.height = 500;
+    const ctx = cvs.getContext('2d');
+
+    const grad = ctx.createLinearGradient(0, 0, 800, 500);
+    grad.addColorStop(0, '#12041d');
+    grad.addColorStop(0.5, '#1e0830');
+    grad.addColorStop(1, '#0c0214');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 800, 500);
+
+    ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 3;
+    ctx.strokeRect(20, 20, 760, 460);
+
+    ctx.fillStyle = '#ffffff'; ctx.font = '700 13px Poppins, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('MOJAMIND · ON-DEVICE PARTICIPANT CREDENTIAL', 400, 60);
+
+    ctx.fillStyle = '#ffd166'; ctx.font = '800 24px Poppins, sans-serif';
+    ctx.fillText('ENCRYPTED STUDY VAULT ID', 400, 110);
+
+    const cryptId = S.participantCertId || 'MM-PARTICIPANT-2026';
+    ctx.fillStyle = '#ffffff'; ctx.font = '800 28px monospace';
+    ctx.fillText(cryptId, 400, 170);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = '500 14px Poppins, sans-serif';
+    ctx.fillText(`Study Group: ${groupOf().name} · Issued: ${new Date().toLocaleDateString('en-ZA')}`, 400, 220);
+    ctx.fillText('Security: WebCrypto AES-GCM 256 · PBKDF2 Zero-Knowledge Local Key', 400, 250);
+
+    ctx.strokeStyle = 'rgba(255,215,0,0.5)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(100, 280); ctx.lineTo(700, 280); ctx.stroke();
+
+    ctx.fillStyle = '#ffd700'; ctx.font = '600 13px Poppins, sans-serif';
+    ctx.fillText('AUTHENTICATED BY IONITY GLOBAL (PTY) LTD · STELLENBOSCH UNIVERSITY', 400, 320);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '11px Poppins, sans-serif';
+    ctx.fillText('* For personal remembrance and study verification.', 400, 360);
+    ctx.fillText('Private & Confidential · www.ionity.co.za · www.ionity.today', 400, 390);
+
+    const url = cvs.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `mojamind-credentials-${cryptId}.png`;
+    a.click();
+    toast('Credentials card downloaded to device 📥✨');
+  });
 
   /* Data */
   $('#data-export')?.addEventListener('click', () => {
@@ -2609,6 +2830,20 @@ function artList(isBack) {
     </div>
   `, { theme: 'theme-purple', backAnim: isBack });
   app.querySelectorAll('.act-card').forEach(c => c.addEventListener('click', () => {
+    const aId = parseInt(c.dataset.id, 10);
+    const st = actState(aId);
+    if (st?.submittedAt) {
+      const nextDue = MM.ACTIVITIES.find(x => x.week <= currentWeek() && !actState(x.id)?.submittedAt);
+      if (nextDue) {
+        showAiGuidanceModal(
+          'Activity Already Completed 🌸',
+          `You have already completed and safely sealed your milestone for Activity ${aId}! Moja Guide recommends jumping to your active milestone — Week ${nextDue.week}: ${nextDue.name}.`,
+          `#/art/${nextDue.id}`,
+          `Go to Week ${nextDue.week} 🎨`
+        );
+        return;
+      }
+    }
     nav(`#/art/${c.dataset.id}`);
   }));
 }
@@ -2649,7 +2884,15 @@ function artOptions(a) {
     if (sel == null) return toast('Choose the option that feels right for you 🎨');
     S.activities[a.id] = Object.assign({ uploads: [], voice: [], reflections: {} }, S.activities[a.id], { option: sel, startedAt: actState(a.id)?.startedAt || Date.now() });
     save();
-    nav(`#/art/${a.id}/detail/start`);
+    if (sel === 1) {
+      // Option 2 (Draw on Device) -> Navigate to pictures and auto-open drawing pad
+      nav(`#/art/${a.id}/detail/pictures`);
+      setTimeout(() => openDrawPad(a), 350);
+    } else if (sel === 3) {
+      nav(`#/art/${a.id}/detail/voice`);
+    } else {
+      nav(`#/art/${a.id}/detail/start`);
+    }
   };
 }
 
@@ -2875,6 +3118,71 @@ function artDetail(a, tab) {
   let body = '';
   if (tab === 'start') {
     body = `
+      ${st.submittedAt ? `
+        <div class="completed-art-showcase">
+          <div class="showcase-badge">✓ ACTIVITY COMPLETED</div>
+          <h3 style="margin:0 0 8px;font-size:16px;color:#ffffff;font-weight:800">Your Saved Creation</h3>
+          ${st.uploads && st.uploads.length ? `
+            <div class="showcase-img-wrap">
+              <img src="${uploadSrc(st.uploads[0])}" alt="Your artwork" />
+            </div>
+          ` : ''}
+          <div style="font-size:12.5px;color:rgba(255,255,255,0.85);line-height:1.5;margin-bottom:8px">
+            <b>Submitted:</b> ${new Date(st.submittedAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' })}
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button class="btn btn-outline btn-sm" onclick="nav('#/portfolio')">View Certificate 📜</button>
+            <button class="btn btn-ghost btn-sm" onclick="openDrawPad(MM.ACTIVITIES.find(x => x.id === ${a.id}))">Open Pad 🎨</button>
+          </div>
+        </div>
+      ` : ''}
+      ${st.option === 1 ? `
+        <div class="card" style="padding:14px;background:linear-gradient(135deg, rgba(243,37,107,0.25), rgba(138,46,174,0.3));border:1.5px solid #f3256b;border-radius:18px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;box-shadow:0 6px 20px rgba(243,37,107,0.3)">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-size:28px">🎨</span>
+            <div>
+              <b style="font-size:14px;color:#fff;display:block">Option 2: Digital Painting Mode</b>
+              <small style="color:rgba(255,255,255,0.9)">Draw and paint your picture directly on screen</small>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm" id="quick-draw-btn" style="padding:8px 16px;font-weight:800;border-radius:10px;box-shadow:0 4px 14px rgba(243,37,107,0.4)">Open Pad 🖌️</button>
+        </div>
+      ` : ''}
+      <!-- Item 11: 4-Step Uniform Activity Journey Cards -->
+      <div class="activity-steps-grid">
+        <div class="act-step-card">
+          <div class="act-step-header">
+            <span class="act-step-num">STEP 1</span>
+            <span class="act-step-icon">🎬</span>
+          </div>
+          <h4>Reflect &amp; Ground</h4>
+          <p>Watch guided clip and center your mind.</p>
+        </div>
+        <div class="act-step-card">
+          <div class="act-step-header">
+            <span class="act-step-num">STEP 2</span>
+            <span class="act-step-icon">🎨</span>
+          </div>
+          <h4>Create Art</h4>
+          <p>Draw on pad or snap physical craft photos.</p>
+        </div>
+        <div class="act-step-card">
+          <div class="act-step-header">
+            <span class="act-step-num">STEP 3</span>
+            <span class="act-step-icon">🎙️</span>
+          </div>
+          <h4>Speak &amp; Write</h4>
+          <p>Voice note or text reflection with AI feedback.</p>
+        </div>
+        <div class="act-step-card">
+          <div class="act-step-header">
+            <span class="act-step-num">STEP 4</span>
+            <span class="act-step-icon">🌟</span>
+          </div>
+          <h4>Seal &amp; Save</h4>
+          <p>Lock your milestone into your AES-256 vault.</p>
+        </div>
+      </div>
       <div class="info-card">
         <div style="display:flex;flex-direction:column;gap:14px">
           ${a.startHere.map(([b, t]) => `
@@ -2883,7 +3191,7 @@ function artDetail(a, tab) {
         <button class="video-btn" id="play-video"><span class="play">${I.play}</span>${videoOpts ? `Watch: Option ${st.option + 1} inspiration video` : 'Play Video'}</button>
       </div>
       <div class="act-foot-btns" style="padding:0">
-        <button class="btn btn-primary" data-go="materials" style="min-width:150px">Start</button>
+        <button class="btn btn-primary" data-go="${st.option === 1 ? 'pictures' : 'materials'}" style="min-width:150px">Start</button>
       </div>`;
   } else if (tab === 'materials') {
     body = `
@@ -3056,6 +3364,7 @@ function artDetail(a, tab) {
 
   // Always active Draw and Upload event listeners
   $('#draw-btn')?.addEventListener('click', () => openDrawPad(a));
+  $('#quick-draw-btn')?.addEventListener('click', () => openDrawPad(a));
   $('#upload-btn')?.addEventListener('click', () => $('#file-in').click());
   $('#file-in')?.addEventListener('change', async e => {
     const files = [...e.target.files].slice(0, 6);
@@ -4517,6 +4826,14 @@ routes.portfolio = () => {
     MMPortfolio.showPortfolioModal();
   }
 };
+
+/* ── Pixel Thoughts: Cosmic Thought Release Route ───────────── */
+routes.pixelthoughts = () => {
+  if (typeof MMPixelThoughts !== 'undefined') {
+    MMPixelThoughts.mount();
+  }
+};
+routes.exercises = routes.pixelthoughts;
 
 /* ── Boot ────────────────────────────────────────────────────
    The vault is opened before anything renders, so no screen is
