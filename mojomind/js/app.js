@@ -4189,7 +4189,7 @@ routes.game3d = () => {
         <span class="hud-chip">⭐ High: <b id="orbit-high">${S.game3d?.highScore || 0}</b></span>
         <span class="hud-chip">☀️ <b id="orbit-sunrays">0</b></span>
         <span class="hud-chip">🍯 <b id="orbit-pollen">0</b></span>
-        <span class="hud-chip timer-chip" title="30-Second Flight Challenge">⏳ <span id="orbit-timer">0:30</span></span>
+        <span class="hud-chip timer-chip" title="2-Minute Flight Challenge">⏳ <span id="orbit-timer">2:00</span></span>
         <span class="hud-chip">📏 <span id="orbit-dist">0m</span></span>
       </div>
       <div class="orbit-frame">
@@ -4239,7 +4239,7 @@ routes.gamebubble = () => {
         <span class="hud-chip">⭐ High: <b id="bubble-high">${S.gameBubble?.highScore || 0}</b></span>
         <span class="hud-chip">❤️ <span id="bubble-lives">❤️❤️❤️</span></span>
         <span class="hud-chip" id="bubble-pushback" style="color:#6ec1ff">🛡️ Push Back Ready</span>
-        <span class="hud-chip timer-chip" title="30-Second Countdown Challenge">⏳ <span id="bubble-timer">0:30</span></span>
+        <span class="hud-chip timer-chip" title="2-Minute Countdown Challenge">⏳ <span id="bubble-timer">2:00</span></span>
         <button class="hud-chip hud-btn" id="bubble-swap" title="Swap loaded bubble">🔄 Swap</button>
       </div>
       <div class="bubble-frame">
@@ -4250,7 +4250,7 @@ routes.gamebubble = () => {
         <button class="btn btn-primary btn-block" style="background:linear-gradient(135deg,#ffb703,#f3256b);color:#fff" onclick="nav('#/game3d')">🐝 Play Moja Bee 3D</button>
       </div>
       <p class="meadow-hint" style="text-align:center">
-        <b>Touch &amp; drag to aim laser</b> · Match 3+ bubbles · <b>30-Sec or 3 Lives Challenge</b> · Touching danger line triggers <b>1 Reset Push Back 🛡️</b>, then life lost · Disconnect clusters for <b>💥 MEGA AVALANCHES</b>!
+        <b>Touch &amp; drag to aim laser</b> · Match 3+ bubbles · <b>2-Min or 3 Lives Challenge</b> · Touching danger line triggers <b>1 Reset Push Back 🛡️</b>, then life lost · Disconnect clusters for <b>💥 MEGA AVALANCHES</b>!
       </p>
     </div>
   `);
