@@ -67,8 +67,8 @@ html { height: 100%; }
 body {
   margin: 0; height: 100%;
   font-family: var(--font);
-  background: #1a1a1a;
-  background: radial-gradient(120% 90% at 20% 10%, #2e1045 0%, #1a1a1a 45%, #120524 80%, #0d0218 100%);
+  background-color: #1A1A1A;
+  background: radial-gradient(120% 90% at 20% 10%, #1e1e1e 0%, #161616 55%, #101010 100%);
   color: #ffffff;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
@@ -77,10 +77,10 @@ body {
 /* AI Enhanced Living Color Ambient Aura Backdrop */
 body::before {
   content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-  background: radial-gradient(circle at 75% 20%, rgba(51, 102, 255, 0.22) 0%, transparent 50%),
-              radial-gradient(circle at 20% 80%, rgba(243, 37, 107, 0.24) 0%, transparent 55%),
-              radial-gradient(circle at 60% 70%, rgba(138, 46, 174, 0.28) 0%, transparent 60%);
-  filter: blur(45px);
+  background: radial-gradient(circle at 75% 20%, rgba(51, 102, 255, 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 20% 80%, rgba(243, 37, 107, 0.25) 0%, transparent 55%),
+              radial-gradient(circle at 60% 70%, rgba(51, 102, 255, 0.25) 0%, transparent 60%);
+  filter: blur(55px);
   animation: living-aura 18s ease-in-out infinite alternate;
 }
 
@@ -184,7 +184,7 @@ body::before {
 }
 .hdr::before {
   content: ""; position: absolute; inset: 0; z-index: -1;
-  background: linear-gradient(180deg, rgba(30,6,46,.28), rgba(30,6,46,0));
+  background: linear-gradient(180deg, rgba(26, 26, 26, .5), transparent);
 }
 .hdr .back {
   flex: 0 0 auto;
@@ -232,13 +232,14 @@ body::before {
 
 /* ── Intro / hero cards ──────────────────────────────────── */
 .hero-card {
-  border: 1.6px solid rgba(249,168,212,.85);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--radius);
-  background: linear-gradient(140deg, rgba(238,43,99,.32), rgba(123,33,168,.42) 60%, rgba(92,22,128,.5));
-  box-shadow: var(--shadow-1), inset 0 1px 0 rgba(255,255,255,.14);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
   color: #fff; text-align: center;
   padding: 18px 18px 16px;
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 .hero-card h2 { margin: 0 0 8px; font-size: 17.5px; font-weight: 700; line-height: 1.35; }
 .hero-card p  { margin: 0; font-size: 12.8px; line-height: 1.65; color: rgba(255,255,255,.92); }
@@ -411,7 +412,7 @@ body::before {
 .no-nav .done-row { bottom: 14px; }
 .done-row .form-err {
   align-self: center; color: #fff; font-size: 12.6px; font-weight: 500;
-  text-shadow: 0 1px 6px rgba(0,0,0,.35); background: rgba(30,6,46,.45);
+  text-shadow: 0 1px 6px rgba(0,0,0,.35); background: rgba(26, 26, 26, .75);
   padding: 6px 14px; border-radius: 99px; backdrop-filter: blur(4px);
   animation: shake .5s;
 }
@@ -496,10 +497,17 @@ body::before {
 .tile .box {
   width: 100%; aspect-ratio: 1; max-width: 104px; border-radius: 24px;
   display: grid; place-items: center; position: relative;
-  background: linear-gradient(150deg, #a940c6, #8425a8 65%, #6d1c92);
-  border: 1.6px solid rgba(249,168,212,.75);
-  box-shadow: 0 8px 20px rgba(30,6,46,.35), inset 0 1px 0 rgba(255,255,255,.22);
-  transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, filter .2s;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease, border-color .2s ease, background .2s ease;
+}
+.tile:hover .box {
+  background: rgba(51, 102, 255, 0.25);
+  border-color: #ffd166;
+  box-shadow: 0 10px 28px rgba(51, 102, 255, 0.45), 0 0 12px rgba(255, 209, 102, 0.4);
 }
 .tile:active .box { transform: scale(.92); }
 .tile .box svg { width: 44%; height: 44%; color: #fff; filter: drop-shadow(0 2px 4px rgba(0,0,0,.25)); }
@@ -539,11 +547,13 @@ body::before {
   bottom: calc(12px + env(safe-area-inset-bottom));
   height: var(--nav-h); z-index: 40;
   border-radius: 26px;
-  background: linear-gradient(135deg, rgba(249,168,212,.96), rgba(244,114,182,.94) 55%, rgba(236,72,153,.92));
-  box-shadow: 0 12px 30px rgba(30,6,46,.5), inset 0 1px 0 rgba(255,255,255,.55);
+  background: rgba(26, 26, 26, 0.72);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   display: flex; align-items: stretch; justify-content: space-around;
   padding: 8px 6px;
-  backdrop-filter: blur(10px);
   transition: transform .3s cubic-bezier(.22,.9,.36,1), opacity .3s;
 }
 #tabbar.hidden { transform: translateY(140%); opacity: 0; pointer-events: none; }
@@ -2094,7 +2104,7 @@ body.hc .draw-canvas { box-shadow: 0 14px 40px rgba(0,0,0,.6), inset 0 0 0 2px #
 }
 
 /* Content scrolling under a translucent header read as a smudge. */
-.hdr::before { background: linear-gradient(180deg, rgba(30,6,46,.82) 0%, rgba(30,6,46,.62) 62%, rgba(30,6,46,0) 100%); }
+.hdr::before { background: linear-gradient(180deg, rgba(26, 26, 26, .75) 0%, rgba(26, 26, 26, .4) 62%, transparent 100%); }
 
 /* Gilead's mark is red — the shared .wordmark rule was overriding it. */
 .splash-partner-mark .wordmark.gilead-word { color: #e63946; text-shadow: 0 0 18px rgba(230,57,70,.5); }
@@ -2140,32 +2150,41 @@ body.hc .draw-canvas { box-shadow: 0 14px 40px rgba(0,0,0,.6), inset 0 0 0 2px #
 
 /* ── Moja Meadow — the relax-and-play garden game ────────── */
 .meadow-pad { padding-bottom: 30px; }
-.meadow-hud { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 12px 0 10px; }
+.meadow-hud { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 12px 0 10px; }
 .hud-chip {
   display: inline-flex; align-items: center; gap: 6px;
-  padding: 8px 12px; border-radius: 999px;
-  background: var(--card); border: 1px solid var(--line);
-  box-shadow: var(--shadow-1);
-  font-size: 12.6px; font-weight: 600; color: var(--ink-soft);
+  padding: 8px 13px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.2px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  font-size: 12.6px; font-weight: 600; color: #ffffff;
 }
-.hud-chip b { color: var(--ink); font-size: 13.5px; }
-.hud-btn { cursor: pointer; font-family: var(--font); transition: transform .12s, background .12s; }
-.hud-btn:active { transform: scale(.94); background: #f6f0fb; }
+.hud-chip b { color: #ffd166; font-size: 13.5px; }
+.hud-btn {
+  cursor: pointer; font-family: var(--font);
+  color: #ffffff; background: rgba(255, 255, 255, 0.12);
+  transition: transform .12s, background .12s, border-color .12s;
+}
+.hud-btn:hover { background: rgba(255, 255, 255, 0.2); border-color: rgba(51, 102, 255, 0.6); }
+.hud-btn:active { transform: scale(.94); background: rgba(51, 102, 255, 0.3); }
 .meadow-frame {
   border-radius: 20px; overflow: hidden;
-  border: 1.5px solid rgba(124,37,168,.35);
-  box-shadow: var(--shadow-2);
+  border: 1.5px solid rgba(51, 102, 255, 0.45);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
   background: linear-gradient(180deg, #6ec1ff 0%, #ffd9e8 100%);
 }
 #meadow {
   display: block; width: 100%;
-  height: 68vh; min-height: 440px; max-height: 640px;
+  height: 65vh; min-height: 420px; max-height: 620px;
   touch-action: none; cursor: pointer;
 }
 .meadow-hint {
   margin: 12px 6px 0; text-align: center;
-  color: var(--ink-soft); font-size: 12.2px; line-height: 1.6;
+  color: rgba(255, 255, 255, 0.88); font-size: 12.2px; line-height: 1.6;
 }
+.meadow-hint b { color: #ffffff; }
 
 /* ── Specular Heading Glare & Glance Sheen ───────────────── */
 @keyframes heading-glare {
@@ -2392,13 +2411,13 @@ body.rm .beacon-title::after {
 .game-stats-row .chip b { color: #ffffff; }
 
 /* ── Moja Orbit 3D ─────────────────────────────────────────── */
-.orbit-pad { padding: 8px 12px 20px; display: flex; flex-direction: column; gap: 10px; }
-.orbit-hud { margin-bottom: 2px; }
+.orbit-pad { padding: 8px 12px 24px; display: flex; flex-direction: column; gap: 10px; }
+.orbit-hud { margin-bottom: 2px; justify-content: center; }
 .orbit-frame {
-  position: relative; width: 100%; height: 380px;
+  position: relative; width: 100%; height: 65vh; min-height: 420px; max-height: 620px;
   border-radius: 20px; overflow: hidden;
-  background: #020005; border: 2px solid rgba(51,102,255,.45);
-  box-shadow: 0 8px 30px rgba(51,102,255,.25);
+  background: #020005; border: 2px solid rgba(51,102,255,.55);
+  box-shadow: 0 12px 36px rgba(51,102,255,.35);
   touch-action: none;
 }
 #orbit-canvas { width: 100%; height: 100%; display: block; }
@@ -2547,17 +2566,17 @@ body.rm .beacon-title::after {
 /* ── Moja Pop Bubble Odyssey Game ──────────────────────────── */
 .bubble-pad { padding-bottom: 24px; }
 .bubble-hud {
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 12px 0 10px;
+  display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 12px 0 10px;
 }
 .bubble-frame {
   position: relative; border-radius: 20px; overflow: hidden;
-  border: 1.5px solid rgba(138,46,174,.4);
-  box-shadow: 0 12px 32px rgba(15,5,29,.45);
+  border: 1.5px solid rgba(51, 102, 255, 0.5);
+  box-shadow: 0 12px 36px rgba(15,5,29,.6);
   background: #0f051d;
 }
 #bubble-canvas {
   display: block; width: 100%;
-  height: 62vh; min-height: 400px; max-height: 580px;
+  height: 65vh; min-height: 420px; max-height: 620px;
   touch-action: none; cursor: crosshair;
 }
 

@@ -3505,41 +3505,41 @@ function showGameHowToModal(gameKey) {
   const guide = {
     meadow: {
       title: '🌸 How to Play: Moja Meadow',
-      subtitle: '2D Peaceful Garden Sanctuary · 2-Minute Mindfulness',
+      subtitle: '2D Botanical Garden · 4 Seasons & Rain Weather',
       route: '#/game',
       btnText: 'Start Relaxing 🌸',
       items: [
-        { icon: '🌱', title: 'Plant & Water', desc: 'Tap any soil patch to plant seeds, then tap growing buds with water to nourish them.' },
-        { icon: '🌟', title: 'Sky Blooms (+50 pts)', desc: 'Keep watering fully open flowers until they transform into giant radiant Sky Blooms!' },
-        { icon: '🐛', title: 'Garden Friends (+2 to +3 💧)', desc: 'Tap soil worms and worker ants to hydrate them for bonus water energy.' },
-        { icon: '🦋', title: 'Visiting Butterflies (+5 to +10 pts)', desc: 'Offer sweet dewdrop nectar when butterflies float past to deepen tranquility.' },
-        { icon: '🌧️', title: 'Summer Rain & Stars (+5 pts)', desc: 'Tap the sky to summon rain showers and catch glittering falling Rain Stars.' },
+        { icon: '🌸', title: '4 Dynamic Seasons', desc: 'Experience Spring petals, Summer sunshine, Autumn golden leaves, and Winter snow flurries.' },
+        { icon: '🌧️', title: 'Rain Weather & Stars (+5 ⭐)', desc: 'Tap Rain to shower all flowers with water and catch falling glowing Rain Stars.' },
+        { icon: '🌱', title: 'Plant & Care for Flowers', desc: 'Tap open ground to plant 8 diverse species (Roses, Daisies, Tulips, Sunflowers, Lavender, Orchids, PomPoms, Starflowers).' },
+        { icon: '🌟', title: 'Giant Sky Blooms (+50 🌟)', desc: 'Keep watering flowers to reach the sky for radiant mega blooms and high serenity!' },
+        { icon: '🐛', title: 'Care for Creatures (💧 +2 to +3)', desc: 'Give cool dewdrops to thirsty worms and working ants to enrich soil health.' },
       ]
     },
     game3d: {
       title: '🐝 How to Play: Moja Bee 3D',
-      subtitle: '3D Sunray Flight & River Exploration · Hardware-Accelerated',
+      subtitle: 'Next-Gen 3D Sunray Flight & Supersonic Honey Rush',
       route: '#/game3d',
       btnText: 'Take Flight 🐝',
       items: [
-        { icon: '👆', title: 'Touch & Glide Flight', desc: 'Touch & drag anywhere on the screen (or move pointer) to steer your bee freely in 3D.' },
-        { icon: '☀️', title: 'Collect Sunrays (+10 pts)', desc: 'Fly through golden glowing sunray rings floating high above the sunflower fields.' },
-        { icon: '🍯', title: 'Pollen Pods (+15 pts)', desc: 'Collect pink blossom pods to charge your Honey Rush turbo booster.' },
-        { icon: '⚡', title: 'Honey Rush Turbo', desc: 'Tap the Honey Rush button when charged for supersonic speed and temporary invulnerability!' },
-        { icon: '⛈️', title: 'Dodge Storm Clouds', desc: 'Steer clear of dark storm clouds that cause a dizzy wobble slowdown.' },
+        { icon: '👆', title: 'Touch & Glide Flight', desc: 'Touch & drag anywhere on the screen (or move cursor) to smoothly steer your 3D bumblebee.' },
+        { icon: '☀️', title: 'Collect Sunrays (+10 pts)', desc: 'Fly through multifaceted golden rotating sunray crystal stars across the sunny skies.' },
+        { icon: '🍯', title: 'Pollen Blossom Pods (+25 pts)', desc: 'Collect glowing honeycomb blossom pods to charge your Honey Rush turbo booster!' },
+        { icon: '⚡', title: 'Honey Rush Turbo', desc: 'Tap Honey Rush or collect 3 Pollen pods for supersonic speed warp lines and doubled points!' },
+        { icon: '⛈️', title: 'Dodge Storm Clouds', desc: 'Avoid dark storm clouds that cause lightning flashes and temporary flight wobble.' },
       ]
     },
     bubble: {
       title: '🫧 How to Play: Moja Pop',
-      subtitle: 'Serenity Bubble Odyssey · 432Hz Harmonic Pop',
+      subtitle: '2-Minute Countdown OR 3 Lives Challenge · Serenity Bubble Odyssey',
       route: '#/gamebubble',
       btnText: 'Pop Bubbles 🫧',
       items: [
-        { icon: '🎯', title: 'Laser Trajectory Aim', desc: 'Drag to align your trajectory laser with realistic wall bounces. Release to fire!' },
-        { icon: '🫧', title: 'Harmonic Match 3+', desc: 'Connect 3 or more matching bubbles to pop them with soothing 432Hz soundscapes.' },
-        { icon: '💥', title: 'Mega Avalanches', desc: 'Sever root anchor bubbles to drop all floating clusters below for huge score multipliers!' },
-        { icon: '🔄', title: 'Bubble Swap', desc: 'Tap the Swap button or cannon bubble to switch between active and on-deck bubbles.' },
-        { icon: '💣', title: 'Hope Supernova Bomb', desc: 'Build consecutive match combos to trigger and detonate the Hope Supernova cluster bomb!' },
+        { icon: '⏳', title: '2-Min Timer or 3 Lives (❤️❤️❤️)', desc: 'Race the 2-minute clock or survive with 3 lives while popping glossy bubbles!' },
+        { icon: '🛡️', title: '1 Reset Push Back', desc: 'When bubbles first touch the danger line, you get 1 automatic Reset Push Back that safely sends the grid back up!' },
+        { icon: '💔', title: 'Life Loss & Restart', desc: 'If bubbles cross the line after the reset is used, a life is lost. Losing all 3 lives prompts the restart popup.' },
+        { icon: '🎯', title: 'Laser Aim & Match 3+', desc: 'Aim with reflective laser guide to connect 3+ matching bubbles with 432Hz harmonic chimes.' },
+        { icon: '💥', title: 'Mega Avalanches', desc: 'Disconnect floating clusters from the ceiling to trigger massive cascading avalanche bonuses!' },
       ]
     }
   }[gameKey];
@@ -3585,22 +3585,22 @@ routes.games = () => {
       <div class="hero-card games-hero">
         <span class="spark-badge">RELAX &amp; PLAY</span>
         <h2 class="hdr-glare">Choose Your Resilience Game</h2>
-        <p class="lead">Take a mindful 2-minute pause between study activities. Relax in your peaceful meadow, fly as a bumblebee in 3D, or pop bubbles in cosmic harmonies!</p>
+        <p class="lead">Take a mindful pause between study activities. Enjoy dynamic changing seasons in your meadow, soar in 3D as a cheerful bumblebee, or pop bubbles in harmonic serenity!</p>
       </div>
 
       <div class="game-hub-grid">
         <!-- Game 1: Moja Meadow 2D -->
         <div class="game-card">
           <div class="game-card-head">
-            <span class="game-badge">2D PEACEFUL GARDEN</span>
+            <span class="game-badge">4 SEASONS BOTANICAL</span>
             <span class="game-icon">🌸</span>
           </div>
           <h3>Moja Meadow</h3>
-          <p>Nourish flowers to the sky, hydrate garden creatures, and catch falling Rain Stars in a peaceful 2-minute retreat.</p>
+          <p>Nourish diverse flowers across 4 changing seasons, summon refreshing rain showers, and catch falling Rain Stars.</p>
           <div class="game-stats-row">
-            <span class="chip">🌸 <b>${S.game.blooms}</b> Blooms</span>
-            <span class="chip">🌟 <b>${S.game.megaBlooms || 0}</b> Sky Blooms</span>
-            <span class="chip">⭐ <b>${S.game.rainStars || 0}</b> Rain Stars</span>
+            <span class="chip">🌸 <b>${S.game?.blooms || 0}</b> Blooms</span>
+            <span class="chip">🌟 <b>${S.game?.megaBlooms || 0}</b> Sky Blooms</span>
+            <span class="chip">⭐ <b>${S.game?.rainStars || 0}</b> Rain Stars</span>
             <span class="chip">⏳ <b>2:00</b></span>
           </div>
           <div class="game-card-actions">
@@ -3616,7 +3616,7 @@ routes.games = () => {
             <span class="game-icon">🐝</span>
           </div>
           <h3>Moja Bee 3D: Sunray Flight</h3>
-          <p>Fly your happy bumblebee through sunny 3D skies. Collect glowing Sunrays and Pollen Blossom pods to trigger supersonic Honey Rush!</p>
+          <p>Fly your happy bumblebee through sunny 3D skies, sparkling rivers, and mountain valleys. Collect Sunrays &amp; Pollen for supersonic Honey Rush!</p>
           <div class="game-stats-row">
             <span class="chip">🏆 High: <b>${S.game3d?.highScore || 0}</b> pts</span>
             <span class="chip">☀️ <b>${S.game3d?.sunrays || 0}</b> Sunrays</span>
@@ -3636,12 +3636,12 @@ routes.games = () => {
             <span class="game-icon">🫧</span>
           </div>
           <h3>Moja Pop: Bubble Odyssey</h3>
-          <p>Aim with laser trajectory reflections to match 3+ bubbles with 432Hz harmonic chimes and trigger mega floating avalanches.</p>
+          <p>Aim with laser reflections in a 2-min or 3-lives challenge. Enjoy 1 emergency reset push back, 432Hz pop chimes, and mega avalanches!</p>
           <div class="game-stats-row">
             <span class="chip">🏆 High: <b>${S.gameBubble?.highScore || 0}</b> pts</span>
             <span class="chip">🫧 <b>${S.gameBubble?.bubblesPopped || 0}</b> Popped</span>
-            <span class="chip">🔥 Best: <b>x${S.gameBubble?.combos || 1}</b></span>
-            <span class="chip">⏳ <b>2:00</b></span>
+            <span class="chip">❤️ <b>3 Lives</b></span>
+            <span class="chip">🛡️ <b>1 Push Back</b></span>
           </div>
           <div class="game-card-actions">
             <button class="btn btn-how-to" onclick="showGameHowToModal('bubble')">📖 How to Play</button>
@@ -3653,7 +3653,7 @@ routes.games = () => {
       <div class="card game-card" style="display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:16px">
         <div>
           <b style="font-size:14.5px;color:#ffffff">🌟 Need instant inspiration?</b>
-          <p style="font-size:12.5px;color:rgba(255,255,255,0.92);margin:3px 0 0">Ignite the Beacon of Hope for uplifting multi-language affirmations.</p>
+          <p style="font-size:12.5px;color:rgba(255,255,255,0.92);margin:3px 0 0">Ignite the Beacon of Hope for uplifting affirmations in 6 languages.</p>
         </div>
         <button class="btn btn-secondary" onclick="beaconOfHopeModal()" style="white-space:nowrap;margin-left:10px">Ignite ✨</button>
       </div>
@@ -3687,7 +3687,7 @@ routes.game3d = () => {
         <button class="btn btn-secondary btn-block" onclick="nav('#/gamebubble')">🫧 Play Moja Pop</button>
       </div>
       <p class="meadow-hint" style="text-align:center">
-        <b>Touch &amp; drag anywhere</b> to guide your bumblebee · Collect <b>☀️ Sunrays (+10)</b> · Gather <b>🍯 Pollen (+15 &amp; Rush!)</b> · Storm clouds cause a dizzy wobble slowdown!
+        <b>Touch &amp; drag anywhere</b> to steer bumblebee · Collect <b>☀️ Sunrays (+10)</b> · Gather <b>🍯 Pollen (+25 &amp; Rush!)</b> · Storm clouds cause a dizzy wobble slowdown!
       </p>
     </div>
   `);
@@ -3711,7 +3711,8 @@ routes.gamebubble = () => {
       <div class="meadow-hud bubble-hud">
         <span class="hud-chip">🏆 <b id="bubble-score">0</b></span>
         <span class="hud-chip">⭐ High: <b id="bubble-high">${S.gameBubble?.highScore || 0}</b></span>
-        <span class="hud-chip">🔥 Combo: <b id="bubble-combo">—</b></span>
+        <span class="hud-chip">❤️ <span id="bubble-lives">❤️❤️❤️</span></span>
+        <span class="hud-chip" id="bubble-pushback" style="color:#6ec1ff">🛡️ Push Back Ready</span>
         <span class="hud-chip timer-chip" title="2-Minute Countdown Challenge">⏳ <span id="bubble-timer">2:00</span></span>
         <button class="hud-chip hud-btn" id="bubble-swap" title="Swap loaded bubble">🔄 Swap</button>
       </div>
@@ -3723,7 +3724,7 @@ routes.gamebubble = () => {
         <button class="btn btn-primary btn-block" style="background:linear-gradient(135deg,#ffb703,#f3256b);color:#fff" onclick="nav('#/game3d')">🐝 Play Moja Bee 3D</button>
       </div>
       <p class="meadow-hint" style="text-align:center">
-        <b>Touch &amp; drag to aim</b> trajectory laser with wall reflections · Match 3+ to pop harmonic chimes · Disconnect floating clusters for <b>💥 MEGA AVALANCHES</b> · Tap <b>🔄 Swap</b> or cannon bubble to switch!
+        <b>Touch &amp; drag to aim laser</b> · Match 3+ bubbles · <b>2-Min or 3 Lives Challenge</b> · Touching danger line triggers <b>1 Reset Push Back 🛡️</b>, then life lost · Disconnect clusters for <b>💥 MEGA AVALANCHES</b>!
       </p>
     </div>
   `);
