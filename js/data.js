@@ -17,14 +17,14 @@ MM.ORGANIZATION = 'Ionity (Pty) Ltd / Antwerp Designs / AEDI';
 MM.TAGLINE = 'Building Tomorrow, Today. Anything is Possible with God.';
 MM.DESIGNER = 'Solutionist of Antwerp Designs & Ecosystems Engineer';
 MM.ENDPOINTS = {
-  main: 'https://www.ionity.today/',
+  main: 'https://www.ionity.co.za/',
   profile: 'https://www.ionity.world/',
   linkedin: 'https://www.linkedin.com/in/ionity',
   github: 'https://github.com/AntwerpDesignsIonity',
-  contact: 'johan@ionity.today',
+  contact: 'johan@ionity.co.za',
   phone: '+27 64 699 9877',
 };
-MM.PORTFOLIO_URL = 'https://www.ionity.today';
+MM.PORTFOLIO_URL = 'https://www.ionity.co.za';
 
 /* ── Partners (opening splash) ───────────────────────────── */
 MM.PARTNERS = {
@@ -32,7 +32,7 @@ MM.PARTNERS = {
   poweredBy: ['SHOUT-IT-NOW', 'Stellenbosch University'],
   madePossibleBy: 'Gilead',
   line: 'Powered by SHOUT-IT-NOW & Stellenbosch University · Made possible by Gilead',
-  craftedBy: 'Crafted by IONITY Global (Pty) Ltd · Solutionist: Johan Wilhelm van Antwerp (Antwerp Designs) · www.ionity.today',
+  craftedBy: 'Crafted by IONITY Global (Pty) Ltd · Solutionist: Johan Wilhelm van Antwerp (Antwerp Designs) · www.ionity.co.za',
 };
 
 /* ── Journal Prompts for Writer ─────────────────────────── */

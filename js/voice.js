@@ -16,7 +16,7 @@
       - Automatic punctuation, capitalization, and silence detection.
    
    © IONITY Global (Pty) Ltd · Solutionist: Johan Wilhelm van Antwerp
-   Antwerp Designs · www.ionity.today
+   Antwerp Designs · www.ionity.co.za
    ============================================================ */
 'use strict';
 

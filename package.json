@@ -8,7 +8,7 @@
     "type": "git",
     "url": "https://github.com/Ionity-Global-Pty-Ltd/MM-ionity.git"
   },
-  "author": "Johan Wilhelm van Antwerp — IONITY Global (Pty) Ltd <https://www.ionity.today>",
+  "author": "Johan Wilhelm van Antwerp — IONITY Global (Pty) Ltd <https://www.ionity.co.za>",
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "start": "python -m http.server 8123",

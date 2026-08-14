@@ -12,7 +12,7 @@
      - Interactive controls: Play, Pause, Scrub Bar, Replay, Fullscreen, Mute.
    
    © IONITY Global (Pty) Ltd · Solutionist: Johan Wilhelm van Antwerp
-   Antwerp Designs · www.ionity.today
+   Antwerp Designs · www.ionity.co.za
    ============================================================ */
 'use strict';
 

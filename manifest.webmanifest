@@ -1,7 +1,7 @@
 {
   "name": "MojaMind — Creative Resilience",
   "short_name": "MojaMind",
-  "description": "An 8-week creative resilience intervention. Express yourself through art, voice and words, track your wellbeing, and find support anytime. Powered by SHOUT-IT-NOW and Stellenbosch University, made possible by Gilead. Crafted by Johan Wilhelm van Antwerp (Antwerp Designs) · IONITY Global (Pty) Ltd (www.ionity.today).",
+  "description": "An 8-week creative resilience intervention. Express yourself through art, voice and words, track your wellbeing, and find support anytime. Powered by SHOUT-IT-NOW and Stellenbosch University, made possible by Gilead. Crafted by Johan Wilhelm van Antwerp (Antwerp Designs) · IONITY Global (Pty) Ltd (www.ionity.co.za).",
   "id": "mojamind-creative-resilience",
   "start_url": "./index.html?source=pwa",
   "scope": "./",

@@ -8,8 +8,8 @@
 
 - **Study & Research:** [SHOUT-IT-NOW](https://shoutitnow.org/) & [Stellenbosch University](https://www.sun.ac.za/)
 - **Sponsor:** Made possible by [Gilead Sciences](https://www.gilead.com/)
-- **Engineering & Architecture:** Crafted by **Johan Wilhelm van Antwerp** (Solutionist of Antwerp Designs) · [IONITY Global (Pty) Ltd](https://www.ionity.today)
-- **Official Portal:** [www.ionity.today](https://www.ionity.today) & [www.ionity.co.za](https://www.ionity.co.za)
+- **Engineering & Architecture:** Crafted by **Johan Wilhelm van Antwerp** (Solutionist of Antwerp Designs) · [IONITY Global (Pty) Ltd](https://www.ionity.co.za)
+- **Official Portal:** [www.ionity.co.za](https://www.ionity.co.za)
 
 ---
 

@@ -9,7 +9,7 @@
    - On-device Moja Vision colour and composition analysis.
    
    © IONITY Global (Pty) Ltd · Solutionist: Johan Wilhelm van Antwerp
-   Antwerp Designs · www.ionity.today
+   Antwerp Designs · www.ionity.co.za
    ============================================================ */
 'use strict';
 

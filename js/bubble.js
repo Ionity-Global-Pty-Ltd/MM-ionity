@@ -2,16 +2,21 @@
    MojaMind — Moja Pop: Serenity Bubble Odyssey 🫧✨🎯
    An immensely satisfying, physics-based Bubble Shooter game.
    
-   Features:
+   Rules & Features:
+   - 2-Minute Countdown Timer Challenge (120s) OR 3 Lives (❤️❤️❤️).
+   - Once balls touch the danger zone:
+     • 1st time: 1 Reset Push Back (pushes entire ceiling up safely!).
+     • Subsequent times: A life is taken (💔 -1 Life).
+     • At 0 lives (or time out): Immediate Restart & Celebration Popup!
    - High-precision trajectory aiming laser with wall reflections.
    - Hexagonal bubble grid snapping & match-3 pop mechanics.
    - Cascading floating cluster drop physics (Mega Avalanches!).
    - Harmonic pentatonic pop chimes & combo multipliers.
-   - Special power bubbles: Hope Bombs 💣, Prism Rainbows 🌈, Sunray Lasers ⚡.
-   - 2-Minute Countdown Timer Challenge with persistent High Scores.
+   - Special power bubbles: Hope Supernova 💣, Prism Rainbows 🌈.
+   - Glassmorphism dark Ionity theme & high visibility HUD.
    
    © IONITY Global (Pty) Ltd · Solutionist: Johan Wilhelm van Antwerp
-   Antwerp Designs · www.ionity.today
+   Antwerp Designs · www.ionity.co.za
    ============================================================ */
 'use strict';
 
@@ -21,11 +26,16 @@ const MMBubble = (() => {
   let ac = null;
 
   const MISSION_MS = 120000; // 2-Minute Countdown Challenge (120s)
+  const MAX_LIVES = 3;
   let sessionStart = 0;
-  let missionCompleted = false;
+  let gameOver = false;
+  let lives = MAX_LIVES;
+  let pushBackAvailable = true;
+  let pushBackEffectUntil = 0;
 
   const COLS = 8;
-  const ROWS = 12;
+  const ROWS = 11;
+  const DANGER_ROW = 8; // Row index that triggers pushback or life loss
   const BUBBLE_COLORS = [
     { name: 'pink', fill: '#f3256b', glow: '#ff758f', dark: '#c2185b' },
     { name: 'gold', fill: '#ffbe0b', glow: '#ffd166', dark: '#d48b00' },
@@ -36,19 +46,19 @@ const MMBubble = (() => {
 
   const PENTA = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 587.33, 659.26, 783.99, 1046.5];
 
-  let grid = []; // 2D array [row][col] -> null or { colorIndex, type, r, popping, dropVy }
+  let grid = []; // 2D array [row][col] -> null or { colorIndex, type }
   let bubbleR = 20;
-  let gridTop = 60;
+  let gridTop = 54;
   let cannon = { x: 0, y: 0, angle: -Math.PI / 2, curBubble: 0, nextBubble: 1 };
   let flyingBubble = null; // { x, y, vx, vy, colorIndex, type }
   let droppingBubbles = [];
   let particles = [];
   let popups = [];
   let aiming = false;
-  let aimPos = { x: 0, y: 0 };
   let combo = 0;
   let missesUntilDrop = 4;
   let score = 0;
+  let bubblesPoppedThisSession = 0;
 
   const GB = () => {
     if (!S.gameBubble) S.gameBubble = { highScore: 0, bubblesPopped: 0, combos: 0, totalGames: 0, sound: true };
@@ -100,6 +110,17 @@ const MMBubble = (() => {
     });
   }
 
+  function pushBackSound() {
+    [392.0, 523.25, 659.26, 1046.5].forEach((f, i) => {
+      setTimeout(() => pluck(f, 0.18, 0.6, 'triangle'), i * 75);
+    });
+  }
+
+  function lifeLostSound() {
+    pluck(180, 0.2, 0.5, 'sawtooth');
+    setTimeout(() => pluck(120, 0.2, 0.6, 'sawtooth'), 120);
+  }
+
   function buzz(ms) {
     try { navigator.vibrate && navigator.vibrate(ms); } catch { /* no haptics */ }
   }
@@ -116,14 +137,18 @@ const MMBubble = (() => {
     return { x, y };
   }
 
+  function dangerY() {
+    return gridTop + bubbleR + DANGER_ROW * (bubbleR * Math.sqrt(3));
+  }
+
   function initGrid() {
     grid = [];
     for (let r = 0; r < ROWS; r++) {
       grid[r] = [];
       const colsInRow = (r % 2 === 1) ? COLS - 1 : COLS;
       for (let c = 0; c < colsInRow; c++) {
-        if (r < 5) {
-          const isSpecial = Math.random() < 0.04;
+        if (r < 4) {
+          const isSpecial = Math.random() < 0.05;
           const specialType = Math.random() < 0.5 ? 'bomb' : 'rainbow';
           grid[r][c] = {
             colorIndex: Math.floor(Math.random() * BUBBLE_COLORS.length),
@@ -241,7 +266,7 @@ const MMBubble = (() => {
           droppingBubbles.push({
             x: pos.x, y: pos.y,
             vx: rnd(-1.5, 1.5), vy: rnd(-1, 1),
-            color: BUBBLE_COLORS[b.colorIndex % BUBBLE_COLORS.length].fill,
+            colorIndex: b.colorIndex,
             type: b.type,
           });
           droppedCount++;
@@ -252,12 +277,106 @@ const MMBubble = (() => {
     if (droppedCount > 0) {
       const dropBonus = droppedCount * 25 * (combo + 1);
       score += dropBonus;
+      bubblesPoppedThisSession += droppedCount;
       GB().bubblesPopped = (GB().bubblesPopped || 0) + droppedCount;
       avalancheSound();
       buzz([20, 60, 100]);
       addPopup(W / 2, H * 0.45, `💥 AVALANCHE! +${dropBonus} pts`, '#ffd700');
       toast(`Mega Avalanche! Dropped ${droppedCount} bubbles! 💥✨`, 2200);
       recordScore();
+      updateHUD();
+    }
+  }
+
+  /* ── Danger Zone & Reset Push Back Rules ─────────────────── */
+  function checkDangerThreshold() {
+    if (gameOver) return;
+
+    let breached = false;
+    for (let r = DANGER_ROW; r < ROWS; r++) {
+      for (let c = 0; c < (r % 2 === 1 ? COLS - 1 : COLS); c++) {
+        if (grid[r][c]) {
+          breached = true;
+          break;
+        }
+      }
+      if (breached) break;
+    }
+
+    if (breached) {
+      if (pushBackAvailable) {
+        // 1st time: 1 Reset Push Back!
+        pushBackAvailable = false;
+        executePushBack();
+      } else {
+        // After that: A life is taken!
+        takeLife();
+      }
+    }
+  }
+
+  function executePushBack() {
+    pushBackEffectUntil = Date.now() + 1200;
+    pushBackSound();
+    buzz([40, 100, 160]);
+
+    // Push grid up by 3 rows
+    for (let shift = 0; shift < 3; shift++) {
+      grid.shift();
+      grid.push(new Array(shift % 2 === 1 ? COLS - 1 : COLS).fill(null));
+    }
+
+    // Spawn massive protective sparkles
+    for (let i = 0; i < 40; i++) {
+      particles.push({
+        x: rnd(20, W - 20),
+        y: dangerY() + rnd(-20, 20),
+        vx: rnd(-2.5, 2.5),
+        vy: rnd(-4, -1),
+        color: '#6ec1ff',
+        life: 1,
+        decay: rnd(0.015, 0.03),
+        r: rnd(3, 6),
+      });
+    }
+
+    addPopup(W / 2, dangerY() - 20, '🛡️ RESET PUSH BACK ACTIVATED! 🛡️', '#6ec1ff');
+    toast('🛡️ Reset Push Back activated! Grid pushed back up safely!', 3000);
+    updateHUD();
+  }
+
+  function takeLife() {
+    lives--;
+    lifeLostSound();
+    buzz([80, 140, 200]);
+
+    // Spawn warning red flash particles
+    for (let i = 0; i < 30; i++) {
+      particles.push({
+        x: rnd(20, W - 20),
+        y: dangerY() + rnd(-10, 10),
+        vx: rnd(-3, 3),
+        vy: rnd(-3, 2),
+        color: '#f3256b',
+        life: 1,
+        decay: rnd(0.02, 0.04),
+        r: rnd(3, 7),
+      });
+    }
+
+    // Shift grid up 2 rows to give breathing room after losing life
+    grid.shift();
+    grid.shift();
+    grid.push(new Array(COLS).fill(null));
+    grid.push(new Array(COLS - 1).fill(null));
+
+    if (lives <= 0) {
+      lives = 0;
+      updateHUD();
+      triggerGameOver('out_of_lives');
+    } else {
+      addPopup(W / 2, dangerY() - 20, `💔 -1 LIFE! (${lives} Remaining)`, '#f3256b');
+      toast(`Balls touched the danger line! 💔 Life lost (${lives} left)`, 2800);
       updateHUD();
     }
   }
@@ -294,6 +413,7 @@ const MMBubble = (() => {
           spawnBubbleBurst(p.x, p.y, '#ffd166', 20);
           grid[ex.r][ex.c] = null;
           score += 20;
+          bubblesPoppedThisSession++;
         }
       }
       avalancheSound();
@@ -302,6 +422,7 @@ const MMBubble = (() => {
       dropFloatingClusters();
       recordScore();
       updateHUD();
+      checkDangerThreshold();
       return;
     }
 
@@ -313,6 +434,7 @@ const MMBubble = (() => {
       GB().combos = Math.max(GB().combos || 0, combo);
       const points = matches.length * 15 * combo;
       score += points;
+      bubblesPoppedThisSession += matches.length;
       GB().bubblesPopped = (GB().bubblesPopped || 0) + matches.length;
 
       for (let i = 0; i < matches.length; i++) {
@@ -338,7 +460,10 @@ const MMBubble = (() => {
         missesUntilDrop = 4;
         shiftGridDown();
       }
+      updateHUD();
     }
+
+    checkDangerThreshold();
   }
 
   function shiftGridDown() {
@@ -352,7 +477,8 @@ const MMBubble = (() => {
     }
     grid.unshift(newTop);
     grid.pop();
-    toast('Ceiling lowered! Stay sharp ⚡', 1800);
+    toast('Ceiling lowered! Watch the danger zone ⚡', 1600);
+    checkDangerThreshold();
   }
 
   function recordScore() {
@@ -363,24 +489,38 @@ const MMBubble = (() => {
     }
   }
 
+  function getLivesHearts() {
+    let s = '';
+    for (let i = 0; i < MAX_LIVES; i++) {
+      s += i < lives ? '❤️' : '🖤';
+    }
+    return s;
+  }
+
   function updateHUD() {
     const sEl = $('#bubble-score'); if (sEl) sEl.textContent = score;
     const hEl = $('#bubble-high'); if (hEl) hEl.textContent = GB().highScore || score;
     const cEl = $('#bubble-combo'); if (cEl) cEl.textContent = combo > 1 ? `x${combo}` : '—';
+    const lEl = $('#bubble-lives'); if (lEl) lEl.innerHTML = getLivesHearts();
+    const pEl = $('#bubble-pushback');
+    if (pEl) {
+      pEl.textContent = pushBackAvailable ? '🛡️ Push Back Ready' : '🛡️ Used';
+      pEl.style.opacity = pushBackAvailable ? '1' : '0.6';
+    }
   }
 
   /* ── Laser Aiming Guide & Trajectory Reflection ─────────── */
   function drawAimLaser() {
-    if (!aiming) return;
+    if (!aiming || gameOver) return;
     const startX = cannon.x, startY = cannon.y;
     const dirX = Math.cos(cannon.angle), dirY = Math.sin(cannon.angle);
 
     ctx.save();
     ctx.setLineDash([6, 6]);
     ctx.lineWidth = 2.4;
-    ctx.strokeStyle = 'rgba(255, 215, 0, 0.85)';
+    ctx.strokeStyle = 'rgba(255, 215, 0, 0.88)';
     ctx.shadowColor = '#ffd700';
-    ctx.shadowBlur = 8;
+    ctx.shadowBlur = 10;
 
     let curX = startX, curY = startY;
     let vx = dirX, vy = dirY;
@@ -439,18 +579,19 @@ const MMBubble = (() => {
     const now = Date.now();
 
     // 1) 2-Minute Mission Timer
-    const elapsed = now - sessionStart;
-    const timeLeft = Math.max(0, MISSION_MS - elapsed);
-    const timeEl = $('#bubble-timer');
-    if (timeEl) timeEl.textContent = fmtClock(timeLeft);
+    if (!gameOver) {
+      const elapsed = now - sessionStart;
+      const timeLeft = Math.max(0, MISSION_MS - elapsed);
+      const timeEl = $('#bubble-timer');
+      if (timeEl) timeEl.textContent = fmtClock(timeLeft);
 
-    if (timeLeft <= 0 && !missionCompleted) {
-      missionCompleted = true;
-      celebrate2MinComplete();
+      if (timeLeft <= 0) {
+        triggerGameOver('time_up');
+      }
     }
 
     // 2) Update Flying Bubble
-    if (flyingBubble) {
+    if (flyingBubble && !gameOver) {
       flyingBubble.x += flyingBubble.vx;
       flyingBubble.y += flyingBubble.vy;
 
@@ -526,11 +667,45 @@ const MMBubble = (() => {
 
     // Cosmic Arcade Gradient Background
     const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
-    bgGrad.addColorStop(0, '#0f051d');
-    bgGrad.addColorStop(0.5, '#240b3b');
-    bgGrad.addColorStop(1, '#130424');
+    bgGrad.addColorStop(0, '#0d0419');
+    bgGrad.addColorStop(0.5, '#1e0a33');
+    bgGrad.addColorStop(1, '#0e0318');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, W, H);
+
+    // Danger Zone Line
+    const dy = dangerY();
+    ctx.save();
+    ctx.setLineDash([8, 6]);
+    ctx.lineWidth = 1.6;
+    ctx.strokeStyle = 'rgba(243, 37, 107, 0.55)';
+    ctx.shadowColor = '#f3256b';
+    ctx.shadowBlur = 6;
+    ctx.beginPath();
+    ctx.moveTo(0, dy);
+    ctx.lineTo(W, dy);
+    ctx.stroke();
+
+    ctx.font = '700 10.5px Poppins, sans-serif';
+    ctx.fillStyle = 'rgba(243, 37, 107, 0.85)';
+    ctx.textAlign = 'right';
+    ctx.fillText('⚠️ DANGER LINE', W - 10, dy - 5);
+    ctx.restore();
+
+    // Push Back Visual Wave
+    if (Date.now() < pushBackEffectUntil) {
+      const prog = (pushBackEffectUntil - Date.now()) / 1200;
+      ctx.save();
+      ctx.strokeStyle = `rgba(110, 193, 255, ${prog})`;
+      ctx.lineWidth = 4;
+      ctx.shadowColor = '#6ec1ff';
+      ctx.shadowBlur = 16;
+      ctx.beginPath();
+      ctx.moveTo(0, dy - (1 - prog) * 120);
+      ctx.lineTo(W, dy - (1 - prog) * 120);
+      ctx.stroke();
+      ctx.restore();
+    }
 
     // Draw Aiming Laser
     drawAimLaser();
@@ -575,7 +750,7 @@ const MMBubble = (() => {
       ctx.fillStyle = pp.color;
       ctx.font = '800 13.5px Poppins, sans-serif';
       ctx.textAlign = 'center';
-      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowColor = 'rgba(0,0,0,0.6)';
       ctx.shadowBlur = 6;
       ctx.fillText(pp.text, pp.x, pp.y);
       ctx.shadowBlur = 0;
@@ -634,8 +809,8 @@ const MMBubble = (() => {
     // Cannon Barrel
     ctx.save();
     ctx.rotate(cannon.angle + Math.PI / 2);
-    ctx.fillStyle = '#3f1f63';
-    ctx.strokeStyle = '#dcc6f2';
+    ctx.fillStyle = '#2e124a';
+    ctx.strokeStyle = '#3366ff';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.roundRect(-10, -42, 20, 42, 6);
@@ -644,29 +819,40 @@ const MMBubble = (() => {
     ctx.restore();
 
     // Base Pod Ring
-    ctx.fillStyle = '#2b123d';
-    ctx.strokeStyle = '#8a2eae';
+    ctx.fillStyle = '#1c0830';
+    ctx.strokeStyle = '#3366ff';
     ctx.lineWidth = 2.5;
+    ctx.shadowColor = '#3366ff';
+    ctx.shadowBlur = 10;
     ctx.beginPath();
     ctx.arc(0, 0, 26, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
+    ctx.shadowBlur = 0;
 
     // Current Loaded Bubble
     drawGlossyBubble(0, 0, cannon.curBubble);
 
-    // Next Bubble Preview (On the side)
-    ctx.translate(46, 6);
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
-    ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI * 2); ctx.fill();
+    // Next Bubble Preview (On the side with swap icon)
+    ctx.translate(48, 4);
+    ctx.fillStyle = 'rgba(255,255,255,0.12)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.arc(0, 0, 17, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     drawGlossyBubble(0, 0, cannon.nextBubble);
+
+    // Mini Swap Hint
+    ctx.fillStyle = '#ffd166';
+    ctx.font = '9px Poppins, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('🔄 SWAP', 0, 26);
 
     ctx.restore();
   }
 
   /* ── Input Handlers ─────────────────────────────────────── */
   function updateAim(clientX, clientY) {
-    if (!canvas) return;
+    if (!canvas || gameOver) return;
     const r = canvas.getBoundingClientRect();
     const x = clientX - r.left, y = clientY - r.top;
     const angle = Math.atan2(y - cannon.y, x - cannon.x);
@@ -677,7 +863,7 @@ const MMBubble = (() => {
   }
 
   function shootBubble() {
-    if (flyingBubble) return;
+    if (flyingBubble || gameOver) return;
     const speed = 14;
     flyingBubble = {
       x: cannon.x,
@@ -692,6 +878,7 @@ const MMBubble = (() => {
   }
 
   function swapBubbles() {
+    if (gameOver) return;
     const tmp = cannon.curBubble;
     cannon.curBubble = cannon.nextBubble;
     cannon.nextBubble = tmp;
@@ -699,44 +886,70 @@ const MMBubble = (() => {
     toast('Swapped loaded bubble 🔄', 1200);
   }
 
-  function celebrate2MinComplete() {
+  function triggerGameOver(reason = 'time_up') {
+    if (gameOver) return;
+    gameOver = true;
     confetti();
-    buzz([30, 80, 120]);
-    S.game.serenity = (S.game.serenity || 0) + 25;
+    buzz([40, 100, 180]);
     recordScore();
-    save();
 
     const isNewHigh = score >= (GB().highScore || 0);
+    const serenityReward = Math.max(10, Math.floor(score / 40));
+    S.game.serenity = (S.game.serenity || 0) + serenityReward;
+    save();
+
+    const title = reason === 'time_up' ? '2-Minute Challenge Complete! ⏳✨' : 'Game Over — Out of Lives! 💔';
+    const subText = reason === 'time_up'
+      ? `Outstanding focus! You mastered the 2-minute bubble challenge!`
+      : `The bubbles reached the bottom. Reset push back was utilized and all 3 lives were tested.`;
 
     modal(`
-      <div style="text-align:center;padding:12px 4px">
-        <div style="font-size:46px;margin-bottom:8px">🫧✨</div>
-        <h3 style="font-size:20px;font-weight:800;color:var(--ink)">2-Minute Bubble Challenge Complete!</h3>
-        ${isNewHigh ? `<div style="display:inline-block;background:linear-gradient(135deg,#ffd166,#f3256b);color:#fff;font-weight:800;font-size:11px;padding:3px 10px;border-radius:999px;margin-bottom:8px">🏆 NEW HIGH SCORE!</div>` : ''}
-        <p style="font-size:13.5px;line-height:1.6;color:var(--ink-soft);margin:6px 0 14px">
-          You popped <b>${GB().bubblesPopped || 0} Bubbles</b> and achieved <b>${score} Points</b>!
+      <div style="text-align:center;padding:14px 6px;color:#ffffff">
+        <div style="font-size:46px;margin-bottom:8px">${reason === 'time_up' ? '🫧🏆' : '🎯✨'}</div>
+        <h3 style="font-size:20px;font-weight:800;color:#ffffff;margin-bottom:6px">${title}</h3>
+        ${isNewHigh && score > 0 ? `<div style="display:inline-block;background:linear-gradient(135deg,#ffd166,#f3256b);color:#fff;font-weight:800;font-size:11.5px;padding:4px 12px;border-radius:999px;margin-bottom:10px;box-shadow:0 2px 10px rgba(243,37,107,0.4)">🏆 NEW ALL-TIME HIGH SCORE!</div>` : ''}
+        <p style="font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.85);margin:6px 0 16px">
+          ${subText}
         </p>
-        <div style="background:#faf7ff;border:1.5px solid #dcc6f2;border-radius:14px;padding:12px;margin-bottom:16px;text-align:left">
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0"><span>🏆 Session Score:</span><b>${score} pts</b></div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0"><span>⭐ All-Time High:</span><b style="color:#8a2eae">${GB().highScore} pts</b></div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0"><span>🔥 Best Combo:</span><b>x${GB().combos || 1}</b></div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:#8a2eae"><span>💜 Serenity Award:</span><b>+25 Serenity &amp; Hope</b></div>
+        <div style="background:rgba(255,255,255,0.08);backdrop-filter:blur(16px);border:1.5px solid rgba(51,102,255,0.4);border-radius:18px;padding:14px;margin-bottom:18px;text-align:left">
+          <div style="display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;color:rgba(255,255,255,0.9)"><span>🏆 Session Score:</span><b style="color:#ffd700;font-size:15px">${score} pts</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;color:rgba(255,255,255,0.9)"><span>⭐ All-Time High:</span><b style="color:#6ec1ff">${GB().highScore || score} pts</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;color:rgba(255,255,255,0.9)"><span>🫧 Bubbles Popped:</span><b style="color:#ffffff">${bubblesPoppedThisSession}</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;color:rgba(255,255,255,0.9)"><span>🔥 Best Combo:</span><b style="color:#ffbe0b">x${GB().combos || 1}</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;color:#6ec1ff;border-top:1px dashed rgba(255,255,255,0.15);margin-top:6px;padding-top:8px"><span>💜 Serenity Earned:</span><b>+${serenityReward} Serenity</b></div>
         </div>
-        <div class="modal-btns">
-          <button class="btn btn-primary" id="bubble-continue">Play Again 🫧</button>
-          <button class="btn btn-ghost" onclick="closeModal()">Back to Games</button>
+        <div class="modal-btns" style="display:flex;flex-direction:column;gap:8px">
+          <button class="btn btn-primary btn-block" id="bubble-restart" style="background:linear-gradient(135deg,#3366FF,#8a2eae);color:#fff;font-weight:800;font-size:14px">Play Again 🫧</button>
+          <button class="btn btn-ghost btn-block" onclick="closeModal()">Back to Games Hub</button>
         </div>
       </div>
     `);
 
-    $('#bubble-continue')?.addEventListener('click', () => {
-      sessionStart = Date.now();
-      missionCompleted = false;
-      score = 0;
-      initGrid();
+    $('#bubble-restart')?.addEventListener('click', () => {
+      resetSession();
       closeModal();
       toast('Let the bubbles pop! 🫧✨');
     });
+  }
+
+  function resetSession() {
+    sessionStart = Date.now();
+    gameOver = false;
+    lives = MAX_LIVES;
+    pushBackAvailable = true;
+    score = 0;
+    combo = 0;
+    bubblesPoppedThisSession = 0;
+    missesUntilDrop = 4;
+    flyingBubble = null;
+    droppingBubbles = [];
+    particles = [];
+    popups = [];
+
+    initGrid();
+    cannon.curBubble = pickRandomColor();
+    cannon.nextBubble = pickRandomColor();
+    updateHUD();
   }
 
   /* ── Lifecycle ───────────────────────────────────────────── */
@@ -761,30 +974,15 @@ const MMBubble = (() => {
     ctx = canvas.getContext('2d');
     mounted = true;
 
-    sessionStart = Date.now();
-    missionCompleted = false;
-    score = 0;
-    combo = 0;
-    flyingBubble = null;
-    droppingBubbles = [];
-    particles = [];
-    popups = [];
-
-    // Initialize 2:00 timer display immediately
-    const tEl = $('#bubble-timer');
-    if (tEl) tEl.textContent = '2:00';
-
+    resetSession();
     resize();
-    initGrid();
-    cannon.curBubble = pickRandomColor();
-    cannon.nextBubble = pickRandomColor();
-    updateHUD();
 
     canvas.addEventListener('pointerdown', e => {
+      if (gameOver) return;
       const r = canvas.getBoundingClientRect();
       const x = e.clientX - r.left, y = e.clientY - r.top;
       // Tap on swap bubble button
-      if (Math.hypot(x - (cannon.x + 46), y - (cannon.y + 6)) < 26) {
+      if (Math.hypot(x - (cannon.x + 48), y - (cannon.y + 4)) < 26) {
         swapBubbles();
         return;
       }
@@ -793,11 +991,11 @@ const MMBubble = (() => {
     });
 
     window.addEventListener('pointermove', e => {
-      if (aiming) updateAim(e.clientX, e.clientY);
+      if (aiming && !gameOver) updateAim(e.clientX, e.clientY);
     });
 
     window.addEventListener('pointerup', () => {
-      if (aiming) {
+      if (aiming && !gameOver) {
         aiming = false;
         shootBubble();
       }
@@ -821,5 +1019,5 @@ const MMBubble = (() => {
     popups = [];
   }
 
-  return { mount, stop, swapBubbles, getHighScore: () => GB().highScore || 0 };
+  return { mount, stop, swapBubbles, resetSession, getHighScore: () => GB().highScore || 0 };
 })();
