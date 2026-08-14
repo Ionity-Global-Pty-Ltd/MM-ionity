@@ -2745,5 +2745,107 @@ body.rm .beacon-title::after {
   stroke: #8a2eae;
 }
 
+/* ── Floating Interactive Video Studio & Mini-Player ─────── */
+.video-modal-wrap {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.video-stage-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #0b0416;
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+}
+.video-top-tools {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+}
+.btn-vid-top {
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 13px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all .15s ease;
+}
+.btn-vid-top:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: #ffd166;
+  color: #ffd166;
+}
+
+/* Floating Draggable Mini Video Player */
+.video-floating-widget {
+  position: fixed;
+  bottom: calc(var(--nav-h) + 20px);
+  right: 16px;
+  width: 220px;
+  z-index: 170;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #120824;
+  border: 2px solid #ffd166;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 209, 102, 0.3);
+  animation: card-pop .3s cubic-bezier(.34,1.56,.64,1) both;
+}
+.video-floating-widget .vfw-canvas-wrap {
+  width: 100%;
+  aspect-ratio: 16/9;
+  position: relative;
+}
+.video-floating-widget canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.video-floating-widget .vfw-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.85);
+}
+.video-floating-widget .vfw-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #ffd166;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 110px;
+}
+.video-floating-widget .vfw-btns {
+  display: flex;
+  gap: 4px;
+}
+.video-floating-widget .vfw-btn {
+  background: transparent;
+  border: 0;
+  color: #ffffff;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+.video-floating-widget .vfw-btn:hover {
+  color: #ffd166;
+}
+
 
 

@@ -1554,10 +1554,9 @@ routes.home = () => {
   $('#go-privacy')?.addEventListener('click', () => nav('#/privacy'));
   app.querySelectorAll('[data-pred]').forEach(b => b.addEventListener('click', () => nav(b.dataset.pred)));
   $('#next-step')?.addEventListener('click', () => {
-    if (step.act === 'mood') return maybeMoodModal(true);
+    if (step.act === 'mood') return;
     nav(step.route);
   });
-  maybeMoodModal();
 };
 
 /* ── Daily Spark ✨ — hold-to-charge inspiration ─────────── */
@@ -1715,10 +1714,7 @@ function moodStreak() {
 }
 
 function maybeMoodModal(force = false) {
-  const today = new Date().toDateString();
-  const already = S.moods.some(m => new Date(m.at).toDateString() === today);
-  if (!force && (already || new Date(S.lastMoodPrompt).toDateString() === today)) return;
-  S.lastMoodPrompt = Date.now(); save();
+  if (!force) return; // Automatic mood check-in popup disabled on login
   let sel = null;
   const m = modal(`
     <h3 class="mood-title">How are you feeling today?</h3>
