@@ -413,10 +413,12 @@ const MMNLP = (() => {
     };
   }
 
-  return {
+  const api = {
     analyse, analyseDeep, lexSentiment, riskOf, topicsOf,
     extractThemes, resilienceConstellation, getReframingSuggestion, THEME_PATTERNS,
     enableTransformer, disableTransformer, transformerReady, transformerInfo,
     MODELS,
   };
+  globalThis.MMNLP = api;
+  return api;
 })();

@@ -343,7 +343,7 @@ const MMJournal = (() => {
     return list.find(x => x.id === id) || null;
   }
 
-  return {
+  const api = {
     hasSpeech,
     startDictation,
     stopDictation,
@@ -360,4 +360,6 @@ const MMJournal = (() => {
     getDraft,
     clearDraft,
   };
+  globalThis.MMJournal = api;
+  return api;
 })();
