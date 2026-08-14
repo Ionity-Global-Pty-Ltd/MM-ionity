@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 50" fill="none" width="100%" height="100%">
+  <defs>
+    <linearGradient id="io-grad-a" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3366FF" />
+      <stop offset="50%" stop-color="#00D2FF" />
+      <stop offset="100%" stop-color="#3366FF" />
+    </linearGradient>
+    <linearGradient id="io-grad-orbit" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffd166" />
+      <stop offset="50%" stop-color="#f3256b" />
+      <stop offset="100%" stop-color="#3366FF" />
+    </linearGradient>
+    <filter id="io-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Glowing Transparent Orbit Symbol -->
+  <g transform="translate(10, 4)">
+    <ellipse cx="21" cy="21" rx="19" ry="8" fill="none" stroke="url(#io-grad-orbit)" stroke-width="2.2" transform="rotate(-26 21 21)" opacity="0.95" filter="url(#io-glow)"/>
+    <ellipse cx="21" cy="21" rx="19" ry="8" fill="none" stroke="url(#io-grad-orbit)" stroke-width="2.2" transform="rotate(52 21 21)" opacity="0.65"/>
+    <circle cx="21" cy="21" r="5.5" fill="url(#io-grad-a)" filter="url(#io-glow)"/>
+    <circle cx="21" cy="21" r="2.5" fill="#ffffff"/>
+    <circle cx="37" cy="14" r="2.2" fill="#ffd166" filter="url(#io-glow)"/>
+  </g>
+
+  <!-- IONITY Wordmark -->
+  <g fill="#ffffff" font-family="'Poppins', 'Inter', system-ui, sans-serif" font-weight="800" letter-spacing="3.5px">
+    <text x="64" y="31" font-size="22" fill="#ffffff">IONITY</text>
+    <text x="178" y="31" font-size="10" font-weight="700" fill="#3366FF" letter-spacing="1.5px">GLOBAL</text>
+  </g>
+  <text x="65" y="43" font-family="'Poppins', sans-serif" font-size="8.5" font-weight="600" fill="#3366FF" letter-spacing="1.8px">ECOSYSTEMS &amp; TECHNOLOGY</text>
+</svg>

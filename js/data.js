@@ -1,20 +1,61 @@
 /* ============================================================
-   MojoMind — content & instruments
-   Verbatim survey content transcribed from the MojoMind
-   screen recordings (12 Jun 2026) and demo deck.
-   © IONITY Global (Pty) Ltd — MojoMind Creative Resilience.
+   MojaMind — content & instruments
+   Verbatim survey content transcribed from the MojaMind
+   screen recordings (12 Jun 2026), demo deck, and the
+   Stellenbosch University "Creative Resilience Proposed
+   Survey Changes" + "New MojaMind Design_07082026" documents.
+   © IONITY Global (Pty) Ltd — MojaMind Creative Resilience.
    ============================================================ */
 'use strict';
 
 const MM = {};
 
-MM.APP_NAME = 'MojoMind';
+MM.APP_NAME = 'MojaMind';
 MM.CREATOR = 'IONITY Global (Pty) Ltd';
+MM.AUTHOR = 'Johan Wilhelm van Antwerp';
+MM.ORGANIZATION = 'Ionity (Pty) Ltd / Antwerp Designs / AEDI';
+MM.TAGLINE = 'Building Tomorrow, Today. Anything is Possible with God.';
+MM.DESIGNER = 'Solutionist of Antwerp Designs & Ecosystems Engineer';
+MM.ENDPOINTS = {
+  main: 'https://www.ionity.today/',
+  profile: 'https://www.ionity.world/',
+  linkedin: 'https://www.linkedin.com/in/ionity',
+  github: 'https://github.com/AntwerpDesignsIonity',
+  contact: 'johan@ionity.today',
+  phone: '+27 64 699 9877',
+};
+MM.PORTFOLIO_URL = 'https://www.ionity.today';
+
+/* ── Partners (opening splash) ───────────────────────────── */
+MM.PARTNERS = {
+  headline: 'Welcome',
+  poweredBy: ['SHOUT-IT-NOW', 'Stellenbosch University'],
+  madePossibleBy: 'Gilead',
+  line: 'Powered by SHOUT-IT-NOW & Stellenbosch University · Made possible by Gilead',
+  craftedBy: 'Crafted by IONITY Global (Pty) Ltd · Solutionist: Johan Wilhelm van Antwerp (Antwerp Designs) · www.ionity.today',
+};
+
+/* ── Journal Prompts for Writer ─────────────────────────── */
+MM.JOURNAL_PROMPTS = [
+  'What brought a spark of hope or light to your day today?',
+  'Write about a challenge you faced and the strength you found inside.',
+  'Describe a feeling you want to gently release or express.',
+  'Three small things you are deeply grateful for right now.',
+  'A message of kindness you wish someone would say to you today.',
+  'How your creative spirit is growing this week.',
+];
+
+/* ── Study groups (feature availability per protocol) ────── */
+MM.GROUPS = {
+  1: { name: 'Group 1', desc: 'Surveys & support only', art: false, chat: false },
+  2: { name: 'Group 2', desc: 'Surveys, support & art activities', art: true, chat: false },
+  3: { name: 'Group 3', desc: 'The full experience — surveys, art & chat', art: true, chat: true },
+};
 
 /* ── Response scales ─────────────────────────────────────── */
 MM.SCALES = {
   freq4:   ['Not at all', 'Several days', 'More than half the days', 'Nearly every day'],
-  mars:    ['Always', 'Often', 'Sometimes', 'Rarely', 'Never', 'Not Applicable'],
+  mars:    ['Always', 'Often', 'Sometimes', 'Rarely', 'Never'],
   stigma:  ['Never', 'Sometimes', 'Often/usually'],
   agree5:  ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree'],
   yesno:   ['Yes', 'No'],
@@ -47,7 +88,11 @@ MM.DEMOGRAPHICS = {
   ],
 };
 
-/* ── Survey instruments ──────────────────────────────────── */
+/* ── Survey instruments ──────────────────────────────────────
+   Per the Stellenbosch survey-changes document: three separate
+   surveys at each pre data-collection point, four at each post
+   point (usability added post-only). Each carries its own
+   participant-facing introduction text, verbatim.             */
 MM.SURVEYS = {
   mental: {
     id: 'mental',
@@ -55,6 +100,7 @@ MM.SURVEYS = {
     theme: 'mental',
     optClass: 'opt-mental',
     num: 1,
+    blurb: 'Please take a moment to answer the following questions. Remember, all your answers will remain confidential and your identity will remain anonymous. We would like to better understand how you have been feeling over the past two weeks.',
     sections: [
       {
         title: 'Question 1',
@@ -93,22 +139,23 @@ MM.SURVEYS = {
 
   lifestyle: {
     id: 'lifestyle',
-    name: 'Lifestyle Management',
+    name: 'Lifestyle Management Survey',
     theme: 'life',
     optClass: 'opt-life',
     num: 2,
+    blurb: 'In this survey, we would like to explore your lifestyle habits, including your daily routines and health-related behaviours.',
     sections: [
       {
         title: 'Question 1',
-        scaleName: 'MARS-5 Adherence Questionnaire',
+        scaleName: 'Medication Adherence Report Scale (MARS-5)',
         intro: 'Many people find a way of using their medicines which suits them. This may differ from the instructions on the label. How often do the following apply to you?',
         scale: 'mars',
         items: [
-          'I forget to take my medication',
-          'I change the dose of my medication',
-          'I stop taking my medication for a while',
-          'I sometimes decide to skip a dose',
-          'I take less than instructed',
+          'I forget to take my anti-retroviral drugs',
+          'I alter the dose of my anti-retroviral drugs',
+          'I stop taking my anti-retroviral drugs for a while',
+          'I decide to skip a dose of my anti-retroviral drugs',
+          'I take less anti-retroviral drugs than instructed',
         ],
       },
       {
@@ -129,10 +176,11 @@ MM.SURVEYS = {
 
   wellbeing: {
     id: 'wellbeing',
-    name: 'Personal Wellbeing',
+    name: 'Personal Wellbeing Survey',
     theme: 'well',
     optClass: 'opt-well',
     num: 3,
+    blurb: 'In this survey, we would like to ask you about your personal wellbeing, including coping strategies and general psychological health.',
     sections: [
       {
         title: 'Question 1',
@@ -169,18 +217,33 @@ MM.SURVEYS = {
     theme: 'usab',
     optClass: 'opt-usab',
     num: 4,
+    postOnly: true,
+    blurb: 'In this survey, we would like to better understand what your experiences were of using the MojaMind application.',
     sections: [
       {
         title: 'Question 1',
-        scaleName: 'App Usability',
-        intro: 'We would love to hear about your experience! Your feedback helps us improve the app\u2019s usability and effectiveness. Let\u2019s get started! Please rate each statement on a scale from 1 (Strongly Agree) to 7 (Strongly Disagree).',
+        scaleName: 'mHealth Usability Questionnaire (MAUQ)',
+        intro: 'We would love to hear about your experience! Your feedback helps us improve the app’s usability and effectiveness. Let’s get started! Please rate each statement on a scale from 1 (Strongly Agree) to 7 (Strongly Disagree).',
         scale: 'agree7',
         items: [
           'The creative resilience application was easy to use',
-          'It was simple to navigate',
-          'The application helped me manage my mental health',
+          'It was easy for me to learn to use the application',
+          'The navigation was consistent when moving between screens',
+          'The interface of the application allowed me to use all the functions offered (entering information, uploading pictures, viewing content)',
+          'Whenever I made a mistake using the application, I could recover easily and quickly',
+          'I like the interface of the application',
+          'The information in the application was well organised, so I could easily find the information I needed',
+          'The application adequately acknowledged and provided information to let me know the progress of my actions',
+          'I feel comfortable using this application in social settings',
+          'The amount of time involved in using this application has been fitting for me',
           'I would use this application again',
+          'Overall, I am satisfied with this application',
+          'The application would be useful for my health and well-being',
+          'The application improved my access to health care services',
+          'The application helped me manage my mental health effectively',
+          'This application has all the functions and capabilities I expected it to have',
           'The application worked well even with a poor internet connection',
+          'This application provides an acceptable way to receive health care services',
         ],
       },
     ],
@@ -193,25 +256,41 @@ MM.POST_SURVEYS = ['mental', 'lifestyle', 'wellbeing', 'usability'];
 MM.SURVEY_INTRO = {
   pre: {
     title: 'Take a quick mental health check-in!',
-    body: 'Complete these short surveys on depression, anxiety, stress, resilience, and adherence. Your responses help us support you better\u2014let\u2019s get started!',
+    body: 'Complete these three short surveys on how you feel, your lifestyle, and your personal wellbeing. Your responses help us support you better—let’s get started!',
+    note: 'These surveys are part of the Creative Resilience study by Stellenbosch University. All answers remain confidential and anonymous. Each survey can be completed once.',
   },
   post: {
     title: 'Take a quick mental health check-in!',
-    body: 'Welcome back! It\u2019s time for your final check-in. Please take a few minutes to complete the post-survey to help us understand your experience. Your feedback is important\u2014thank you for being part of this study!',
+    body: 'Welcome back! It’s time for your final check-in. Please take a few minutes to complete the four post-surveys to help us understand your experience. Your feedback is important—thank you for being part of this study!',
+    note: 'These surveys are part of the Creative Resilience study by Stellenbosch University. All answers remain confidential and anonymous. Each survey can be completed once.',
   },
+};
+
+/* ── PHQ-9 risk screening (Stellenbosch protocol) ──────────
+   PHQ-9 total of 20–27 → possible severe depression.
+   Question 9 answered "Nearly every day" (3) → suicide screen.
+   Either condition flags the participant as at risk: show the
+   information message and open a social-worker ticket.        */
+MM.RISK = {
+  severeMin: 20,
+  q9Index: 8,
+  q9Min: 3,
+  title: 'We’re here for you',
+  message: 'Your responses suggest that you may be experiencing some challenges, and we would like to offer additional support. A social worker will contact you to offer assistance.',
+  ticketSubject: 'Wellbeing check-in requested (survey screening)',
 };
 
 /* ── Home / welcome copy ─────────────────────────────────── */
 MM.WELCOME = {
   fresh: {
-    title: 'Welcome to the Creative Resilience Intervention!',
-    body: 'You\u2019re ready to begin your 8-week journey. Explore the intervention instructions, helpful videos, and dive into the art activities at your own pace. If you need support or want to chat, we\u2019re here for you anytime.',
-    tail: 'Let\u2019s get started!',
+    title: 'Welcome to Creative Resilience!',
+    body: 'You’re ready to begin your 8-week journey. Explore the intervention instructions, helpful videos, and dive into the art activities at your own pace. If you need support or want to chat, we’re here for you anytime.',
+    tail: 'Let’s get started!',
   },
   preDone: {
-    title: 'Welcome to the MojoMind Intervention!',
-    body: 'Over the next 8 weeks, you will complete weekly activities and join virtual facilitated sessions to support your journey. Please check out the MojoMind instructions and available support services, and remember to complete your post-survey after 8 weeks.',
-    tail: 'We\u2019re excited to have you on this journey!',
+    title: 'Welcome to Creative Resilience!',
+    body: 'Over the next 8 weeks, you will complete weekly activities and join virtual facilitated sessions to support your journey. Please check out the MojaMind instructions and available support services, and remember to complete your post-survey after 8 weeks.',
+    tail: 'We’re excited to have you on this journey!',
   },
 };
 
@@ -224,20 +303,20 @@ MM.TERMS = {
     ['Consent to Participate in a Research Study', 'Your responses will contribute to improving mental health support. All information will remain anonymous.'],
     ['Understand that your privacy is protected', 'Your data will not be shared beyond the research team.'],
     ['Acknowledge that a counsellor may review summaries of chats', 'If needed, they may reach out with mental health support and resources.'],
-    ['Tap \u2018I Agree\u2019 to continue your journey with MojoMind.', ''],
+    ['Tap ‘Accept’ to continue your journey with MojaMind.', ''],
   ],
 };
 
 MM.ONBOARD = {
-  title: 'Welcome to MojoMind',
-  body: 'Feeling overwhelmed by stress, anxiety, or depression? You\u2019re not alone. It is important to reflect on your personal growth and check in with yourself.',
+  title: 'Welcome to Creative Resilience',
+  body: 'Feeling overwhelmed by stress, anxiety, or depression? You’re not alone. It is important to reflect on your personal growth and check in with yourself.',
   ready: 'Ready to start?',
 };
 
 /* ── Instructions screen ─────────────────────────────────── */
 MM.INSTRUCTIONS = {
   heroTitle: 'Welcome to the Creative Resilience!',
-  heroBody: 'Welcome to your 8-week creative journey! Explore art, words, or sound to express yourself. No right or wrong\u2014just a space for self-reflection and growth.',
+  heroBody: 'Welcome to your 8-week creative journey! Explore art, words, or sound to express yourself. No right or wrong—just a space for self-reflection and growth.',
   sections: [
     {
       icon: 'clipboard',
@@ -245,7 +324,7 @@ MM.INSTRUCTIONS = {
       items: [
         ['A Pre-Survey', 'Complete one week prior to the start of the intervention.'],
         ['Intervention Duration', '8 weeks of app-based activities.'],
-        ['Time Commitment', 'Weekly activities + 60-minutes per week.'],
+        ['Time Commitment', 'Weekly activities of ± 60 minutes per week.'],
         ['A Post-Survey', 'Complete one week after the intervention ends.'],
       ],
     },
@@ -268,36 +347,56 @@ MM.INSTRUCTIONS = {
         ['Review & Choose', 'Read the instructions of each activity and decide on your approach. Mix elements if needed.'],
         ['Prepare Your Space', 'Gather materials and minimise distractions.'],
         ['Ground Yourself', 'Take a deep breath or a moment of stillness before you begin.'],
-        ['Create Freely', 'Let your creativity flow\u2014there\u2019s no right or wrong way.'],
+        ['Create Freely', 'Let your creativity flow—there’s no right or wrong way.'],
         ['Reflect & Observe', 'Once done, sit with your artwork, recall your feelings, and answer reflection questions in your visual diary and the reflection tab.'],
-        ['Express Without Judgment', 'Your reflections are personal\u2014no need to filter or edit.'],
+        ['Express Without Judgment', 'Your reflections are personal—no need to filter or edit.'],
       ],
     },
   ],
-  incentive: 'You will receive a R400 incentive after completing both surveys. For questions or support, reach out to your facilitator through the chat button.',
+  incentive: 'There’s no right or wrong — just your unique creative voice. Enjoy! At the start of the intervention, you will receive data vouchers (to download the application and attend online meetings), and an incentive for your time at the end of the intervention. If you have any questions or need support, simply reach out to your facilitator through the chat button.',
+  datafree: 'DataFree friendly: MojaMind is an offline-first app. Once installed it opens without a connection, your work is saved on your phone, and data vouchers are provided for downloads and online meetings.',
+};
+
+/* ── Accessibility statement ─────────────────────────────── */
+MM.A11Y = {
+  title: 'Accessibility',
+  statement: 'MojaMind is designed to support people with disabilities and impairments. You can make text bigger, increase contrast, and reduce motion below — your choices are remembered on this device. The app also supports screen readers, keyboard navigation and voice notes with on-device transcription.',
 };
 
 /* ── About Art Activities ────────────────────────────────── */
 MM.ART_ABOUT = {
-  heroBody: 'This is your creative space to express yourself, reflect, and grow through art, writing, and movement. No rules, no judgment\u2014just you and your creativity!',
+  heroBody: 'This is your creative space to express yourself, reflect, and grow through art, writing, and movement. No rules, no judgment—just you and your creativity!',
   lead: 'Each activity follows the same 5-step process:',
   steps: [
-    ['\uD83D\uDCD6', 'Read About the Activity', 'Every activity starts with a short intro about why it matters.'],
-    ['\uD83E\uDDD8', 'Take a Deep Breath', 'Relax with a simple breathing exercise before creating.'],
-    ['\uD83C\uDFA8', 'Choose Your Way to Create', 'You can draw, write, make a collage, or record your voice\u2014whichever feels right for you!'],
-    ['\uD83D\uDCE4', 'Submit Your Work', 'Click Submit when you\u2019re done.'],
-    ['\uD83D\uDCAC', 'Reflect on Your Creation', 'Tap \u201CReflect\u201D to answer thought-provoking questions about what you made.'],
+    ['📖', 'Read About the Activity', 'Every activity starts with a short intro about why it matters.'],
+    ['🧘', 'Take a Deep Breath', 'Relax with a simple breathing exercise before creating.'],
+    ['🎨', 'Choose Your Way to Create', 'You can draw, write, make a collage, or record your voice—whichever feels right for you!'],
+    ['📤', 'Submit Your Work', 'Click Submit when you’re done. Submitted activities are locked to protect your original expression.'],
+    ['💬', 'Reflect on Your Creation', 'Tap “Reflect” to answer thought-provoking questions about what you made.'],
   ],
 };
 
 /* ── Art activities (8 weeks) ────────────────────────────── */
 MM.ART_OPTION_KINDS = [
-  { key: 'art',     emoji: '\uD83C\uDFA8', name: 'Express with ART' },
-  { key: 'write',   emoji: '\u270D\uFE0F', name: 'Write It Out' },
-  { key: 'speak',   emoji: '\uD83C\uDFA4', name: 'Speak Up' },
-  { key: 'nature',  emoji: '\uD83C\uDF3F', name: 'Use Nature' },
-  { key: 'digital', emoji: '\uD83D\uDCF1', name: 'Get Digital' },
+  { key: 'art',     emoji: '🎨', name: 'Express with ART' },
+  { key: 'write',   emoji: '✍️', name: 'Write It Out' },
+  { key: 'speak',   emoji: '🎤', name: 'Speak Up' },
+  { key: 'nature',  emoji: '🌿', name: 'Use Nature' },
+  { key: 'digital', emoji: '📱', name: 'Get Digital' },
 ];
+
+/* Activities with published inspiration videos (id → options with video files
+   at ./assets/videos/activity-<id>/option-<n>.mp4 or animated interactive canvas videos). */
+MM.ACTIVITY_VIDEOS = {
+  1: [1, 2, 3, 4, 5],
+  2: [1, 2, 3, 4, 5],
+  3: [1, 2, 3, 4, 5],
+  4: [1, 2, 3, 4, 5],
+  5: [1, 2, 3, 4, 5],
+  6: [1, 2, 3, 4, 5],
+  7: [1, 2, 3, 4, 5],
+  8: [1, 2, 3, 4, 5],
+};
 
 MM.ACTIVITIES = [
   {
@@ -305,7 +404,7 @@ MM.ACTIVITIES = [
     about: 'Who are you right now? This week is about seeing yourself with kindness and curiosity.',
     options: [
       'Express with ART: Draw or paint yourself using colours that match your vibe.',
-      'Write It Out: Write a poem, letter, or powerful words about who you are or who you\u2019re becoming.',
+      'Write It Out: Write a poem, letter, or powerful words about who you are or who you’re becoming.',
       'Speak Up: Record a voice note, poem, or song that tells your story.',
       'Use Nature: Tell your story using natural materials around you.',
       'Get Digital: Snap a selfie and write about who you are right now.',
@@ -333,13 +432,13 @@ MM.ACTIVITIES = [
     about: 'Everyone deserves a place where they feel calm and protected. This week you create yours.',
     options: [
       'Express with ART: Draw or paint the place (real or imagined) where you feel safest.',
-      'Write It Out: Describe your safe space in words\u2014what you see, hear, and feel there.',
+      'Write It Out: Describe your safe space in words—what you see, hear, and feel there.',
       'Speak Up: Record yourself describing your safe space as if guiding a friend into it.',
       'Use Nature: Build or arrange a small safe-space scene using natural materials.',
       'Get Digital: Photograph or design a collage of the place where you feel most at peace.',
     ],
     startHere: [
-      ['Get comfortable.', 'Find a quiet moment where you won\u2019t be disturbed.'],
+      ['Get comfortable.', 'Find a quiet moment where you won’t be disturbed.'],
       ['Close your eyes.', 'Picture a place where you feel completely safe and calm.'],
       ['Notice the details.', 'What colours, sounds, and textures live there?'],
       ['Bring it to life.', 'Recreate your safe space in the medium you chose.'],
@@ -367,9 +466,9 @@ MM.ACTIVITIES = [
       'Get Digital: Create a photo collage of your chosen family.',
     ],
     startHere: [
-      ['Think about your people.', 'Family can be blood, friends, or community\u2014whoever feels like home.'],
+      ['Think about your people.', 'Family can be blood, friends, or community—whoever feels like home.'],
       ['Notice your feelings.', 'Warmth? Gratitude? Complicated feelings are okay too.'],
-      ['Choose how to show them.', 'Faces, symbols, colours, or words\u2014anything goes.'],
+      ['Choose how to show them.', 'Faces, symbols, colours, or words—anything goes.'],
       ['Create your piece.', 'Take your time and let it be honest.'],
     ],
     materials: [
@@ -386,19 +485,19 @@ MM.ACTIVITIES = [
   },
   {
     id: 4, name: 'My Journey', week: 4,
-    about: 'Your story so far\u2014the highs, the lows, and everything that made you stronger.',
+    about: 'Your story so far—the highs, the lows, and everything that made you stronger.',
     options: [
-      'Express with ART: Draw a road, river, or path that shows your life\u2019s journey so far.',
-      'Write It Out: Write about a moment that changed you and how far you\u2019ve come.',
+      'Express with ART: Draw a road, river, or path that shows your life’s journey so far.',
+      'Write It Out: Write about a moment that changed you and how far you’ve come.',
       'Speak Up: Record your journey as a spoken story, rap, or song.',
-      'Use Nature: Lay out a path with stones or leaves\u2014each one a chapter of your life.',
+      'Use Nature: Lay out a path with stones or leaves—each one a chapter of your life.',
       'Get Digital: Build a timeline collage with photos or images that tell your story.',
     ],
     startHere: [
-      ['Look back gently.', 'Recall key moments\u2014good and hard\u2014that shaped you.'],
+      ['Look back gently.', 'Recall key moments—good and hard—that shaped you.'],
       ['Spot your strength.', 'Notice what helped you keep going.'],
       ['Map it out.', 'Show your journey as a path, timeline, or story.'],
-      ['Mark where you are now.', 'And maybe where you\u2019re heading next.'],
+      ['Mark where you are now.', 'And maybe where you’re heading next.'],
     ],
     materials: [
       'A blank page (journal, sketchbook, or paper)',
@@ -414,7 +513,7 @@ MM.ACTIVITIES = [
   },
   {
     id: 5, name: 'My Homestead', week: 5,
-    about: 'Home, community, and belonging\u2014celebrate the places and people that ground you.',
+    about: 'Home, community, and belonging—celebrate the places and people that ground you.',
     options: [
       'Express with ART: Draw or paint your home, village, or neighbourhood.',
       'Write It Out: Describe the sounds, smells, and moments that make your home yours.',
@@ -442,17 +541,17 @@ MM.ACTIVITIES = [
   },
   {
     id: 6, name: 'Vision Board', week: 6,
-    about: 'Dream forward! Build a picture of the future you\u2019re growing towards.',
+    about: 'Dream forward! Build a picture of the future you’re growing towards.',
     options: [
       'Express with ART: Draw or paint symbols of your dreams and goals.',
-      'Write It Out: Write your future story\u2014where you\u2019ll be in 5 years.',
+      'Write It Out: Write your future story—where you’ll be in 5 years.',
       'Speak Up: Record a message to your future self about your dreams.',
       'Use Nature: Arrange natural objects to represent your hopes and goals.',
       'Get Digital: Create a digital collage of images that represent your future.',
     ],
     startHere: [
       ['Dream big.', 'What do you want your life to look and feel like?'],
-      ['Pick your themes.', 'Health, learning, family, work, joy\u2014anything that matters.'],
+      ['Pick your themes.', 'Health, learning, family, work, joy—anything that matters.'],
       ['Find your images.', 'Draw, cut out, or collect pictures and words.'],
       ['Build your board.', 'Arrange everything into one inspiring picture.'],
     ],
@@ -470,7 +569,7 @@ MM.ACTIVITIES = [
   },
   {
     id: 7, name: 'Letter to Myself', week: 7,
-    about: 'Speak to yourself with the kindness you\u2019d give a best friend.',
+    about: 'Speak to yourself with the kindness you’d give a best friend.',
     options: [
       'Express with ART: Illustrate a letter or card addressed to yourself.',
       'Write It Out: Write a compassionate letter to your past, present, or future self.',
@@ -480,8 +579,8 @@ MM.ACTIVITIES = [
     ],
     startHere: [
       ['Choose your self.', 'Past you, present you, or future you?'],
-      ['Speak kindly.', 'Imagine you\u2019re encouraging a dear friend.'],
-      ['Say what matters.', 'Forgiveness, pride, hope, advice\u2014whatever needs saying.'],
+      ['Speak kindly.', 'Imagine you’re encouraging a dear friend.'],
+      ['Say what matters.', 'Forgiveness, pride, hope, advice—whatever needs saying.'],
       ['Sign it with love.', 'End your letter in a way that feels warm.'],
     ],
     materials: [
@@ -498,7 +597,7 @@ MM.ACTIVITIES = [
   },
   {
     id: 8, name: 'My Song of Strength', week: 8,
-    about: 'Celebrate how far you\u2019ve come\u2014turn your resilience into rhythm, colour, or words.',
+    about: 'Celebrate how far you’ve come—turn your resilience into rhythm, colour, or words.',
     options: [
       'Express with ART: Paint or draw what your strength looks like in colour and shape.',
       'Write It Out: Write a song, chant, or praise poem about your resilience.',
@@ -507,13 +606,13 @@ MM.ACTIVITIES = [
       'Get Digital: Mix a playlist or record a video that celebrates your journey.',
     ],
     startHere: [
-      ['Look how far you\u2019ve come.', 'Think back over the past 8 weeks.'],
+      ['Look how far you’ve come.', 'Think back over the past 8 weeks.'],
       ['Find your rhythm.', 'A beat, a colour, a word that feels strong.'],
       ['Make it loud (or soft).', 'Create your celebration in your own style.'],
       ['Own your strength.', 'This one is a tribute to YOU.'],
     ],
     materials: [
-      'A blank page or your phone\u2019s recorder',
+      'A blank page or your phone’s recorder',
       'Pencils, pens, crayons, kokis, or anything creative',
       'Anything that makes a sound (optional!)',
     ],
@@ -534,7 +633,26 @@ MM.ACT_COLORS = [
 
 /* ── Support services ────────────────────────────────────── */
 MM.SUPPORT = {
-  intro: 'Find mental health and technical support anytime. You are not alone\u2014free, confidential help is one tap away.',
+  intro: 'Find mental health and technical support anytime. You are not alone—free, confidential help is one tap away.',
+  /* Two study support pathways — requests are logged as tickets for the
+     study service desk (Freshservice) and handled by the right team. */
+  pathways: [
+    {
+      kind: 'social',
+      name: 'Social Worker',
+      desc: 'Emotional support, wellbeing check-ins, or anything weighing on you. A study social worker will reach out.',
+      icon: 'chat-heart', color: ['#ee2b63', '#8a2eae'],
+      cta: 'Request support',
+    },
+    {
+      kind: 'it',
+      name: 'IT Technical Support',
+      desc: 'App problems, sign-in trouble, uploads, or data vouchers. Our technical team will sort it out.',
+      icon: 'wrench', color: ['#3f6ad8', '#5a5fbf'],
+      cta: 'Report a problem',
+    },
+  ],
+  ticketNote: 'Your request is saved on your phone and logged with the study service desk (Freshservice) as soon as you are online.',
   services: [
     {
       name: 'Lifeline',
@@ -556,7 +674,7 @@ MM.SUPPORT = {
     },
     {
       name: 'SADAG Mental Health Line',
-      desc: 'South African Depression and Anxiety Group\u2014free telephonic counselling, referrals and resources.',
+      desc: 'South African Depression and Anxiety Group—free telephonic counselling, referrals and resources.',
       icon: 'sun', color: ['#f0813c', '#e05a2b'],
       actions: [
         { label: '0800 456 789', href: 'tel:0800456789', kind: 'call' },
@@ -606,74 +724,85 @@ MM.MOODS = [
 /* ── Facilitator auto-replies (legacy pool, kept as fallback) ── */
 MM.FACILITATOR_REPLIES = [
   'Thank you for sharing! How did this activity make you feel?',
-  'That\u2019s wonderful\u2014keep expressing yourself, there\u2019s no wrong way. \uD83C\uDFA8',
+  'That’s wonderful—keep expressing yourself, there’s no wrong way. 🎨',
   'I hear you. Remember the Help button is always there if things feel heavy.',
-  'Great progress this week! Remember to complete your reflection when you\u2019re ready.',
+  'Great progress this week! Remember to complete your reflection when you’re ready.',
   'Lovely! Would you like to tell the group more about what inspired you?',
 ];
 
 /* ── Facilitator AI — intent brain ───────────────────────── */
 MM.AI = {
   crisisRx: /suicid|kill (myself|me)|end (it|my life)|self.?harm|hurt myself|don.?t want to (live|be here)|no reason to live|overdose/i,
-  crisisReply: 'Thank you for trusting me with this \u2014 what you\u2019re feeling matters, and you deserve support right now. Please tap the Help button at the top for immediate steps, or call the Suicide Crisis Helpline on 0800 567 567 (free, 24 hours). If you can, reach out to someone you trust and let them know how you feel. I\u2019m here with you. \uD83D\uDC9C',
+  crisisReply: 'Thank you for trusting me with this — what you’re feeling matters, and you deserve support right now. Please tap the Help button at the top for immediate steps, or call the Suicide Crisis Helpline on 0800 567 567 (free, 24 hours). I’ve also let a human facilitator know you may need extra care. If you can, reach out to someone you trust and let them know how you feel. I’m here with you. 💜',
+  handoverRx: /human|real person|agent|facilitator|social worker|speak to someone|talk to someone|not a bot|stop the bot/i,
+  handoverReply: 'Of course — I’ve asked a human facilitator to join this conversation. They’ll reply here as soon as they’re available (usually within a working day). While you wait, I’m still here, and Support Services has people you can call right now. 💜',
+  handoverAck: 'Hi! This is your facilitator — thank you for reaching out. I’ve read the conversation above. How can I help you today?',
   intents: [
     {
       name: 'greeting', rx: /^(hi|hello|hey|hola|sawubona|molo|dumela|good (morning|afternoon|evening)|howzit)\b/i,
       replies: [
-        'Hello! Lovely to see you here. \uD83C\uDF38 How is your {act} journey going so far?',
-        'Hey there! Welcome to the {act} space. What\u2019s on your mind today?',
-        'Sawubona! \uD83D\uDC4B I\u2019m here whenever you want to share or ask anything about {act}.',
+        'Hello! Lovely to see you here. 🌸 How is your {act} journey going so far?',
+        'Hey there! Welcome to the {act} space. What’s on your mind today?',
+        'Sawubona! 👋 I’m here whenever you want to share or ask anything about {act}.',
       ],
     },
     {
       name: 'sad', rx: /sad|down|depress|cry|lonely|heavy|tired of|hopeless|empty|numb|anxious|anxiety|stress|worried|scared|afraid|overwhelm/i,
       replies: [
-        'I hear you, and I\u2019m really glad you said it out loud here. Those feelings are valid. Would a short breathing moment help? The Help button has a guided one \u2014 and I\u2019m right here. \uD83D\uDC9C',
+        'I hear you, and I’m really glad you said it out loud here. Those feelings are valid. Would a short breathing moment help? The Help button has a guided one — and I’m right here. 💜',
         'That sounds heavy, and carrying it takes strength. Be gentle with yourself today. Sometimes putting the feeling into your {act} creation helps it soften. Want to try?',
-        'Thank you for trusting me with that. You\u2019re not alone \u2014 support is one tap away under Support Services, and this space is always open for you. \uD83C\uDF31',
+        'Thank you for trusting me with that. You’re not alone — support is one tap away under Support Services, and this space is always open for you. 🌱',
       ],
     },
     {
       name: 'happy', rx: /happy|great|good|excited|proud|amazing|awesome|wonderful|love(d)? (it|this)|enjoyed|fun/i,
       replies: [
-        'That\u2019s beautiful to hear! \uD83C\uDF1F Hold onto that feeling \u2014 maybe even capture it in your visual diary.',
+        'That’s beautiful to hear! 🌟 Hold onto that feeling — maybe even capture it in your visual diary.',
         'Yes!! Moments like these are worth celebrating. What do you think sparked it?',
-        'I love that energy! Let it flow into your {act} creation \u2014 joy makes wonderful art. \uD83C\uDFA8',
+        'I love that energy! Let it flow into your {act} creation — joy makes wonderful art. 🎨',
       ],
     },
     {
       name: 'done', rx: /finish(ed)?|done|complete(d)?|submitted|uploaded/i,
       replies: [
-        'Congratulations on completing it! \uD83C\uDF89 Take a moment to sit with your creation \u2014 what does it tell you about yourself?',
-        'Wonderful work! Don\u2019t forget the Reflections tab \u2014 your thoughts are the most powerful part of {act}.',
-        'That\u2019s real commitment. Every activity you finish grows your resilience a little more. \uD83C\uDF31',
+        'Congratulations on completing it! 🎉 Take a moment to sit with your creation — what does it tell you about yourself?',
+        'Wonderful work! Don’t forget the Reflections tab — your thoughts are the most powerful part of {act}.',
+        'That’s real commitment. Every activity you finish grows your resilience a little more. 🌱',
       ],
     },
     {
       name: 'stuck', rx: /stuck|hard|difficult|can.?t|don.?t know|confus|struggle|help me|how do i|what (should|must) i/i,
       replies: [
-        'Totally okay to feel stuck \u2014 creativity has no deadline. Try the Start Here tab of {act} for a gentle first step, or just make one small mark and see where it leads.',
-        'There\u2019s no wrong way to do {act}. Pick the option that feels lightest \u2014 art, words, voice, nature or digital \u2014 and start tiny. I believe in you!',
+        'Totally okay to feel stuck — creativity has no deadline. Try the Start Here tab of {act} for a gentle first step, or just make one small mark and see where it leads.',
+        'There’s no wrong way to do {act}. Pick the option that feels lightest — art, words, voice, nature or digital — and start tiny. I believe in you!',
         'Good question! Check the Materials tab for what you need, and remember: mixing options is allowed. Want to tell me which part feels tricky?',
+      ],
+    },
+    {
+      name: 'hope', rx: /\b(hope|hopeful|ithemba|temba|tsholofelo|tsepiso|hoop|better days|faith|future|dream|inspire me|need hope)\b/i,
+      replies: [
+        'Hope is the quiet whisper that tomorrow holds new light. 🌟 What is one small thing giving you strength today in {act}?',
+        'Ithemba kalibulali — hope never dies. Even on the heaviest days, the creative seed inside you is waiting to bloom. 🌱',
+        'You have overcome so much already. Bringing your honest feelings into {act} is an act of real courage and hope. ✨',
       ],
     },
     {
       name: 'thanks', rx: /thank(s| you)|dankie|ngiyabonga|enkosi|ke a leboga/i,
       replies: [
-        'Always a pleasure! I\u2019m here any time you need me. \uD83D\uDC9C',
-        'You\u2019re so welcome \u2014 thank YOU for showing up for yourself today. \uD83C\uDF38',
+        'Always a pleasure! I’m here any time you need me. 💜',
+        'You’re so welcome — thank YOU for showing up for yourself today. 🌸',
       ],
     },
     {
       name: 'meds', rx: /medicat|pills|treatment|art therapy|clinic|doctor|appointment/i,
       replies: [
-        'Looking after your health is a big act of self-care. If you have questions about medication or appointments, your clinic team is the best guide \u2014 and Support Services has caring people to talk to as well. \uD83D\uDC9C',
+        'Looking after your health is a big act of self-care. If you have questions about medication or appointments, your clinic team is the best guide — and Support Services has caring people to talk to as well. 💜',
       ],
     },
     {
       name: 'tech', rx: /bug|broken|not work|can.?t upload|error|crash|slow|internet|data|offline/i,
       replies: [
-        'Sorry about that! MojoMind works offline too \u2014 your work is saved on your phone and will be here when you return. If something still looks wrong, describe it here and we\u2019ll sort it out together. \uD83D\uDD27',
+        'Sorry about that! MojaMind works offline too — your work is saved on your phone and will be here when you return. If it still looks wrong, open Support Services and tap “IT Technical Support” to log it with our team — or describe it here and we’ll sort it out together. 🔧',
       ],
     },
   ],
@@ -700,6 +829,16 @@ MM.AI = {
       reply: 'Open {act}, choose the Pictures tab, then tap Upload. Your image is compressed on your device before it is saved, so it stays lighter on mobile data. 📸',
     },
     {
+      id: 'voice notes',
+      terms: ['voice note', 'voice notes', 'record', 'recording', 'audio', 'microphone', 'transcribe', 'transcription'],
+      reply: 'You can add your voice to {act}! Open the Voice tab, tap the microphone, and speak freely — MojaMind records on your device and writes down what it hears, so your spoken words can become reflections too. 🎤',
+    },
+    {
+      id: 'inspiration videos',
+      terms: ['video', 'videos', 'watch', 'example', 'demo'],
+      reply: 'Activities 5–8 include short inspiration videos for every creative option — look for the Play button on the Start Here tab of {act}. They stream only when you tap them, so they never use data in the background. 🎬',
+    },
+    {
       id: 'artwork colours',
       terms: ['colour', 'colours', 'color', 'colors', 'palette', 'what do you see', 'my artwork', 'my picture'],
       reply: '{artwork}',
@@ -712,38 +851,38 @@ MM.AI = {
     {
       id: 'progress and unlocks',
       terms: ['progress', 'week', 'unlock', 'locked', 'when does', 'how far'],
-      reply: 'You are in week {week}, with {done} of 8 art activities completed. Activities open week by week; completing the Pre-Survey unlocks Art, Chat and the Post-Survey path.',
+      reply: 'You are in week {week}, with {done} of 8 art activities completed. Activities open week by week; completing the Pre-Survey unlocks your journey pathway.',
     },
     {
       id: 'surveys',
       terms: ['pre-survey', 'post-survey', 'pre survey', 'post survey', 'questionnaire', 'survey'],
-      reply: 'The Pre-Survey checks your starting point; the Post-Survey checks in again after the journey and includes app usability. Draft answers save on your device as you go.',
+      reply: 'There are three pre-surveys (Mental Health, Lifestyle Management, Personal Wellbeing) and four post-surveys (the same three plus App Usability). Each can be completed once — the Post-Survey opens after the Pre-Survey is done. Draft answers save on your device as you go.',
     },
     {
       id: 'privacy',
       terms: ['privacy', 'private', 'data', 'confidential', 'anonymous', 'who can see'],
       minScore: 2,
-      reply: 'MojoMind keeps this demo’s progress on your device. Study responses are intended to remain anonymous and within the research team, as explained in the consent screen.',
+      reply: 'MojaMind keeps this demo’s progress on your device. Study responses are intended to remain anonymous and within the research team, as explained in the consent screen.',
     },
     {
       id: 'offline use',
-      terms: ['offline', 'internet', 'connection', 'mobile data', 'network', 'load shedding'],
-      reply: 'MojoMind is an offline-first PWA. Once loaded, the app shell remains available without a connection, and your in-progress answers stay on this device until you return.',
+      terms: ['offline', 'internet', 'connection', 'mobile data', 'network', 'load shedding', 'datafree', 'data free'],
+      reply: 'MojaMind is an offline-first, DataFree-friendly app. Once loaded, it opens without a connection, and your in-progress answers stay on this device until you return. Data vouchers are provided for downloads and online meetings.',
     },
     {
       id: 'support pathways',
-      terms: ['support service', 'support services', 'counsellor', 'helpline', 'hotline', 'lifeline', 'sadag'],
-      reply: 'Open Support Services for Lifeline, SADAG, the Suicide Crisis Helpline and your facilitator. If this is urgent or you feel unsafe, tap Help at the top now. 💜',
+      terms: ['support service', 'support services', 'counsellor', 'helpline', 'hotline', 'lifeline', 'sadag', 'social worker', 'it support', 'technical support', 'ticket'],
+      reply: 'Open Support Services to request help from a Social Worker or IT Technical Support — your request is logged as a ticket and the right person follows up. Lifeline, SADAG and the Suicide Crisis Helpline are there too. If this is urgent or you feel unsafe, tap Help at the top now. 💜',
     },
     {
       id: 'breathing and grounding',
       terms: ['breathe', 'breathing', 'grounding', 'ground myself', 'panic', 'calm down'],
-      reply: 'Tap Help and use the 4–6–7 breathing guide: breathe in for 4, hold for 6, and breathe out for 7. You can also sip cold water or feel your feet against the ground.',
+      reply: 'Tap Help and use the 4–6–7 breathing guide: breathe in for 4, hold for 6, and breathe out for 7 — the circle counts every second down with you. You can also sip cold water or feel your feet against the ground.',
     },
     {
       id: 'incentive',
-      terms: ['incentive', 'r400', 'payment', 'reward'],
-      reply: 'The study instructions note a R400 incentive after completing both surveys. For timing or eligibility questions, contact your facilitator through Chat.',
+      terms: ['incentive', 'voucher', 'vouchers', 'data voucher', 'payment', 'reward'],
+      reply: 'At the start of the intervention you receive data vouchers (to download the app and attend online meetings), and an incentive for your time at the end of the intervention. For timing or eligibility questions, ask your facilitator here in Chat.',
     },
     {
       id: 'mood garden',
@@ -755,14 +894,45 @@ MM.AI = {
       terms: ['daily spark', 'inspiration', 'quote', 'constellation'],
       reply: 'Daily Spark gives you one message each day. Hold the glowing orb while you breathe in; your saved sparks become a small constellation over time. ✨',
     },
+    {
+      id: 'hope',
+      terms: ['hope', 'message of hope', 'beacon of hope', 'ithemba', 'tsholofelo', 'hoop', 'give me hope', 'spark of hope'],
+      reply: 'The Beacon of Hope is always open: Ithemba alibulali (hope keeps the spirit alive). Every small creation, breath, and step you take today is a seed of hope blooming in your life. 🌟',
+    },
+    {
+      id: 'accessibility',
+      terms: ['accessibility', 'bigger text', 'text size', 'contrast', 'disability', 'impairment', 'screen reader'],
+      reply: 'MojaMind is designed to support people with disabilities and impairments. Tap the accessibility button in the header to make text bigger, increase contrast, or reduce motion — your choices are remembered on this device. ♿',
+    },
   ],
   fallback: [
     'Thank you for sharing! How did this make you feel?',
-    'I hear you. Tell me more \u2014 I\u2019m listening. \uD83C\uDF38',
-    'That\u2019s a lovely thought to bring into {act}. What inspired it?',
-    'Beautiful \u2014 keep expressing yourself, there\u2019s no wrong way here. \uD83C\uDFA8',
-    'Noted with care. \uD83D\uDC9C Remember your reflections tab is a great place for thoughts like this too.',
+    'I hear you. Tell me more — I’m listening. 🌸',
+    'That’s a lovely thought to bring into {act}. What inspired it?',
+    'Beautiful — keep expressing yourself, there’s no wrong way here. 🎨',
+    'Noted with care. 💜 Remember your reflections tab is a great place for thoughts like this too.',
   ],
+};
+
+/* ── Facilitator (admin) access ──────────────────────────── */
+MM.ADMIN = {
+  code: 'MOJA2026',
+  hint: 'Facilitators: enter your access code to answer group and individual chats.',
+};
+
+/* ── Beacon of Hope — inspiration, proverbs & grounding ──── */
+MM.HOPE = {
+  title: 'Beacon of Hope',
+  subtitle: 'Ithemba · Tsholofelo · Hoop · Hope',
+  lead: 'Hope is not the absence of darkness — it is the conviction that the light inside you is stronger than whatever you face today.',
+  affirmations: [
+    { title: 'Seeds of Light', text: 'You carry within you an unbroken resilience. Every sunrise is an invitation to begin again with kindness.', sa: 'Ithemba alibulali — Hope keeps the spirit alive.' },
+    { title: 'Your Pace Matters', text: 'There is no rush to heal or create. Growth happens quietly in the soil before the blossom opens into beauty.', sa: 'Tsholofelo ke bophelo — Hope is life.' },
+    { title: 'Courage in Quiet Steps', text: 'Taking one breath, making one mark, speaking one truth — these small, brave acts change your world.', sa: 'Motho ke motho ka batho — We rise together.' },
+    { title: 'The Light Within', text: 'You are worthy of care, kindness, and joy. Never let a difficult season convince you that you are alone.', sa: 'Hoop beskaam nie — Hope never puts you to shame.' },
+    { title: 'A New Dawn Awaits', text: 'However long the shadow, the dawn always breaks. Keep your face toward the morning sun.', sa: 'Kusasa kusa ngomuso — Tomorrow is a new beginning.' },
+  ],
+  crisisHope: 'You have survived 100% of your hardest days. You do not have to walk this alone. Reach out, breathe, and let support hold you up right now.',
 };
 
 /* ── Daily Spark — inspiration library ───────────────────── */
@@ -773,14 +943,17 @@ MM.SPARKS = [
   { text: 'The best time to plant a tree was twenty years ago. The second best time is now.', by: 'African proverb' },
   { text: 'Rain does not fall on one roof alone.', by: 'African proverb' },
   { text: 'Wisdom is like a baobab tree; no one individual can embrace it.', by: 'African proverb' },
-  { text: 'A bird will always use another bird\u2019s feathers to feather its own nest.', by: 'Sotho proverb' },
-  { text: 'Umuntu ngumuntu ngabantu \u2014 I am because we are.', by: 'Ubuntu philosophy' },
+  { text: 'A bird will always use another bird’s feathers to feather its own nest.', by: 'Sotho proverb' },
+  { text: 'Umuntu ngumuntu ngabantu — I am because we are.', by: 'Ubuntu philosophy' },
   { text: 'Little by little, a little becomes a lot.', by: 'Tanzanian proverb' },
   { text: 'When the roots are deep, there is no reason to fear the wind.', by: 'African proverb' },
   { text: 'The lion does not turn around when a small dog barks.', by: 'African proverb' },
+  { text: 'Hope is being able to see that there is light despite all of the darkness.', by: 'Desmond Tutu' },
+  { text: 'Ithemba alibulali — hope never dies, it only blooms anew.', by: 'isiZulu proverb' },
+  { text: 'Tsholofelo ke lesedi — hope is the lantern in the storm.', by: 'Sesotho proverb' },
   { text: 'You may not control all the events that happen to you, but you can decide not to be reduced by them.', by: 'Maya Angelou' },
   { text: 'Do not judge me by my successes, judge me by how many times I fell down and got back up again.', by: 'Nelson Mandela' },
-  { text: 'It always seems impossible until it\u2019s done.', by: 'Nelson Mandela' },
+  { text: 'It always seems impossible until it’s done.', by: 'Nelson Mandela' },
   { text: 'Courage is not the absence of fear, but the triumph over it.', by: 'Nelson Mandela' },
   { text: 'There is no greater agony than bearing an untold story inside you.', by: 'Maya Angelou' },
   { text: 'You alone are enough. You have nothing to prove to anybody.', by: 'Maya Angelou' },
@@ -794,27 +967,26 @@ MM.SPARKS = [
   { text: 'Every artist was first an amateur.', by: 'Ralph Waldo Emerson' },
   { text: 'Creativity takes courage.', by: 'Henri Matisse' },
   { text: 'To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment.', by: 'Ralph Waldo Emerson' },
-  { text: 'Almost everything will work again if you unplug it for a few minutes \u2014 including you.', by: 'Anne Lamott' },
-  { text: 'You don\u2019t have to see the whole staircase, just take the first step.', by: 'Martin Luther King Jr.' },
+  { text: 'Almost everything will work again if you unplug it for a few minutes — including you.', by: 'Anne Lamott' },
+  { text: 'You don’t have to see the whole staircase, just take the first step.', by: 'Martin Luther King Jr.' },
   { text: 'Fall seven times, stand up eight.', by: 'Japanese proverb' },
   { text: 'The flower that blooms in adversity is the rarest and most beautiful of all.', by: 'Mulan' },
-  { text: 'Your present circumstances don\u2019t determine where you can go; they merely determine where you start.', by: 'Nido Qubein' },
-  { text: 'Healing is not linear \u2014 and that is perfectly okay.', by: 'MojoMind' },
-  { text: 'You have survived 100% of your hardest days so far.', by: 'MojoMind' },
-  { text: 'Small steps every day. That is how gardens grow.', by: 'MojoMind' },
-  { text: 'Breathe. You are exactly where you need to be.', by: 'MojoMind' },
-  { text: 'Your story is a work of art in progress \u2014 keep painting.', by: 'MojoMind' },
-  { text: 'Rest is productive. Kindness to yourself is strength.', by: 'MojoMind' },
-  { text: 'Feel it. Create it. Release it.', by: 'MojoMind' },
-  { text: 'The bravest thing you can do is show up as yourself.', by: 'MojoMind' },
+  { text: 'Your present circumstances don’t determine where you can go; they merely determine where you start.', by: 'Nido Qubein' },
+  { text: 'Healing is not linear — and that is perfectly okay.', by: 'MojaMind' },
+  { text: 'You have survived 100% of your hardest days so far.', by: 'MojaMind' },
+  { text: 'Small steps every day. That is how gardens grow.', by: 'MojaMind' },
+  { text: 'Breathe. You are exactly where you need to be.', by: 'MojaMind' },
+  { text: 'Your story is a work of art in progress — keep painting.', by: 'MojaMind' },
+  { text: 'Rest is productive. Kindness to yourself is strength.', by: 'MojaMind' },
+  { text: 'Feel it. Create it. Release it.', by: 'MojaMind' },
+  { text: 'The bravest thing you can do is show up as yourself.', by: 'MojaMind' },
 ];
 
 MM.SPARK_PERSONAL = {
-  streak: n => `\uD83D\uDD25 ${n} day${n > 1 ? 's' : ''} of showing up for yourself \u2014 that is real resilience.`,
-  acts: n => `\uD83C\uDFA8 ${n} creative activit${n > 1 ? 'ies' : 'y'} completed. Your voice is getting stronger.`,
-  moodsGood: 'Your garden shows more sunshine lately \u2014 keep tending it. \uD83C\uDF3B',
-  moodsTough: 'Some days felt heavy lately. Be gentle with yourself \u2014 you\u2019re still growing. \uD83C\uDF31',
-  week: w => `Week ${w} of your journey \u2014 every week you create, you grow.`,
-  firstSpark: 'This is your very first spark. May it light the whole journey. \u2728',
+  streak: n => `🔥 ${n} day${n > 1 ? 's' : ''} of showing up for yourself — that is real resilience.`,
+  acts: n => `🎨 ${n} creative activit${n > 1 ? 'ies' : 'y'} completed. Your voice is getting stronger.`,
+  moodsGood: 'Your garden shows more sunshine lately — keep tending it. 🌻',
+  moodsTough: 'Some days felt heavy lately. Be gentle with yourself — you’re still growing. 🌱',
+  week: w => `Week ${w} of your journey — every week you create, you grow.`,
+  firstSpark: 'This is your very first spark. May it light the whole journey. ✨',
 };
-

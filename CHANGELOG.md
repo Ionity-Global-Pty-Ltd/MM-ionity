@@ -6,6 +6,15 @@ The format loosely follows [Keep a Changelog](https://keepachangelog.com/en/1.1.
 
 ## [Unreleased]
 
+### Added
+
+- Official Stellenbosch University logo on the opening splash (`assets/partners/stellenbosch.webp`), shown on a light card beside the SHOUT-IT-NOW mark; the styled text wordmark remains as the fallback if the artwork is ever missing.
+- **Moja Meadow** — a relaxing garden mini-game, available on Home to all three study groups: tap the grass to plant SHOUT-colour flowers, tap buds to water them, catch visiting butterflies for serenity. Slow day/night cycle with stars and fireflies, soft pentatonic chimes (toggleable), haptics, reduced-motion support, and the meadow persists in the encrypted vault — flowers even keep growing while the app is closed. Includes an "open the meadow" voice command.
+
+### Changed
+
+- App shell, service worker cache and asset revisions bumped to v2.2.0.
+
 ## [1.5.0] - 2026-07-26
 
 ### Added

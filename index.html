@@ -8,27 +8,52 @@
       location.replace(`https://${location.host}${location.pathname}${location.search}${location.hash}`);
     }
   </script>
-  <title>MojoMind — Creative Resilience</title>
-  <meta name="description" content="MojoMind — an 8-week creative resilience intervention. Express yourself through art, track your wellbeing, and find support anytime. Crafted by IONITY Global (Pty) Ltd." />
+  <title>MojaMind — Creative Resilience</title>
+  <meta name="description" content="MojaMind — an 8-week creative resilience intervention. Express yourself through art, voice, 3D space, and journal notes. Powered by SHOUT-IT-NOW & Stellenbosch University, made possible by Gilead. Designed & crafted by Johan Wilhelm van Antwerp (Antwerp Designs · Ionity www.ionity.today)." />
   <meta name="theme-color" content="#5C1680" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="MojoMind" />
-  <link rel="canonical" href="https://www.hellion.solutions/" />
-  <meta property="og:title" content="MojoMind — Creative Resilience" />
-  <meta property="og:description" content="An 8-week creative resilience intervention. Express yourself through art, track your wellbeing, and find support anytime." />
-  <meta property="og:url" content="https://www.hellion.solutions/" />
+  <meta name="apple-mobile-web-app-title" content="MojaMind" />
+  <link rel="canonical" href="https://www.ionity.today/" />
+  <meta property="og:title" content="MojaMind — Creative Resilience" />
+  <meta property="og:description" content="An 8-week creative resilience intervention. Express yourself through art, voice, words, 3D space, and journal notes." />
+  <meta property="og:url" content="https://www.ionity.today/" />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="https://www.hellion.solutions/icons/icon-512.png" />
-  <meta name="author" content="IONITY Global (Pty) Ltd — www.ionity.co.za" />
+  <meta property="og:image" content="https://www.ionity.today/assets/icons/icon-512.png" />
+  <meta name="author" content="Johan Wilhelm van Antwerp — Solutionist of Antwerp Designs &amp; Ecosystems Engineer · Ionity (Pty) Ltd (www.ionity.today)" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" type="image/svg+xml" href="./icons/favicon.svg" />
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" />
-  <link rel="stylesheet" href="./css/app.css" />
+  <link rel="stylesheet" href="./css/app.css?v=2.4.0" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "MojaMind",
+    "url": "https://www.ionity.today",
+    "description": "Creative resilience intervention PWA with art, voice, journal, 2D meadow and 3D cosmic games.",
+    "author": {
+      "@type": "Person",
+      "name": "Johan Wilhelm van Antwerp",
+      "jobTitle": "Solutionist & Ecosystems Engineer",
+      "url": "https://www.ionity.today",
+      "sameAs": [
+        "https://www.ionity.world",
+        "https://www.linkedin.com/in/ionity",
+        "https://github.com/AntwerpDesignsIonity"
+      ]
+    },
+    "creator": {
+      "@type": "Organization",
+      "name": "Ionity (Pty) Ltd",
+      "url": "https://www.ionity.today"
+    }
+  }
+  </script>
 </head>
 <body>
   <div id="stars" aria-hidden="true"></div>
@@ -39,7 +64,31 @@
   <div id="modal-root"></div>
   <div id="toast-root" aria-live="assertive"></div>
   <canvas id="fx" aria-hidden="true"></canvas>
-  <script src="./js/data.js"></script>
-  <script src="./js/app.js"></script>
+  <!-- Content & instruments -->
+  <script src="./js/data.js?v=2.4.0"></script>
+  <!-- Encrypted-at-rest storage (AES-GCM 256 via WebCrypto) -->
+  <script src="./js/vault.js?v=2.4.0"></script>
+  <!-- On-device language understanding: MojaLex, plus optional quantized DistilBERT/MobileBERT -->
+  <script src="./js/nlp.js?v=2.4.0"></script>
+  <!-- Hands-free voice navigation & Acoustic Bio-Feedback -->
+  <script src="./js/voice.js?v=2.6.0"></script>
+  <!-- Procedural Nature & 432Hz Soundscapes Generator -->
+  <script src="./js/soundscape.js?v=2.6.0"></script>
+  <!-- Drawing pad + Moja Vision 2.0 picture reading -->
+  <script src="./js/draw.js?v=2.6.0"></script>
+  <!-- Writer & Journal with Speech-to-Text & Tiny OCR -->
+  <script src="./js/journal.js?v=2.6.0"></script>
+  <!-- Cryptographic Resilience Journey Certificate & Portfolio -->
+  <script src="./js/portfolio.js?v=2.6.0"></script>
+  <!-- Interactive Themed Video Walkthrough Generator & Player -->
+  <script src="./js/video.js?v=2.6.0"></script>
+  <!-- App shell, router, screens -->
+  <script src="./js/app.js?v=2.6.0"></script>
+  <!-- Moja Meadow — the relax-and-play garden game (registers #/game) -->
+  <script src="./js/game.js?v=2.5.0"></script>
+  <!-- Moja Bee 3D — 3D Sunray Flight game engine (registers #/game3d) -->
+  <script src="./js/game3d.js?v=2.5.0"></script>
+  <!-- Moja Pop: Serenity Bubble Odyssey (registers #/gamebubble) -->
+  <script src="./js/bubble.js?v=2.5.0"></script>
 </body>
 </html>

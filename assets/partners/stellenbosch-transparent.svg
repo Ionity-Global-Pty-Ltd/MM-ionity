@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 90" fill="none" width="100%" height="100%">
+  <defs>
+    <linearGradient id="su-maroon-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#801b2a" />
+      <stop offset="100%" stop-color="#560e19" />
+    </linearGradient>
+    <linearGradient id="su-gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffd166" />
+      <stop offset="100%" stop-color="#d4a329" />
+    </linearGradient>
+    <filter id="su-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.45" />
+    </filter>
+  </defs>
+
+  <!-- Stellenbosch University Emblem & Crest -->
+  <g transform="translate(14, 10)" filter="url(#su-glow)">
+    <!-- Classic Crest Shield -->
+    <path d="M30 4 C 48 4, 56 12, 56 32 C 56 54, 30 68, 30 68 C 30 68, 4 54, 4 32 C 4 12, 12 4, 30 4 Z" fill="url(#su-maroon-grad)" stroke="#ffffff" stroke-width="1.8" />
+    <!-- Gold Acorn & Oak Leaves Emblem -->
+    <circle cx="30" cy="24" r="8" fill="url(#su-gold-grad)" />
+    <path d="M30 14 Q 35 6, 38 12 Q 42 22, 30 32 Q 18 22, 22 12 Q 25 6, 30 14 Z" fill="#ffd166" opacity="0.9" />
+    <path d="M22 36 Q 14 42, 20 48 Q 28 54, 30 44 Q 30 36, 22 36 Z" fill="#ffd166" />
+    <path d="M38 36 Q 46 42, 40 48 Q 32 54, 30 44 Q 30 36, 38 36 Z" fill="#ffd166" />
+    <path d="M28 46 L 32 46 L 30 58 Z" fill="#ffffff" />
+  </g>
+
+  <!-- Official Stellenbosch University Trilingual Typography -->
+  <g fill="#ffffff" filter="url(#su-glow)" font-family="'Georgia', 'Times New Roman', serif">
+    <text x="82" y="32" font-size="11" font-weight="700" letter-spacing="3.2px" fill="#ffd166">UNIVERSITEIT</text>
+    <text x="82" y="52" font-size="19" font-weight="800" letter-spacing="2.2px" fill="#ffffff">STELLENBOSCH</text>
+    <text x="82" y="68" font-size="10.5" font-weight="700" letter-spacing="2.4px" fill="#ffffff">UNIVERSITY • iYUNIVESITHI</text>
+  </g>
+</svg>

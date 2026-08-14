@@ -1,9 +1,11 @@
 /* ============================================================
-   MojoMind — Creative Resilience PWA
+   MojaMind — Creative Resilience PWA
    App shell, router, state and screens.
-   Pathing mirrors the MojoMind screen recordings exactly:
-   Sign In → Terms → Welcome → Demographics → Home
-   Home → Instructions | Support | Pre-Survey | Art | Chat | Post-Survey
+   Pathing per the Aug 2026 design update:
+   Splash → Sign In → Terms (Accept) → Demographics → Welcome → Home
+   Home → Instructions | Support | Pre-Survey | Art* | Chat* | Post-Survey
+   (* availability depends on study group: G1 surveys only,
+      G2 adds art, G3 adds chat)
    © IONITY Global (Pty) Ltd.
    ============================================================ */
 'use strict';
@@ -39,6 +41,18 @@ const I = {
   keyIc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4.5"/><path d="m11.2 11.8 8.3-8.3M17 6l2.5 2.5M14 9l2.5 2.5"/></svg>',
   reset: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 4v4h4"/></svg>',
   sparkle: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 5.7a2 2 0 0 0 1.3 1.3L21 11l-5.8 2a2 2 0 0 0-1.3 1.3L12 20l-1.9-5.7a2 2 0 0 0-1.3-1.3L3 11l5.8-2a2 2 0 0 0 1.3-1.3L12 2Z"/><circle cx="19" cy="5" r="1.6"/><circle cx="5" cy="19" r="1.3"/></svg>',
+  wrench: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4.5 4.5 0 0 0-6 5.6L3 17.6a2 2 0 0 0 0 2.8l.6.6a2 2 0 0 0 2.8 0l5.7-5.7a4.5 4.5 0 0 0 5.6-6l-3 3-2.8-.7-.7-2.8Z"/></svg>',
+  mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5M8.5 21.5h7"/></svg>',
+  stop: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg>',
+  a11y: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.6" r="2.1"/><path d="M4.5 8.6c2.5.8 5 1.2 7.5 1.2s5-.4 7.5-1.2"/><path d="M12 9.8v4.4M12 14.2l-2.8 6M12 14.2l2.8 6"/></svg>',
+  ticket: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2.5 2.5 0 0 0 0 6v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2.5 2.5 0 0 0 0-6Z"/><path d="M13 5v2M13 11v2M13 17v2"/></svg>',
+  video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="13" height="12" rx="2.5"/><path d="m15.5 10.5 6-3.5v10l-6-3.5"/></svg>',
+  handHeart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8.5s-2.4-1.6-3.2-3c-.5-1 .1-2.2 1.3-2.3.7 0 1.3.4 1.9 1 .6-.6 1.2-1 1.9-1 1.2.1 1.8 1.3 1.3 2.3-.8 1.4-3.2 3-3.2 3Z"/><path d="M3 14.5h3l3.2 1.4c.7.3 1.1 1 .9 1.8-.2.9-1.1 1.4-2 1.2l-2.1-.6"/><path d="M9.5 18.4 15 20l6-2.6c.8-.4 1.1-1.4.6-2.1-.4-.6-1.1-.8-1.8-.6L16 16"/></svg>',
+  brush: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/><path d="M6.5 14c-1.9 0-3.5 1.6-3.5 3.5 0 1-.4 2-1 2.7 1 .5 2 .8 3 .8 2.5 0 4.5-2 4.5-4.5A2.5 2.5 0 0 0 6.5 14Z"/></svg>',
+  shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-3.6 8-10V5.2L12 2 4 5.2V12c0 6.4 8 10 8 10Z"/><path d="m8.6 12 2.3 2.3 4.5-4.6"/></svg>',
+  brain: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 3.5A2.5 2.5 0 0 0 7 6a2.5 2.5 0 0 0-1.6 4.4A2.6 2.6 0 0 0 6 15.4 2.5 2.5 0 0 0 8.5 19a2.3 2.3 0 0 0 3.5-2V5a1.6 1.6 0 0 0-2.5-1.5Z"/><path d="M14.5 3.5A2.5 2.5 0 0 1 17 6a2.5 2.5 0 0 1 1.6 4.4A2.6 2.6 0 0 1 18 15.4 2.5 2.5 0 0 1 15.5 19a2.3 2.3 0 0 1-3.5-2"/></svg>',
+  gamepad: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="6"/><path d="M6 12h4M8 10v4M15 13h.01M18 11h.01"/></svg>',
+  journal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10M6 14h6"/></svg>',
 };
 
 /* SHOUT-IT-NOW flower: one shared colour language across the app. */
@@ -59,9 +73,9 @@ function flowerSVG(size = 34, opts = {}) {
   </svg>`;
 }
 
-/* Rainbow knot logo for the sign-in screen (original MojoMind mark) */
+/* Rainbow knot logo for the sign-in screen (original MojaMind mark) */
 function knotSVG(size = 84) {
-  return `<svg viewBox="0 0 100 100" width="${size}" height="${size}" class="auth-logo" aria-label="MojoMind logo">
+  return `<svg viewBox="0 0 100 100" width="${size}" height="${size}" class="auth-logo" aria-label="MojaMind logo">
     <defs>
       <linearGradient id="mmrb" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0" stop-color="#f0813c"/><stop offset=".28" stop-color="#ee2b63"/>
@@ -95,34 +109,67 @@ function faceSVG(kind, color, size = 62) {
   </svg>`;
 }
 
-/* ── State ───────────────────────────────────────────────── */
-const KEY = 'mojomind:v1';
+/* ── State ───────────────────────────────────────────────────
+   Everything lives on the device, encrypted at rest by the
+   vault (js/vault.js). `save()` stays synchronous to call —
+   the vault debounces and encrypts the write behind it.       */
 const blankState = () => ({
   auth: null,
+  group: null,               // 1 | 2 | 3 — study group (feature availability)
   consented: false,
-  onboarded: false,
   demographics: null,        // {answers, completedAt}
+  onboarded: false,          // welcome screen seen (after demographics)
   surveys: { pre: {}, post: {} }, // pre.mental = {answers, completedAt}
   drafts: {},                // draft answers per runner key
   moods: [],                 // {mood, note, at}
   lastMoodPrompt: 0,
-  activities: {},            // id -> {option, uploads[], reflections{}, submittedAt}
+  activities: {},            // id -> {option, uploads[], voice[], reflections{}, submittedAt}
   chat: { group: {}, individual: {} }, // scope -> actId -> [{who, text, at}]
   chatRead: {},
+  agentQueue: {},            // `${scope}:${actId}` -> {requestedAt, joinedAt}
+  tickets: [],               // {ref, kind, subject, detail, status, createdAt, source}
+  riskFlags: [],             // {phase, total, q9, at, ticketRef}
+  a11y: { textScale: 1, highContrast: false, reduceMotion: false },
+  ai: { transformer: false, model: 'distilbert', voiceNav: false, predictive: true, vision: true },
+  usage: { routes: {}, transitions: {}, hours: {}, recent: [] },
+  groupChanges: [],          // {from, to, at} — audit of study-group changes
+  adminMode: false,
+  game: { blooms: 0, serenity: 0, sound: true, flowers: [], totalPlayMs: 0, wormsHydrated: 0, antsHydrated: 0, megaBlooms: 0, rainStars: 0 }, // Moja Meadow
+  game3d: { highScore: 0, pollen: 0, sunrays: 0, sound: true, bestDistance: 0, crashes: 0, totalFlights: 0 }, // Moja Bee 3D
+  gameBubble: { highScore: 0, bubblesPopped: 0, combos: 0, totalGames: 0, sound: true }, // Moja Pop Bubble Odyssey
+  journal: [],
   startedAt: null,
 });
-let S = load();
-function load() {
-  try { return Object.assign(blankState(), JSON.parse(localStorage.getItem(KEY)) || {}); }
-  catch { return blankState(); }
+let S = blankState();
+
+/** Normalise anything loaded from an older build. */
+function hydrate(loaded) {
+  const s = Object.assign(blankState(), loaded || {});
+  // v1 participants had no group concept — they had everything.
+  if (s.auth && !s.group) s.group = 3;
+  if (!s.a11y) s.a11y = { textScale: 1, highContrast: false, reduceMotion: false };
+  if (!s.ai) s.ai = { transformer: false, model: 'distilbert', voiceNav: false, predictive: true, vision: true, voice: { persona: 'warmth', speed: 0.95, pitch: 0.99, whisperModel: 'tiny', chime: true } };
+  if (!s.usage) s.usage = { routes: {}, transitions: {}, hours: {}, recent: [] };
+  if (!s.groupChanges) s.groupChanges = [];
+  if (!s.chat) s.chat = { group: {}, individual: {} };
+  if (!s.game) s.game = { blooms: 0, serenity: 0, sound: true, flowers: [], totalPlayMs: 0, wormsHydrated: 0, antsHydrated: 0, megaBlooms: 0, rainStars: 0 };
+  if (s.game.totalPlayMs == null) s.game.totalPlayMs = 0;
+  if (!s.game3d) s.game3d = { highScore: 0, pollen: 0, sunrays: 0, sound: true, bestDistance: 0, crashes: 0, totalFlights: 0 };
+  if (!s.gameBubble) s.gameBubble = { highScore: 0, bubblesPopped: 0, combos: 0, totalGames: 0, sound: true };
+  if (!s.journal) s.journal = [];
+  return s;
 }
-function save() { localStorage.setItem(KEY, JSON.stringify(S)); }
+
+function save() { Vault.write(S); }
 
 /* Derived flags */
+const groupOf  = () => MM.GROUPS[S.group] || MM.GROUPS[3];
+const hasArt   = () => !!groupOf().art;
+const hasChat  = () => !!groupOf().chat;
 const preDone  = () => MM.PRE_SURVEYS.every(id => S.surveys.pre[id]?.completedAt);
 const postDone = () => MM.POST_SURVEYS.every(id => S.surveys.post[id]?.completedAt);
-const artOpen  = () => preDone();
-const chatOpen = () => preDone();
+const artOpen  = () => hasArt() && preDone();
+const chatOpen = () => (hasChat() && preDone()) || S.adminMode;
 const postOpen = () => preDone();
 const actState = id => S.activities[id] || null;
 const actsDone = () => MM.ACTIVITIES.filter(a => actState(a.id)?.submittedAt).length;
@@ -131,6 +178,11 @@ const actsDone = () => MM.ACTIVITIES.filter(a => actState(a.id)?.submittedAt).le
 const $ = sel => document.querySelector(sel);
 const app = $('#app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const hexA = (hex, a) => {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${a})`;
+};
 
 function toast(msg, ms = 2600) {
   const root = $('#toast-root');
@@ -149,12 +201,54 @@ function modal(html, { onClose } = {}) {
 }
 function closeModal(cb) { $('#modal-root').innerHTML = ''; cb && cb(); }
 
+/* ── Accessibility engine ────────────────────────────────── */
+function applyA11y() {
+  const a = S.a11y || {};
+  const phone = $('#phone');
+  if (phone) phone.style.zoom = a.textScale && a.textScale !== 1 ? a.textScale : '';
+  document.body.classList.toggle('hc', !!a.highContrast);
+  document.body.classList.toggle('rm', !!a.reduceMotion);
+}
+function motionReduced() {
+  return S.a11y?.reduceMotion || matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+function a11yModal() {
+  const a = S.a11y;
+  const m = modal(`
+    <h3>♿ ${esc(MM.A11Y.title)}</h3>
+    <p style="font-size:12.8px;line-height:1.65;color:#ffffff;margin:0 0 14px">${esc(MM.A11Y.statement)}</p>
+    <div class="a11y-row">
+      <span>Text size</span>
+      <div class="a11y-seg" role="group" aria-label="Text size">
+        <button data-scale="1"    class="${a.textScale === 1 ? 'active' : ''}"    aria-pressed="${a.textScale === 1}">A</button>
+        <button data-scale="1.12" class="${a.textScale === 1.12 ? 'active' : ''}" aria-pressed="${a.textScale === 1.12}" style="font-size:15px">A</button>
+        <button data-scale="1.25" class="${a.textScale === 1.25 ? 'active' : ''}" aria-pressed="${a.textScale === 1.25}" style="font-size:18px">A</button>
+      </div>
+    </div>
+    <div class="a11y-row">
+      <span>High contrast</span>
+      <label class="switch"><input id="a11y-hc" type="checkbox" ${a.highContrast ? 'checked' : ''} /><span class="knob"></span></label>
+    </div>
+    <div class="a11y-row">
+      <span>Reduce motion</span>
+      <label class="switch"><input id="a11y-rm" type="checkbox" ${a.reduceMotion ? 'checked' : ''} /><span class="knob"></span></label>
+    </div>
+    <div class="modal-btns"><button class="btn btn-primary" id="a11y-done">Done</button></div>
+  `);
+  m.querySelectorAll('[data-scale]').forEach(b => b.addEventListener('click', () => {
+    S.a11y.textScale = parseFloat(b.dataset.scale); save(); applyA11y();
+    m.querySelectorAll('[data-scale]').forEach(x => { x.classList.toggle('active', x === b); x.setAttribute('aria-pressed', x === b); });
+  }));
+  m.querySelector('#a11y-hc').addEventListener('change', e => { S.a11y.highContrast = e.target.checked; save(); applyA11y(); });
+  m.querySelector('#a11y-rm').addEventListener('change', e => { S.a11y.reduceMotion = e.target.checked; save(); applyA11y(); });
+  m.querySelector('#a11y-done').onclick = () => closeModal();
+}
+
 /* ── FX engine — confetti + Click Aura “Jump Forth” ─────── */
 const FX = (() => {
   const cv = $('#fx'), ctx = cv.getContext('2d');
   const fit = () => { cv.width = innerWidth; cv.height = innerHeight; };
   fit(); addEventListener('resize', fit);
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const palettes = [
     ['#00a651', '#f58220', '#ed1c24', '#2e3192', '#ffffff'],
     ['#f58220', '#ed1c24', '#2e3192', '#00a651', '#ffd166'],
@@ -210,7 +304,7 @@ const FX = (() => {
 
   /* Click Aura: every tap gets a different bloom, care, spiral or starlight signature. */
   function burst(x, y) {
-    if (reduced) return;
+    if (motionReduced()) return;
     let modeIndex = rndInt(0, auraModes.length - 2);
     if (modeIndex >= lastAura) modeIndex++;
     lastAura = modeIndex;
@@ -246,7 +340,7 @@ const FX = (() => {
 
   function confetti() {
     if (navigator.vibrate) navigator.vibrate([30, 40, 60]);
-    if (reduced) return;
+    if (motionReduced()) return;
     const colors = ['#f3256b', '#f9a8d4', '#c04ac4', '#7b21a8', '#ffd166', '#34c759', '#5a5fbf'];
     const out = Array.from({ length: 130 }, () => ({
       kind: Math.random() < .22 ? 'petal' : 'rect',
@@ -278,6 +372,160 @@ addEventListener('pointerdown', e => {
   }
 })();
 
+/* ── Opening splash — Shout · Stellenbosch · Gilead ──────── */
+function bootSplash() {
+  if (document.getElementById('splash')) return;
+  const el = document.createElement('div');
+  el.id = 'splash';
+  el.setAttribute('role', 'status');
+  el.innerHTML = `
+    <div class="splash-inner">
+      <div class="splash-flower">${flowerSVG(92)}</div>
+      <h1 class="splash-name">MojaMind</h1>
+      <p class="splash-sub">Creative Resilience</p>
+      <div class="splash-partners">
+        <p class="splash-welcome">${esc(MM.PARTNERS.headline)}</p>
+        <div class="splash-powered">
+          <span class="splash-lbl">powered by</span>
+          <div class="splash-logos">
+            <img src="./assets/branding/shout-it-now-logo.png" alt="SHOUT-IT-NOW" class="splash-shout" />
+            <span class="splash-amp">&amp;</span>
+            <span class="splash-partner-mark su">
+              <img src="./assets/partners/stellenbosch-transparent.png" alt="Stellenbosch University" class="su-trans-logo" onerror="this.src='./assets/partners/stellenbosch.png'" onload="this.parentNode.classList.add('has-img')" />
+              <span class="wordmark">Stellenbosch<br/>UNIVERSITY</span>
+            </span>
+          </div>
+        </div>
+        <div class="splash-powered">
+          <span class="splash-lbl">made possible by</span>
+          <span class="splash-partner-mark gilead">
+            <img src="./assets/partners/gilead.png" alt="Gilead Sciences" onerror="this.remove()" onload="this.parentNode.classList.add('has-img')" />
+            <span class="wordmark gilead-word">GILEAD</span>
+          </span>
+        </div>
+      </div>
+      <p class="splash-foot">Crafted by IONITY GLOBAL (PTY) LTD · www.ionity.co.za</p>
+    </div>`;
+  document.body.appendChild(el);
+  const dismiss = () => {
+    if (!el.parentNode) return;
+    el.classList.add('bye');
+    setTimeout(() => el.remove(), 600);
+  };
+  el.addEventListener('pointerdown', dismiss);
+  setTimeout(dismiss, motionReduced() ? 1400 : 3000);
+}
+
+/* ── Predictive behaviour ────────────────────────────────────
+   A transparent, on-device model of how this participant
+   actually uses the app: a first-order Markov chain over
+   screens, plus an hour-of-day prior. It powers the "jump back
+   in" chips and lets us warm heavy assets (videos) just before
+   they are wanted. It never leaves the phone, it explains
+   itself, and Privacy & Security can switch it off.           */
+const Predict = (() => {
+  const TRACKED = ['home', 'instructions', 'support', 'pre', 'post', 'art', 'chat', 'spark', 'help', 'privacy'];
+  const LABEL = {
+    home: 'Home', instructions: 'Instructions', support: 'Support', pre: 'Pre-Survey',
+    post: 'Post-Survey', art: 'Art Activities', chat: 'Chat', spark: 'Daily Spark',
+    help: 'Help Now', privacy: 'Privacy',
+  };
+  const ROUTE = {
+    home: '#/home', instructions: '#/instructions', support: '#/support', pre: '#/pre',
+    post: '#/post', art: '#/art', chat: '#/chat', spark: '#/spark', help: '#/help',
+    privacy: '#/privacy',
+  };
+  let previous = null;
+
+  function note(name) {
+    if (!S.ai?.predictive || !TRACKED.includes(name)) { previous = name; return; }
+    const u = S.usage;
+    u.routes[name] = (u.routes[name] || 0) + 1;
+    const hour = new Date().getHours();
+    u.hours[name] = u.hours[name] || {};
+    u.hours[name][hour] = (u.hours[name][hour] || 0) + 1;
+    if (previous && previous !== name) {
+      u.transitions[previous] = u.transitions[previous] || {};
+      u.transitions[previous][name] = (u.transitions[previous][name] || 0) + 1;
+    }
+    u.recent.unshift({ name, at: Date.now() });
+    u.recent = u.recent.slice(0, 40);
+    previous = name;
+    save();
+  }
+
+  /** Ranked guesses for where this person goes next. */
+  function next(from = previous || 'home', limit = 3) {
+    if (!S.ai?.predictive) return [];
+    const u = S.usage;
+    const hour = new Date().getHours();
+    const totalVisits = Object.values(u.routes).reduce((a, b) => a + b, 0);
+    if (totalVisits < 6) return []; // stay quiet until there is something to learn from
+
+    const scores = {};
+    const trans = u.transitions[from] || {};
+    const transTotal = Object.values(trans).reduce((a, b) => a + b, 0) || 1;
+    for (const name of TRACKED) {
+      if (name === from) continue;
+      if (!available(name)) continue;
+      const markov = (trans[name] || 0) / transTotal;                  // where they usually go from here
+      const prior = (u.routes[name] || 0) / totalVisits;               // how much they use it at all
+      const hours = u.hours[name] || {};
+      const nearHour = [hour - 1, hour, hour + 1]
+        .reduce((sum, h) => sum + (hours[(h + 24) % 24] || 0), 0);
+      const timeOfDay = nearHour / Math.max(1, u.routes[name] || 1);   // is now their usual time
+      const score = markov * .58 + prior * .24 + Math.min(1, timeOfDay) * .18;
+      if (score > 0.04) scores[name] = score;
+    }
+    return Object.entries(scores)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit)
+      .map(([name, score]) => ({
+        name, score: +score.toFixed(3), label: LABEL[name], route: ROUTE[name],
+        why: explain(from, name),
+      }));
+  }
+
+  function explain(from, name) {
+    const trans = S.usage.transitions[from] || {};
+    const hours = S.usage.hours[name] || {};
+    const hour = new Date().getHours();
+    if ((trans[name] || 0) >= 2) return `you often open this after ${LABEL[from] || 'here'}`;
+    if ((hours[hour] || 0) >= 2) return 'this is usually your time for it';
+    return 'one of your most-used screens';
+  }
+
+  function available(name) {
+    if (name === 'art') return artOpen();
+    if (name === 'chat') return chatOpen();
+    if (name === 'post') return postOpen();
+    return true;
+  }
+
+  /** Warm what they are about to need, so it feels instant. */
+  function prefetch() {
+    if (!S.ai?.predictive || !navigator.onLine) return;
+    // Only on unmetered-looking connections — data vouchers are precious.
+    const c = navigator.connection;
+    if (c && (c.saveData || /2g/.test(c.effectiveType || ''))) return;
+    const guesses = next(previous, 2).map(g => g.name);
+    if (!guesses.includes('art') || !hasArt()) return;
+    const wk = currentWeek();
+    const due = MM.ACTIVITIES.find(a => a.week <= wk && !actState(a.id)?.submittedAt);
+    const st = due && actState(due.id);
+    if (!due || !st || st.option == null || !MM.ACTIVITY_VIDEOS[due.id]) return;
+    const url = `./assets/videos/activity-${due.id}/option-${st.option + 1}.mp4`;
+    if (document.querySelector(`link[href="${url}"]`)) return;
+    const link = document.createElement('link');
+    link.rel = 'prefetch'; link.as = 'video'; link.href = url;
+    document.head.appendChild(link);
+  }
+
+  const reset = () => { S.usage = { routes: {}, transitions: {}, hours: {}, recent: [] }; save(); };
+
+  return { note, next, prefetch, reset, LABEL, ROUTE };
+})();
+
 /* ── Router ──────────────────────────────────────────────── */
 const routes = {};
 let lastPath = '';
@@ -290,11 +538,16 @@ function route() {
   const parts = raw.split('/').filter(Boolean);
   const name = parts[0] || 'home';
 
-  // Guards — enforce the exact onboarding pathing
+  stopVoiceCapture(); // never leave the mic running across screens
+  stopReflectionDictation();
+  if (Vault.isLocked()) return lockScreen();
+
+  // Guards — the Aug 2026 onboarding pathing:
+  // Sign In → Terms (Accept) → Demographic Survey → Welcome → Home
   if (!S.auth && name !== 'signin') return nav('#/signin');
-  if (S.auth && !S.consented && name !== 'terms' && name !== 'signin') return nav('#/terms');
-  if (S.auth && S.consented && !S.onboarded && !['welcome', 'terms', 'signin'].includes(name)) return nav('#/welcome');
-  if (S.auth && S.consented && S.onboarded && !S.demographics && !['demographics', 'help', 'signin'].includes(name)) return nav('#/demographics');
+  if (S.auth && !S.consented && !['terms', 'signin'].includes(name)) return nav('#/terms');
+  if (S.auth && S.consented && !S.demographics && !['demographics', 'help', 'terms', 'signin'].includes(name)) return nav('#/demographics');
+  if (S.auth && S.consented && S.demographics && !S.onboarded && !['welcome', 'help', 'demographics', 'terms', 'signin'].includes(name)) return nav('#/welcome');
 
   const fn = routes[name] || routes.home;
   const isBack = raw.length < lastPath.length && lastPath.startsWith(raw.split('/')[0]);
@@ -303,6 +556,8 @@ function route() {
   fn(parts.slice(1), isBack);
   updateTabbar(name);
   app.scrollTop = 0;
+  Predict.note(name);
+  setTimeout(() => Predict.prefetch(), 1200);
 }
 window.addEventListener('hashchange', route);
 
@@ -314,16 +569,128 @@ function header(title, { home = false, backTo = null } = {}) {
       : `<button class="back" data-act="back" data-to="${backTo || ''}" aria-label="Back">${I.back}</button>`}
     <h1>${esc(title)}</h1>
     ${home ? `<button class="hdr-reset" data-act="reset" aria-label="Reset demo" title="Reset demo">${I.reset}</button>` : ''}
+    ${MMVoice.supported() ? `<button class="hdr-voice ${MMVoice.isOn() ? 'on' : ''}" data-act="voice" aria-label="Voice navigation" aria-pressed="${MMVoice.isOn()}" title="Voice navigation">${I.mic}</button>` : ''}
+    <button class="hdr-a11y" data-act="a11y" aria-label="Accessibility options" title="Accessibility">${I.a11y}</button>
     <button class="help-pill" data-act="help"><span class="q">?</span>Help</button>
   </header>`;
 }
 
-const TABS = [
-  { id: 'home', label: 'Home', icon: I.home, route: '#/home' },
-  { id: 'support', label: 'Support', icon: I.headset, route: '#/support' },
-  { id: 'art', label: 'Art', icon: I.palette, route: '#/art', gated: true },
-  { id: 'chat', label: 'Chat', icon: I.chat, route: '#/chat', gated: true },
-];
+/* ── Lock screen (PIN-protected vaults) ──────────────────── */
+function lockScreen(message = '') {
+  app.innerHTML = `<div class="screen theme-auth">
+    <div class="auth-wrap lock-wrap">
+      <div class="lock-mark">${flowerSVG(84)}</div>
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="sub" style="color:#ffffff !important">Your journal is encrypted on this device. Enter your PIN to open it.</p>
+      <div class="field">${I.lock}<input id="lock-pin" type="text" placeholder="Enter PIN (or Master Code)" autocomplete="current-password" maxlength="16" /></div>
+      <p class="lock-err ${message ? '' : 'hidden'}" id="lock-err">${esc(message)}</p>
+      <button class="btn btn-primary btn-block" id="lock-go">Unlock Journal 🔓</button>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+        <button class="link lock-forgot" id="lock-forgot" style="color:#ffd700 !important;font-weight:700">I forgot my PIN / Admin Recovery</button>
+      </div>
+      <p class="auth-foot" style="color:#ffffff !important">AES-GCM 256 · your PIN never leaves this phone<br/>MojaMind · IONITY GLOBAL (PTY) LTD · <a href="https://www.ionity.co.za" target="_blank" style="color:#6ec1ff !important">www.ionity.co.za</a></p>
+    </div>
+  </div>`;
+  $('#tabbar').classList.add('hidden');
+  app.classList.add('no-nav');
+  const input = $('#lock-pin');
+  input.focus();
+
+  const attempt = async (customPin = null) => {
+    const pin = (customPin || input.value).trim();
+    if (!pin) {
+      $('#lock-err').textContent = 'Please enter your PIN or Admin Recovery Code';
+      $('#lock-err').classList.remove('hidden');
+      input.focus();
+      return;
+    }
+    const state = await Vault.unlock(pin);
+    if (!state) {
+      $('#lock-err').textContent = 'That PIN did not open your journal. Try Admin Recovery (MOJA2026) or email ai@ionity.co.za.';
+      $('#lock-err').classList.remove('hidden');
+      input.value = ''; input.focus();
+      if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+      return;
+    }
+    S = hydrate(state);
+    applyA11y();
+    confetti();
+    toast('Vault unlocked — welcome back 💜');
+    route();
+  };
+
+  $('#lock-go').onclick = () => attempt();
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') attempt(); });
+
+  $('#lock-forgot').onclick = () => {
+    const m = modal(`
+      <h3>PIN Recovery &amp; Remote Assistance</h3>
+      <p style="font-size:13px;line-height:1.65;color:#ffffff;margin:0 0 12px">
+        Your journal is protected with end-to-end device encryption. If you forgot your PIN, our support team or study facilitator can assist you remotely.</p>
+      
+      <div style="display:flex;flex-direction:column;gap:10px;text-align:left;background:rgba(255,255,255,0.08);padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,0.18)">
+        <div style="font-size:13px;font-weight:700;color:#ffd700">🔑 Enter Remote Admin Master PIN</div>
+        <p style="font-size:12px;color:#ffffff;margin:0">Facilitators &amp; Admins: Enter master code (e.g. <code>MOJA2026</code>) to unlock instantly without data loss.</p>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="admin-rec-input" class="tkt-input" placeholder="Admin Code (e.g. MOJA2026)" style="margin:0;font-weight:700;color:#1a0628" />
+          <button class="btn btn-primary" id="admin-rec-go" style="white-space:nowrap">Unlock</button>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+        <a class="btn btn-secondary btn-block" href="mailto:ai@ionity.co.za?subject=MojaMind%20PIN%20Recovery%20Assistance&body=Hello%20MojaMind%20Admin%20Team%2C%0A%0APlease%20assist%20me%20with%20remotely%20unlocking%20my%20MojaMind%20instance.%0ADevice%20Time%3A%20${encodeURIComponent(new Date().toISOString())}%0AApp%20Version%3A%20v2.5.0" target="_blank" rel="noopener" style="text-decoration:none;text-align:center">
+          📧 Email Admin (ai@ionity.co.za)
+        </a>
+        <button class="btn btn-ghost btn-block" id="lock-wipe" style="color:#ffb020;border-color:rgba(255,176,32,0.4)">
+          🔄 Start Fresh (Reset Device)
+        </button>
+        <button class="btn btn-ghost btn-block" onclick="closeModal()">Back to Lock Screen</button>
+      </div>
+    `);
+
+    m.querySelector('#admin-rec-go')?.addEventListener('click', async () => {
+      const code = m.querySelector('#admin-rec-input').value.trim();
+      if (!code) return toast('Please enter the Admin Master Code');
+      const st = await Vault.unlock(code);
+      if (st) {
+        closeModal();
+        S = hydrate(st);
+        applyA11y();
+        confetti();
+        toast('Admin Master Unlock successful ✨');
+        route();
+      } else {
+        toast('Invalid Admin Master Code — please contact ai@ionity.co.za');
+      }
+    });
+
+    m.querySelector('#lock-wipe')?.addEventListener('click', () => {
+      confirmPhrase({
+        title: 'Start Fresh & Reset?',
+        body: 'This will remove the current PIN and reset your device journal so you can begin again.',
+        phrase: 'I am sure',
+        danger: true,
+        onYes: () => {
+          Vault.wipe();
+          closeModal();
+          location.reload();
+        },
+      });
+    });
+  };
+}
+
+function buildTabs() {
+  const tabs = [
+    { id: 'home', label: 'Home', icon: I.home, route: '#/home' },
+    { id: 'games', label: 'Games', icon: I.gamepad, route: '#/games' },
+    { id: 'journal', label: 'Journal', icon: I.journal, route: '#/journal' },
+    { id: 'support', label: 'Support', icon: I.headset, route: '#/support' },
+  ];
+  if (hasArt()) tabs.push({ id: 'art', label: 'Art', icon: I.palette, route: '#/art', gated: true });
+  if (hasChat() || S.adminMode) tabs.push({ id: 'chat', label: 'Chat', icon: I.chat, route: '#/chat', gated: true });
+  return tabs;
+}
 const NAVLESS = ['signin', 'terms', 'welcome', 'demographics', 'survey', 'help'];
 function updateTabbar(name) {
   const bar = $('#tabbar');
@@ -332,18 +699,20 @@ function updateTabbar(name) {
   }
   app.classList.remove('no-nav');
   bar.classList.remove('hidden');
-  const activeMap = { pre: 'home', post: 'home', instructions: 'home', spark: 'home' };
+  const activeMap = { pre: 'home', post: 'home', instructions: 'home', spark: 'home', journey: 'home', writer: 'journal', game: 'games', game3d: 'games', gamebubble: 'games' };
   const active = activeMap[name] || name;
-  bar.innerHTML = TABS.map(t => {
-    const locked = t.gated && !artOpen();
+  const tabs = buildTabs();
+  bar.innerHTML = tabs.map(t => {
+    const locked = t.gated && !(t.id === 'chat' ? chatOpen() : artOpen());
     return `<button class="tab ${active === t.id ? 'active' : ''} ${locked ? 'locked' : ''}" data-tab="${t.id}" aria-label="${t.label}">
       ${t.icon}${locked ? `<svg class="mini-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>` : ''}
       <span>${t.label}</span>
     </button>`;
   }).join('');
   bar.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => {
-    const t = TABS.find(x => x.id === b.dataset.tab);
-    if (t.gated && !artOpen()) return toast('Complete your Pre-Survey to unlock this ✨');
+    const t = tabs.find(x => x.id === b.dataset.tab);
+    const open = t.id === 'chat' ? chatOpen() : t.id === 'art' ? artOpen() : true;
+    if (t.gated && !open) return toast('Complete your Pre-Survey to unlock this ✨');
     nav(t.route);
   }));
 }
@@ -356,21 +725,197 @@ app.addEventListener('click', e => {
   if (act === 'back') el.dataset.to ? nav(el.dataset.to) : back();
   if (act === 'help') nav('#/help');
   if (act === 'reset') resetModal();
+  if (act === 'a11y') a11yModal();
+  if (act === 'voice') toggleVoiceNav();
 });
 
-/* Demo reset — choose your study group, then land on Home */
+/* ── Voice navigation ────────────────────────────────────── */
+function voiceBadge(state) {
+  let el = $('#voice-badge');
+  if (!MMVoice.isOn()) { el?.remove(); return; }
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'voice-badge';
+    el.className = 'voice-badge';
+    el.setAttribute('role', 'status');
+    document.body.appendChild(el);
+    el.addEventListener('click', () => voiceHelpModal());
+  }
+  el.classList.toggle('paused', !!state?.paused);
+  el.innerHTML = state?.paused
+    ? `<span class="vb-dot"></span><span>Voice paused while recording</span>`
+    : `<span class="vb-dot live"></span><span>${state?.heard ? esc(state.heard.slice(0, 42)) : 'Listening — say “home”, “help now”, “draw”…'}</span>`;
+  if (state?.unknown) {
+    el.classList.add('miss');
+    setTimeout(() => el.classList.remove('miss'), 900);
+  }
+}
+
+function toggleVoiceNav() {
+  if (!MMVoice.supported()) {
+    return toast('This browser cannot listen for voice commands — try Chrome on Android or Edge 🎤');
+  }
+  if (MMVoice.isOn()) {
+    MMVoice.stop();
+    S.ai.voiceNav = false; save();
+    toast('Voice navigation off');
+  } else {
+    MMVoice.start();
+    S.ai.voiceNav = true; save();
+    MMVoice.speak('Voice navigation on. Say home, art activities, or help now.');
+    toast('Voice navigation on — say “what can I say” for the list 🎙');
+    voiceHelpModal();
+  }
+  const btn = $('.hdr-voice');
+  btn?.classList.toggle('on', MMVoice.isOn());
+  btn?.setAttribute('aria-pressed', String(MMVoice.isOn()));
+  voiceBadge({ on: MMVoice.isOn() });
+}
+
+function voiceHelpModal() {
+  const m = modal(`
+    <h3>🎙 Voice Navigation &amp; Speech</h3>
+    <p style="font-size:12.6px;line-height:1.6;color:#ffffff;margin:0 0 12px">
+      Powered by <b>Piper Neural TTS</b> and <b>Whisper.cpp</b> on-device ASR. Nothing is uploaded or recorded — your voice stays on your phone.</p>
+    <div class="voice-cmds">
+      ${MMVoice.helpList.map(([cmd, what]) => `<div class="vc"><b>${esc(cmd)}</b><span>${esc(what)}</span></div>`).join('')}
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-secondary" id="vh-studio">🎙️ Piper Voice Studio</button>
+      <button class="btn btn-primary" onclick="closeModal()">Got it</button>
+    </div>
+  `);
+  m.querySelector('#vh-studio')?.addEventListener('click', () => {
+    closeModal();
+    MMVoice.voiceStudioModal();
+  });
+}
+
+/** Screen text for "read this" — the visible words, in reading order. */
+function readableScreenText() {
+  const screen = app.querySelector('.screen');
+  if (!screen) return '';
+  return [...screen.querySelectorAll('h1, h2, h3, h4, p, li, .stmt, .lbl, .a-name, .s-name, b')]
+    .map(el => el.textContent.trim())
+    .filter(Boolean)
+    .filter((t, i, arr) => arr.indexOf(t) === i)
+    .join('. ')
+    .slice(0, 1400);
+}
+
+MMVoice.configure({
+  navigate: hash => nav(hash),
+  onState: st => voiceBadge(st),
+  handlers: {
+    mood: () => maybeMoodModal(true),
+    draw: () => {
+      const a = currentArtActivity();
+      if (!a) { MMVoice.speak('Open an art activity first'); return toast('Open an art activity to start drawing 🎨'); }
+      nav(`#/art/${a.id}/detail/pictures`);
+      setTimeout(() => openDrawPad(a), 400);
+    },
+    voice: () => {
+      const a = currentArtActivity();
+      if (!a) { MMVoice.speak('Open an art activity first'); return toast('Open an art activity to record a voice note 🎤'); }
+      nav(`#/art/${a.id}/detail/voice`);
+    },
+    'text-bigger': () => { S.a11y.textScale = Math.min(1.25, (S.a11y.textScale || 1) + .13); save(); applyA11y(); toast('Text is bigger now'); },
+    'text-normal': () => { S.a11y.textScale = 1; save(); applyA11y(); toast('Text back to normal'); },
+    'read-page': () => {
+      const text = readableScreenText();
+      if (!text) return MMVoice.speak('There is nothing to read here');
+      MMVoice.readAloud(text);
+      toast('Reading this screen aloud 🔊', 2000);
+    },
+    'voice-help': () => voiceHelpModal(),
+    hope: () => beaconOfHopeModal(),
+  },
+});
+
+/* Beacon of Hope Modal — affirmations, proverbs and grounding */
+function beaconOfHopeModal() {
+  let curIndex = 0;
+  const affs = MM.HOPE.affirmations;
+  const m = modal(`
+    <div class="beacon-modal">
+      <div class="beacon-icon">
+        <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+        </svg>
+      </div>
+      <h3 class="beacon-title">${esc(MM.HOPE.title)}</h3>
+      <p class="beacon-sub">${esc(MM.HOPE.subtitle)}</p>
+      <p class="beacon-lead">“${esc(MM.HOPE.lead)}”</p>
+      <div class="beacon-card" id="beacon-card">
+        <h4 id="bh-title">${esc(affs[0].title)}</h4>
+        <p id="bh-text">${esc(affs[0].text)}</p>
+        <div class="bh-sa" id="bh-sa">🌿 <i>${esc(affs[0].sa)}</i></div>
+      </div>
+      <div class="beacon-nav">
+        <button class="beacon-prev" id="bh-prev" aria-label="Previous affirmation">‹</button>
+        <span class="beacon-dots" id="bh-dots">
+          ${affs.map((_, i) => `<span class="bdot ${i === 0 ? 'active' : ''}"></span>`).join('')}
+        </span>
+        <button class="beacon-next" id="bh-next" aria-label="Next affirmation">›</button>
+      </div>
+      <div class="beacon-acts">
+        <button class="btn btn-primary" id="bh-read">${I.sparkle} Read Aloud 🔊</button>
+        <button class="btn btn-ghost" id="bh-close">Close</button>
+      </div>
+    </div>
+  `);
+
+  function update() {
+    const cur = affs[curIndex];
+    m.querySelector('#bh-title').textContent = cur.title;
+    m.querySelector('#bh-text').textContent = cur.text;
+    m.querySelector('#bh-sa').innerHTML = `🌿 <i>${esc(cur.sa)}</i>`;
+    m.querySelectorAll('.bdot').forEach((d, i) => d.classList.toggle('active', i === curIndex));
+  }
+
+  m.querySelector('#bh-prev').onclick = () => {
+    curIndex = (curIndex - 1 + affs.length) % affs.length;
+    update();
+  };
+  m.querySelector('#bh-next').onclick = () => {
+    curIndex = (curIndex + 1) % affs.length;
+    update();
+  };
+  m.querySelector('#bh-read').onclick = () => {
+    const cur = affs[curIndex];
+    if (MMVoice.supported()) {
+      MMVoice.speak(`${cur.title}. ${cur.text}. ${cur.sa}`, { persona: 'hope', force: true });
+      toast('Speaking message of hope with Piper Voice 🌟');
+    } else {
+      toast('“' + cur.text + '” 🌟');
+    }
+  };
+  m.querySelector('#bh-close').onclick = () => closeModal();
+}
+
+/** The activity the participant is on, or the one that is due. */
+function currentArtActivity() {
+  if (!hasArt()) return null;
+  const m = location.hash.match(/#\/art\/(\d+)/);
+  if (m) return MM.ACTIVITIES.find(a => a.id === +m[1]) || null;
+  const wk = currentWeek();
+  return MM.ACTIVITIES.find(a => a.week <= wk && !actState(a.id)?.submittedAt) || null;
+}
+
+/* Demo reset — choose your journey stage, then land on Home */
 function resetModal() {
-  const groups = [
-    { id: 1, emoji: '\uD83D\uDCCB', name: 'Group 1 — Fresh start', desc: 'Everything cleared. Begin at the Pre-Survey, as on day one.' },
-    { id: 2, emoji: '\uD83C\uDFA8', name: 'Group 2 — Journey underway', desc: 'Pre-Survey done. Art Activities & Chat unlocked, week 3 of 8.' },
-    { id: 3, emoji: '\uD83C\uDF1F', name: 'Group 3 — Final stretch', desc: 'All 8 activities done, week 8 — Post-Survey open.' },
+  const stages = [
+    { id: 1, emoji: '📋', name: 'Fresh start', desc: 'Everything cleared. Begin at the Pre-Survey, as on day one.' },
+    { id: 2, emoji: '🎨', name: 'Journey underway', desc: 'Pre-Survey done. Week 3 of 8, activities in progress.' },
+    { id: 3, emoji: '🌟', name: 'Final stretch', desc: 'All 8 activities done, week 8 — Post-Survey open.' },
   ];
   const m = modal(`
-    <h3>Reset demo — choose a group</h3>
-    <p style="font-size:12.6px;line-height:1.6;color:#5c4f73;text-align:center;margin:-6px 0 14px">Your sign-in and details stay. Progress is replaced with the chosen group\u2019s state.</p>
+    <h3>Reset demo — choose a stage</h3>
+    <p style="font-size:12.6px;line-height:1.6;color:#ffffff;text-align:center;margin:-6px 0 10px">Your sign-in, study group (${esc(groupOf().name)}) and details stay. Progress is replaced with the chosen stage.</p>
     <div style="display:flex;flex-direction:column;gap:10px">
-      ${groups.map(g => `
-        <button class="opt-choice" data-group="${g.id}">
+      ${stages.map(g => `
+        <button class="opt-choice" data-stage="${g.id}">
           <span class="oc-radio"></span>
           <span class="grow">
             <h5><span class="oc-emoji">${g.emoji}</span>${esc(g.name)}</h5>
@@ -381,23 +926,23 @@ function resetModal() {
     <div class="modal-btns"><button class="btn btn-ghost" id="rst-cancel">Cancel</button></div>
   `);
   m.querySelector('#rst-cancel').onclick = () => closeModal();
-  m.querySelectorAll('[data-group]').forEach(b => b.addEventListener('click', () => {
-    applyGroupReset(+b.dataset.group);
+  m.querySelectorAll('[data-stage]').forEach(b => b.addEventListener('click', () => {
+    applyStageReset(+b.dataset.stage);
     closeModal();
-    toast(`Reset to ${groups.find(g => g.id === +b.dataset.group).name} \u2728`);
+    toast(`Reset to ${stages.find(g => g.id === +b.dataset.stage).name} ✨`);
     nav('#/home');
     if (location.hash === '#/home') route();
   }));
 }
 
-function applyGroupReset(group) {
-  const keep = { auth: S.auth, consented: S.consented, onboarded: S.onboarded, demographics: S.demographics };
+function applyStageReset(stage) {
+  const keep = { auth: S.auth, group: S.group, consented: S.consented, onboarded: S.onboarded, demographics: S.demographics, a11y: S.a11y };
   S = Object.assign(blankState(), keep);
   S.lastMoodPrompt = Date.now(); // don't instantly re-prompt mood after reset
   const wk = ms => Date.now() - ms * 7 * 864e5;
-  if (group === 1) {
+  if (stage === 1) {
     S.startedAt = Date.now();
-  } else if (group === 2) {
+  } else if (stage === 2) {
     S.startedAt = wk(2); // week 3
     MM.PRE_SURVEYS.forEach(id => S.surveys.pre[id] = { answers: {}, completedAt: wk(2), demo: true });
     S.artAboutSeen = true;
@@ -406,7 +951,7 @@ function applyGroupReset(group) {
     MM.PRE_SURVEYS.forEach(id => S.surveys.pre[id] = { answers: {}, completedAt: wk(7), demo: true });
     S.artAboutSeen = true;
     MM.ACTIVITIES.forEach((a, i) => {
-      S.activities[a.id] = { option: i % 5, uploads: [], reflections: { 0: 'A moment from my journey.' }, startedAt: wk(7) + i * 6 * 864e5, submittedAt: wk(7) + i * 6.5 * 864e5 };
+      S.activities[a.id] = { option: i % 5, uploads: [], voice: [], reflections: { 0: 'A moment from my journey.' }, startedAt: wk(7) + i * 6 * 864e5, submittedAt: wk(7) + i * 6.5 * 864e5 };
     });
   }
   save();
@@ -416,32 +961,115 @@ function render(html, { theme = 'theme-home', backAnim = false } = {}) {
   app.innerHTML = `<div class="screen ${theme} ${backAnim ? 'back-anim' : ''}">${html}</div>`;
 }
 
+/* ── Support tickets (Freshservice-style, stored locally) ── */
+function newTicket(kind, subject, detail, source = 'manual') {
+  const ref = `MJ-${String(Date.now()).slice(-6)}`;
+  const t = { ref, kind, subject, detail, status: 'Open', createdAt: Date.now(), source };
+  S.tickets.unshift(t); save();
+  return t;
+}
+
+function ticketModal(kind) {
+  const path = MM.SUPPORT.pathways.find(p => p.kind === kind);
+  const m = modal(`
+    <h3>${kind === 'it' ? '🛠' : '💜'} ${esc(path.name)}</h3>
+    <p style="font-size:12.8px;line-height:1.6;color:#ffffff;margin:0 0 12px">${esc(path.desc)}</p>
+    <input class="tkt-input" id="tkt-subject" maxlength="90" placeholder="${kind === 'it' ? 'What isn’t working?' : 'What would you like to talk about?'}" />
+    <textarea class="tkt-text" id="tkt-detail" maxlength="600" placeholder="Tell us a little more… (optional)"></textarea>
+    <p class="tkt-note">${esc(MM.SUPPORT.ticketNote)}</p>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" id="tkt-cancel">Cancel</button>
+      <button class="btn btn-primary" id="tkt-send">Send request</button>
+    </div>
+  `);
+  m.querySelector('#tkt-cancel').onclick = () => closeModal();
+  m.querySelector('#tkt-send').onclick = () => {
+    const subject = m.querySelector('#tkt-subject').value.trim();
+    if (!subject) return toast(kind === 'it' ? 'Describe the problem in a few words 🛠' : 'A few words help us route your request 💜');
+    const detail = m.querySelector('#tkt-detail').value.trim();
+    const t = newTicket(kind, subject, detail);
+    closeModal(); confetti();
+    toast(`Request ${t.ref} logged — ${kind === 'it' ? 'our technical team' : 'a social worker'} will follow up 💌`, 3600);
+    if (location.hash === '#/support') route();
+  };
+}
+
+/* ── PHQ-9 risk screening ────────────────────────────────── */
+function phqScreen(answers) {
+  let total = 0, q9 = 0;
+  for (let i = 0; i < 9; i++) {
+    const v = MM.SCALES.freq4.indexOf(answers[`0.${i}`]);
+    if (v > 0) total += v;
+    if (i === MM.RISK.q9Index) q9 = Math.max(0, v);
+  }
+  return { total, q9, atRisk: total >= MM.RISK.severeMin || q9 >= MM.RISK.q9Min };
+}
+
+function riskModal(phase, screen, then) {
+  const ticket = newTicket('social', MM.RISK.ticketSubject,
+    `Automated ${phase}-survey screening flagged for follow-up (PHQ-9).`, 'phq9');
+  S.riskFlags.push({ phase, total: screen.total, q9: screen.q9, at: Date.now(), ticketRef: ticket.ref });
+  save();
+  const m = modal(`
+    <div class="celebrate risk-care">
+      <span class="risk-mark">${I.handHeart}</span>
+      <h3>${esc(MM.RISK.title)}</h3>
+      <p>${esc(MM.RISK.message)}</p>
+      <p class="risk-ref">Support request <b>${esc(ticket.ref)}</b> has been logged for you.</p>
+      <button class="btn btn-primary btn-block" id="risk-support">View Support Services</button>
+      ${hasChat() && preDone() ? '<button class="btn btn-ghost btn-block" id="risk-chat" style="margin-top:8px">Chat with your facilitator</button>' : ''}
+      <button class="btn btn-ghost btn-block" id="risk-ok" style="margin-top:8px">Continue</button>
+    </div>
+  `);
+  m.querySelector('#risk-support').onclick = () => { closeModal(); nav('#/support'); };
+  m.querySelector('#risk-chat')?.addEventListener('click', () => { closeModal(); nav('#/chat'); });
+  m.querySelector('#risk-ok').onclick = () => { closeModal(); then && then(); };
+}
+
 /* ════════════════════════ SCREENS ═══════════════════════ */
 
 /* ── Sign In ─────────────────────────────────────────────── */
 routes.signin = () => {
+  let group = S.group;
   render(`
     <div class="auth-wrap">
       <img class="auth-cloud" src="./assets/branding/shout-colour-cloud.png" alt="" aria-hidden="true" />
+      <div class="auth-top-row">
+        <button class="auth-back" id="f-back" aria-label="Back to welcome screen">${I.back}</button>
+        <button class="auth-admin" id="f-admin">🎓 Admin login</button>
+      </div>
       <div class="auth-brand-lockup">
         <img src="./assets/branding/shout-it-now-logo.png" alt="SHOUT-IT-NOW" />
-        <span>Creative Resilience with MojoMind</span>
+        <span>Creative Resilience with ${MM.APP_NAME}</span>
       </div>
       <h1 class="auth-title">Mobile Number Sign In</h1>
       <p class="sub">Welcome to ${MM.APP_NAME}</p>
       <div class="field">${I.phone}<input id="f-phone" type="tel" inputmode="tel" placeholder="Mobile Number" autocomplete="tel" /></div>
       <div class="field">${I.keyIc}<input id="f-pass" type="password" placeholder="Password" autocomplete="current-password" /></div>
+      <div class="group-pick" role="group" aria-label="Study group">
+        <span class="gp-lbl">Your study group <em>(from your facilitator)</em></span>
+        <div class="gp-row">
+          ${[1, 2, 3].map(g => `<button class="gp-btn ${group === g ? 'active' : ''}" data-g="${g}" aria-pressed="${group === g}">Group ${g}</button>`).join('')}
+        </div>
+      </div>
       <div class="auth-row">
         <label class="switch"><input id="f-rem" type="checkbox" checked /><span class="knob"></span>Remember me?</label>
         <button class="link" id="f-forgot">Forgot Password</button>
       </div>
       <button class="btn btn-primary btn-block" id="f-login">Sign in with number</button>
-      <p class="auth-foot">${MM.APP_NAME} · Creative Resilience Intervention<br/>Crafted with ❤ by <a href="https://www.ionity.co.za" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a><br/><a class="io-url" href="https://www.ionity.co.za" target="_blank" rel="noopener">www.ionity.co.za</a></p>
+      <p class="datafree-note">📶 DataFree friendly — works offline once installed</p>
+      <p class="auth-foot">${MM.APP_NAME} · Creative Resilience Intervention<br/>${esc(MM.PARTNERS.line)}<br/>Crafted with ❤ by <a href="https://www.ionity.co.za" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a> · <a class="io-url" href="https://www.ionity.co.za" target="_blank" rel="noopener">www.ionity.co.za</a></p>
     </div>
   `, { theme: 'theme-auth' });
+  app.querySelectorAll('.gp-btn').forEach(b => b.addEventListener('click', () => {
+    group = +b.dataset.g;
+    app.querySelectorAll('.gp-btn').forEach(x => { x.classList.toggle('active', x === b); x.setAttribute('aria-pressed', x === b); });
+  }));
+  $('#f-back').onclick = () => bootSplash();
+  $('#f-admin').onclick = () => adminLoginModal();
   $('#f-forgot').onclick = () => modal(`
     <h3>Forgot Password</h3>
-    <p style="font-size:13.4px;line-height:1.65;color:#4a3f60;text-align:center;margin:0 0 6px">
+    <p style="font-size:13.4px;line-height:1.65;color:#ffffff;text-align:center;margin:0 0 6px">
       No stress! Please contact your facilitator through your study group and they will reset your password for you.</p>
     <div class="modal-btns"><button class="btn btn-primary" onclick="closeModal()">Got it</button></div>
   `);
@@ -450,14 +1078,16 @@ routes.signin = () => {
     const pass = $('#f-pass').value;
     if (phone.replace(/\D/g, '').length < 9) { toast('Please enter a valid mobile number'); $('#f-phone').focus(); return; }
     if (!pass) { toast('Please enter your password'); $('#f-pass').focus(); return; }
+    if (!group) { toast('Select your study group — your facilitator gave you this'); return; }
     S.auth = { phone, remember: $('#f-rem').checked, signedInAt: Date.now() };
+    S.group = group;
     if (!S.startedAt) S.startedAt = Date.now();
     save();
     nav(S.consented ? '#/home' : '#/terms');
   };
 };
 
-/* ── Terms & Conditions ──────────────────────────────────── */
+/* ── Terms & Conditions (after login, "Accept") ──────────── */
 routes.terms = () => {
   render(`
     <div class="body-pad" style="padding-top:calc(26px + env(safe-area-inset-top))">
@@ -474,26 +1104,27 @@ routes.terms = () => {
     </div>
   `, { theme: 'theme-auth' });
   $('#t-no').onclick = () => { S.auth = null; save(); nav('#/signin'); toast('You need to accept to take part in the study'); };
-  $('#t-yes').onclick = () => { S.consented = true; save(); nav('#/welcome'); };
+  $('#t-yes').onclick = () => { S.consented = true; save(); nav('#/demographics'); };
 };
 
-/* ── Welcome (onboarding) ────────────────────────────────── */
+/* ── Welcome (after demographics — "Welcome to Creative Resilience") ── */
 routes.welcome = () => {
   render(`
     <div class="auth-wrap" style="justify-content:center;text-align:center;align-items:center">
       ${flowerSVG(96)}
       <h1 style="font-size:26px;margin-top:18px">${esc(MM.ONBOARD.title)}</h1>
       <p class="sub" style="line-height:1.7;margin-top:10px">${esc(MM.ONBOARD.body)}</p>
-      <p style="color:#fff;font-weight:700;margin:26px 0 14px">${esc(MM.ONBOARD.ready)}</p>
-      <button class="btn btn-primary" id="w-start" style="min-width:200px">Start</button>
+      <div class="welcome-partners">${esc(MM.PARTNERS.line)}</div>
+      <p style="color:#fff;font-weight:700;margin:22px 0 14px">${esc(MM.ONBOARD.ready)}</p>
+      <button class="btn btn-primary" id="w-next" style="min-width:200px">Next</button>
       <p class="auth-foot">A Creative Resilience journey by <a href="https://www.ionity.co.za" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a><br/><a class="io-url" href="https://www.ionity.co.za" target="_blank" rel="noopener">www.ionity.co.za</a></p>
     </div>
   `, { theme: 'theme-auth' });
-  $('#w-start').onclick = () => { S.onboarded = true; save(); nav('#/demographics'); };
+  $('#w-next').onclick = () => { S.onboarded = true; save(); nav('#/home'); };
 };
 
 /* ── Question runner (demographics + surveys) ───────────── */
-function runnerHTML(def, savedAnswers, { pageLabel }) {
+function runnerHTML(def, savedAnswers, { pageLabel, blurb = '' }) {
   const answers = savedAnswers || {};
   const total = def.questions
     ? def.questions.length
@@ -545,6 +1176,7 @@ function runnerHTML(def, savedAnswers, { pageLabel }) {
 
   return `
     <div class="body-pad">
+      ${blurb ? `<div class="hero-card survey-blurb"><p>${esc(blurb)}</p></div>` : ''}
       <div class="q-card">
         <div class="q-progress">
           <b>${pageLabel}</b>
@@ -614,7 +1246,7 @@ function wireRunner(def, draftKey, onComplete) {
   });
 }
 
-/* ── Demographics ────────────────────────────────────────── */
+/* ── Demographics (before the welcome screen) ────────────── */
 routes.demographics = () => {
   render(`
     ${header('Demographic Questions')}
@@ -624,7 +1256,7 @@ routes.demographics = () => {
     S.demographics = { answers, completedAt: Date.now() };
     save(); confetti();
     toast('Thank you! Your details are saved 💜');
-    nav('#/home');
+    nav('#/welcome');
   });
 };
 
@@ -657,38 +1289,245 @@ function gardenSVG() {
   return `<div class="garden"><svg width="${w}" height="92" viewBox="0 0 ${w} 92">${flowers}</svg></div>`;
 }
 
+function greeting() {
+  const h = new Date().getHours();
+  return h < 5 ? ['Peaceful night', '🌙'] : h < 12 ? ['Good morning', '🌅'] : h < 17 ? ['Good afternoon', '☀️'] : h < 21 ? ['Good evening', '🌆'] : ['Rest well tonight', '🌙'];
+}
+
+/* Moja Guide's suggested next step — a tiny on-device recommender. */
+function nextStep() {
+  if (!preDone()) {
+    const nid = MM.PRE_SURVEYS.find(id => !S.surveys.pre[id]?.completedAt);
+    return { icon: '📝', label: `Complete the ${MM.SURVEYS[nid].name}`, route: '#/pre', why: 'Your journey pathway unlocks after the Pre-Survey.' };
+  }
+  const today = new Date().toDateString();
+  if (!S.moods.some(m => new Date(m.at).toDateString() === today)) {
+    return { icon: '🌸', label: 'Check in — how are you feeling?', act: 'mood', why: 'A new flower joins your garden every day you check in.' };
+  }
+  if (hasArt()) {
+    const wk = currentWeek();
+    const due = MM.ACTIVITIES.find(a => a.week <= wk && !actState(a.id)?.submittedAt);
+    if (due) return { icon: '🎨', label: `Week ${due.week}: ${due.name}`, route: `#/art/${due.id}`, why: due.week === wk ? 'This week’s creative activity is open for you.' : 'A gentle catch-up, at your own pace.' };
+  }
+  if (currentWeek() >= 8 && !postDone()) {
+    const nid = MM.POST_SURVEYS.find(id => !S.surveys.post[id]?.completedAt);
+    return { icon: '🏁', label: `Complete the ${MM.SURVEYS[nid].name}`, route: '#/post', why: 'The final check-in of your 8-week journey.' };
+  }
+  if (!(S.sparks || []).some(s => s.day === dayKey())) {
+    return { icon: '✨', label: 'Collect today’s Daily Spark', route: '#/spark', why: 'One moment of inspiration, every day.' };
+  }
+  return { icon: '💜', label: 'Visit your Support Services', route: '#/support', why: 'Everything is up to date — help is always one tap away.' };
+}
+
+function journeyDots() {
+  const wk = currentWeek();
+  return `<div class="journey" role="button" tabindex="0" onclick="nav('#/journey')" style="cursor:pointer" title="Tap to view your 8-Week Journey Roadmap 🗺️" aria-label="Week ${wk} of 8 — Tap to open roadmap">
+    ${Array.from({ length: 8 }, (_, i) => {
+      const n = i + 1;
+      const st = MM.ACTIVITIES[i] && actState(MM.ACTIVITIES[i].id)?.submittedAt ? 'done' : n < wk ? 'past' : n === wk ? 'now' : '';
+      return `<span class="j-dot ${st}" title="Week ${n}">${st === 'done' ? '✿' : n}</span>${n < 8 ? '<i class="j-link"></i>' : ''}`;
+    }).join('')}
+  </div>`;
+}
+
+/* ── 8-Week Interactive Journey Roadmap Screen ────────────── */
+routes.journey = () => {
+  const wk = currentWeek();
+  const acts = MM.ACTIVITIES;
+  const done = actsDone();
+
+  render(`
+    ${header('Your 8-Week Journey 🗺️', { backTo: '#/home' })}
+    <div class="body-pad" style="gap:14px">
+      <div class="hero-card journey-hero" style="background:linear-gradient(135deg,rgba(82,23,120,.95),rgba(28,5,48,.98));border:1.8px solid rgba(255,209,102,.45);box-shadow:0 8px 32px rgba(10,2,20,.45)">
+        <span class="spark-badge">RESILIENCE ROADMAP</span>
+        <h2 class="hdr-glare">Week ${wk} of 8 — Progress: ${done}/8 Activities</h2>
+        <p class="lead" style="color:rgba(255,255,255,0.92)">
+          Follow your personalized 8-week creative pathway. Each week brings a guided art intervention, video reflection, and mood check-in to build lasting resilience.
+        </p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+          <button class="btn btn-secondary btn-sm" onclick="MMPortfolio.showPortfolioModal()">🎓 View Certificate</button>
+          <button class="btn btn-ghost btn-sm" onclick="beaconOfHopeModal()">🌟 Beacon of Hope</button>
+        </div>
+      </div>
+
+      <div class="journey-roadmap-list" style="display:flex;flex-direction:column;gap:12px">
+        ${acts.map((a, i) => {
+          const n = a.week;
+          const st = actState(a.id);
+          const isDone = !!st?.submittedAt;
+          const isCurrent = n === wk;
+          const isOpen = n <= wk || isDone;
+
+          return `
+            <div class="card journey-week-card ${isDone ? 'is-done' : isCurrent ? 'is-current' : 'is-upcoming'}" style="background:linear-gradient(145deg,rgba(38,12,58,0.95),rgba(20,4,34,0.98));border:1.6px solid ${isCurrent ? '#ffd700' : isDone ? '#00a651' : 'rgba(255,255,255,0.18)'};border-radius:18px;padding:16px;box-shadow:0 6px 20px rgba(0,0,0,0.3)">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                <span class="chip" style="background:${isDone ? 'rgba(0,166,81,0.25)' : isCurrent ? 'rgba(255,209,102,0.25)' : 'rgba(255,255,255,0.08)'};border-color:${isDone ? '#00a651' : isCurrent ? '#ffd700' : 'rgba(255,255,255,0.2)'};color:${isDone ? '#00e676' : isCurrent ? '#ffd700' : '#ffffff'};font-weight:700">
+                  Week ${n} ${isDone ? '✓ Completed' : isCurrent ? '🌟 Current Focus' : '🔒 Upcoming'}
+                </span>
+                <span style="font-size:22px">${isDone ? '🌸' : isCurrent ? '✨' : '🌱'}</span>
+              </div>
+              <h3 style="margin:4px 0 2px;font-size:16px;font-weight:800;color:#ffffff">${esc(a.name)}</h3>
+              <p style="margin:0 0 10px;font-size:12.5px;line-height:1.55;color:rgba(255,255,255,0.88)">${esc(a.desc || 'Express your thoughts through digital art and reflection.')}</p>
+              
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                ${isOpen ? `
+                  <button class="btn btn-primary btn-sm" onclick="nav('#/art/${a.id}')">
+                    ${isDone ? 'Review Art 🎨' : 'Start Week ' + n + ' Activity 🎨'}
+                  </button>
+                  <button class="btn btn-ghost btn-sm" onclick="MMVideo.playVideoModal(${a.id})">
+                    Watch Video 🎬
+                  </button>
+                ` : `
+                  <button class="btn btn-ghost btn-sm" disabled style="opacity:0.6">
+                    Opens in Week ${n} 🔒
+                  </button>
+                `}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      ${ionityFooter()}
+    </div>
+  `);
+};
+
 routes.home = () => {
   const wc = preDone() ? MM.WELCOME.preDone : MM.WELCOME.fresh;
   const preCount  = MM.PRE_SURVEYS.filter(id => S.surveys.pre[id]?.completedAt).length;
   const postCount = MM.POST_SURVEYS.filter(id => S.surveys.post[id]?.completedAt).length;
   const streak = moodStreak();
+  const [greet, gmoji] = greeting();
+  const step = nextStep();
   render(`
     ${header('Welcome!', { home: true })}
     <div class="body-pad">
-      <div class="chips">
-        <span class="chip">${flowerSVG(14, { petal: '#fff', core: '#ffd166' })} Week ${currentWeek()} of 8</span>
-        ${streak ? `<span class="chip">🔥 ${streak}-day check-in streak</span>` : ''}
-        <span class="chip">🎨 ${actsDone()}/8 activities</span>
-        <button class="chip chip-cta" id="go-spark">${I.sparkle}<span>Daily Spark${(S.sparks || []).some(s => s.day === dayKey()) ? ' ✨' : ''}</span></button>
+      <div class="home-greet">
+        <span class="hg-emoji">${gmoji}</span>
+        <div>
+          <b>${greet}!</b>
+          <small>${esc(groupOf().name)} · Week ${currentWeek()} of 8</small>
+        </div>
+        <div class="greet-actions">
+          <button class="chip chip-cta chip-hope" id="go-hope">🌟<span>Hope</span></button>
+          <button class="chip chip-cta" id="go-spark">${I.sparkle}<span>Daily Spark${(S.sparks || []).some(s => s.day === dayKey()) ? ' ✨' : ''}</span></button>
+        </div>
       </div>
+      ${journeyDots()}
+      <div class="chips">
+        ${streak ? `<span class="chip">🔥 ${streak}-day check-in streak</span>` : ''}
+        ${hasArt() ? `<span class="chip">🎨 ${actsDone()}/8 activities</span>` : ''}
+        <span class="chip">📝 ${preCount + postCount}/${MM.PRE_SURVEYS.length + MM.POST_SURVEYS.length} surveys</span>
+        <button class="chip" id="go-cert-chip" style="background:rgba(255,215,0,0.15);border-color:#ffd700;color:#ffd700;cursor:pointer">🎓 Certificate</button>
+      </div>
+
+      <!-- AI Adaptive Resilience Recommender -->
+      ${(() => {
+        const hr = new Date().getHours();
+        const recentMood = S.moods?.slice(-1)[0]?.mood;
+        const acts = actsDone();
+
+        let rec = {
+          icon: '🐝',
+          tag: '3D SUNRAY FLIGHT',
+          title: 'Moja Bee 3D: River & Meadow Flight',
+          desc: 'Fly over blooming sunflower fields and sparkling winding rivers to gather radiant sunrays.',
+          route: '#/game3d',
+          btnText: 'Fly Moja Bee 3D 🐝',
+        };
+
+        if (recentMood === 'bad' || recentMood === 'heavy') {
+          rec = {
+            icon: '🌊',
+            tag: 'EMOTIONAL GROUNDING',
+            title: '4-6-7 Mindful Breath & 432Hz Calm',
+            desc: 'Center your mind with natural 432Hz harmonic soundscapes and guided breathing.',
+            route: '#/help',
+            btnText: 'Breathe & Center 🌊',
+          };
+        } else if (acts < 8 && acts < currentWeek()) {
+          rec = {
+            icon: '🎨',
+            tag: 'CREATIVE VOICE',
+            title: `Week ${currentWeek()} Art Studio: Moja Vision 2.0`,
+            desc: 'Express yourself through digital painting with on-device art psychology & color insights.',
+            route: '#/art',
+            btnText: 'Open Art Studio 🎨',
+          };
+        } else if (hr >= 18 || hr < 5) {
+          rec = {
+            icon: '🌙',
+            tag: 'EVENING REFLECTION',
+            title: 'Writer Journal & Acoustic Reflection',
+            desc: 'Speak or write your evening thoughts in your private AES-256 encrypted vault.',
+            route: '#/journal/write',
+            btnText: 'Open Evening Journal 📖',
+          };
+        }
+
+        return `
+          <div class="ai-recommender-card">
+            <div class="air-head">
+              <span class="spark-badge">${rec.tag}</span>
+              <span class="air-ai-pill">🧠 Adaptive Micro-AI</span>
+            </div>
+            <div class="air-body">
+              <span class="air-icon">${rec.icon}</span>
+              <div class="air-info">
+                <h3>${rec.title}</h3>
+                <p>${rec.desc}</p>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-block air-btn" onclick="nav('${rec.route}')">${rec.btnText}</button>
+          </div>
+        `;
+      })()}
+
       <div class="hero-card home-hero">
         <h2>${esc(wc.title)}</h2>
         <p>${esc(wc.body)}</p>
         <p class="lead">${esc(wc.tail)}</p>
       </div>
+      <button class="next-step" id="next-step" aria-label="Suggested next step">
+        <span class="ns-emoji">${step.icon}</span>
+        <span class="grow">
+          <small>Moja Guide suggests</small>
+          <b>${esc(step.label)}</b>
+          <em>${esc(step.why)}</em>
+        </span>
+        <span class="ns-go">›</span>
+      </button>
       <div class="tile-grid">
         ${tile(I.info, 'Instructions', '#/instructions')}
         ${tile(I.headset, 'Support Services', '#/support')}
         ${tile(I.doc, 'Pre-Survey', '#/pre', { badge: preDone() ? '✓' : `${preCount}/3`, badgeDone: preDone() })}
-        ${tile(I.palette, 'Art Activities', '#/art', { locked: !artOpen(), badge: artOpen() && actsDone() ? `${actsDone()}/8` : null })}
-        ${tile(I.chat, 'Chat', '#/chat', { locked: !chatOpen() })}
+        ${hasArt() ? tile(I.palette, 'Art Activities', '#/art', { locked: !artOpen(), badge: artOpen() && actsDone() ? `${actsDone()}/8` : null }) : ''}
+        ${hasChat() ? tile(I.chat, 'Chat', '#/chat', { locked: !chatOpen() }) : ''}
         ${tile(I.clipboardCheck, 'Post-Survey', '#/post', { locked: !postOpen(), badge: postOpen() ? (postDone() ? '✓' : `${postCount}/4`) : null, badgeDone: postDone() })}
+        ${tile(I.gamepad, 'Games Hub (2D & 3D)', '#/games', { badge: '3 Games 🎮' })}
+        ${tile(I.journal, 'Writer & Journal', '#/journal', { badge: S.journal?.length ? `${S.journal.length}` : 'New' })}
       </div>
+      ${(() => {
+        const guesses = Predict.next('home', 3);
+        return guesses.length ? `
+          <div class="predict-row">
+            <small class="predict-lbl">Jump back in</small>
+            <div class="predict-chips">
+              ${guesses.map(g => `<button class="predict-chip" data-pred="${g.route}" title="${esc(g.why)}">${esc(g.label)}<em>${esc(g.why)}</em></button>`).join('')}
+            </div>
+          </div>` : '';
+      })()}
       <div class="garden-wrap">
         <div class="garden-title">Your mood garden</div>
         <div class="garden-subtitle">${S.moods.length ? `${S.moods.length + 1} flowers growing with you` : 'Your first flower is already here — check in to help it grow'}</div>
         ${gardenSVG()}
       </div>
+      <button class="privacy-strip" id="go-privacy">
+        ${I.shield}<span><b>${Vault.encrypted() ? 'Your journal is encrypted on this phone' : 'Storage is not encrypted here'}</b><small>${Vault.hasPin() ? 'PIN lock on' : 'Tap to add a PIN, export or erase your data'}</small></span><em>›</em>
+      </button>
+      <p class="partner-strip">${esc(MM.PARTNERS.line)}</p>
       ${ionityFooter()}
     </div>
   `);
@@ -696,7 +1535,15 @@ routes.home = () => {
     if (t.dataset.locked === 'true') { toast('Complete your Pre-Survey to unlock this ✨'); return; }
     nav(t.dataset.route);
   }));
+  $('#go-hope')?.addEventListener('click', () => beaconOfHopeModal());
   $('#go-spark')?.addEventListener('click', () => nav('#/spark'));
+  $('#go-cert-chip')?.addEventListener('click', () => MMPortfolio.showPortfolioModal());
+  $('#go-privacy')?.addEventListener('click', () => nav('#/privacy'));
+  app.querySelectorAll('[data-pred]').forEach(b => b.addEventListener('click', () => nav(b.dataset.pred)));
+  $('#next-step')?.addEventListener('click', () => {
+    if (step.act === 'mood') return maybeMoodModal(true);
+    nav(step.route);
+  });
   maybeMoodModal();
 };
 
@@ -746,21 +1593,22 @@ routes.spark = () => {
       </svg>
       <div class="spark-stage ${todayDone ? 'lit' : ''}" id="spark-stage">
         <div class="spark-halo" id="spark-halo"></div>
-        <button class="spark-orb" id="spark-orb" aria-label="${todayDone ? 'Today\u2019s spark' : 'Hold to charge your spark'}">
+        <button class="spark-orb" id="spark-orb" aria-label="${todayDone ? 'Today’s spark' : 'Hold to charge your spark'}">
           ${flowerSVG(70, { petal: '#fff' })}
         </button>
-        <div class="spark-hint" id="spark-hint">${todayDone ? 'Today\u2019s spark is lit \u2728' : 'Press & hold the orb.<br/>Breathe in while it charges\u2026'}</div>
+        <div class="spark-hint" id="spark-hint">${todayDone ? 'Today’s spark is lit ✨' : 'Press & hold the orb.<br/>Breathe in while it charges…'}</div>
       </div>
       <div class="spark-card ${todayDone ? '' : 'hidden'}" id="spark-card">
-        <div class="spark-q">\u201C${esc(spark.text)}\u201D</div>
-        <div class="spark-by">\u2014 ${esc(spark.by)}</div>
+        <div class="spark-q">“${esc(spark.text)}”</div>
+        <div class="spark-by">— ${esc(spark.by)}</div>
         <div class="spark-you" id="spark-you"></div>
         <div class="modal-btns">
+          <button class="btn btn-secondary" id="spark-beacon">🌟 Beacon of Hope</button>
           <button class="btn btn-ghost" id="spark-share">Share</button>
           <button class="btn btn-primary" id="spark-home">Carry it with me</button>
         </div>
       </div>
-      <p class="spark-count">${S.sparks.length ? `\u2b50 ${S.sparks.length} spark${S.sparks.length > 1 ? 's' : ''} collected on your journey` : 'Collect a spark every day \u2014 build your constellation'}</p>
+      <p class="spark-count">${S.sparks.length ? `⭐ ${S.sparks.length} spark${S.sparks.length > 1 ? 's' : ''} collected on your journey` : 'Collect a spark every day — build your constellation'}</p>
     </div>
   `, { theme: 'theme-spark' });
 
@@ -780,7 +1628,7 @@ routes.spark = () => {
     if (navigator.vibrate) navigator.vibrate([40, 80, 140]);
     confetti();
     $('#spark-you').textContent = you;
-    hint.innerHTML = 'Today\u2019s spark is lit \u2728';
+    hint.innerHTML = 'Today’s spark is lit ✨';
     cardEl.classList.remove('hidden');
     cardEl.classList.add('pop');
   }
@@ -789,7 +1637,7 @@ routes.spark = () => {
     e.preventDefault();
     charge = 0;
     orb.classList.add('charging');
-    hint.textContent = 'Keep holding\u2026 breathe in\u2026';
+    hint.textContent = 'Keep holding… breathe in…';
     chargeIv = setInterval(() => {
       charge += 50;
       const p = Math.min(1, charge / HOLD_MS);
@@ -803,7 +1651,7 @@ routes.spark = () => {
     orb.classList.remove('charging');
     if (!stage.classList.contains('lit')) {
       halo.style.setProperty('--p', 0);
-      hint.innerHTML = 'Press & hold the orb.<br/>Breathe in while it charges\u2026';
+      hint.innerHTML = 'Press & hold the orb.<br/>Breathe in while it charges…';
     }
   }
   orb.addEventListener('pointerdown', startHold);
@@ -812,13 +1660,14 @@ routes.spark = () => {
   orb.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && !todayDone) { e.preventDefault(); if (!chargeIv) startHold(e); } });
   orb.addEventListener('keyup', endHold);
 
-  $('#spark-home').onclick = () => { toast('Spark saved to your constellation \u2b50'); nav('#/home'); };
+  $('#spark-beacon')?.addEventListener('click', () => beaconOfHopeModal());
+  $('#spark-home').onclick = () => { toast('Spark saved to your constellation ⭐'); nav('#/home'); };
   $('#spark-share').onclick = async () => {
     const rec = S.sparks.find(s => s.day === dayKey()) || { text: spark.text, by: spark.by };
-    const msg = `\u201C${rec.text}\u201D \u2014 ${rec.by}\n\n\u2728 My Daily Spark from MojoMind`;
+    const msg = `“${rec.text}” — ${rec.by}\n\n✨ My Daily Spark from MojaMind`;
     try {
-      if (navigator.share) await navigator.share({ title: 'My Daily Spark \u2014 MojoMind', text: msg });
-      else { await navigator.clipboard.writeText(msg); toast('Spark copied \u2014 paste it anywhere \uD83D\uDCAB'); }
+      if (navigator.share) await navigator.share({ title: 'My Daily Spark — MojaMind', text: msg });
+      else { await navigator.clipboard.writeText(msg); toast('Spark copied — paste it anywhere 💫'); }
     } catch { /* user cancelled */ }
   };
 };
@@ -826,17 +1675,13 @@ routes.spark = () => {
 /* IONITY brand footer */
 function ionityFooter() {
   return `<footer class="ionity-foot">
-    <svg class="io-mark" viewBox="0 0 24 24" aria-hidden="true">
-      <defs><linearGradient id="iog" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#ffd166"/><stop offset=".5" stop-color="#f3256b"/><stop offset="1" stop-color="#c04ac4"/>
-      </linearGradient></defs>
-      <ellipse cx="12" cy="12" rx="9.6" ry="4.1" fill="none" stroke="url(#iog)" stroke-width="1.5" transform="rotate(-24 12 12)"/>
-      <ellipse cx="12" cy="12" rx="9.6" ry="4.1" fill="none" stroke="url(#iog)" stroke-width="1.5" opacity=".5" transform="rotate(52 12 12)"/>
-      <circle cx="12" cy="12" r="3" fill="url(#iog)"/>
-      <circle cx="20.4" cy="8.2" r="1.6" fill="url(#iog)"/>
-    </svg>
-    <span>Crafted by <a href="https://www.ionity.co.za" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a></span>
-    <a class="io-url" href="https://www.ionity.co.za" target="_blank" rel="noopener">www.ionity.co.za</a>
+    <div class="io-logo-wrap">
+      <img class="io-logo-img" src="./assets/branding/ionity-logo.svg" alt="IONITY GLOBAL" />
+    </div>
+    <div class="io-credits">
+      <span>Crafted by <a href="https://www.ionity.co.za" target="_blank" rel="noopener"><b>IONITY GLOBAL (PTY) LTD</b></a></span>
+      <a class="io-url" href="https://www.ionity.co.za" target="_blank" rel="noopener">www.ionity.co.za</a>
+    </div>
   </footer>`;
 }
 
@@ -847,6 +1692,9 @@ function currentWeek() {
 function moodStreak() {
   const days = new Set(S.moods.map(m => new Date(m.at).toDateString()));
   let n = 0; const d = new Date();
+  if (!days.has(d.toDateString())) {
+    d.setDate(d.getDate() - 1);
+  }
   while (days.has(d.toDateString())) { n++; d.setDate(d.getDate() - 1); }
   return n;
 }
@@ -858,6 +1706,7 @@ function maybeMoodModal(force = false) {
   S.lastMoodPrompt = Date.now(); save();
   let sel = null;
   const m = modal(`
+    <h3 class="mood-title">How are you feeling today?</h3>
     <div class="mood-list">
       ${MM.MOODS.map(x => `
         <button class="mood-row" data-mood="${x.key}">
@@ -920,17 +1769,44 @@ routes.instructions = (_, isBack) => {
           <ul>${sec.items.map(([b, t]) => `<li><b>${esc(b)}:</b> ${esc(t)}</li>`).join('')}</ul>
         </div>`).join('')}
       <div class="incentive">${I.gift}<span>${esc(MM.INSTRUCTIONS.incentive)}</span></div>
+      <div class="incentive datafree">📶<span>${esc(MM.INSTRUCTIONS.datafree)}</span></div>
     </div>
   `, { theme: 'theme-purple', backAnim: isBack });
 };
 
-/* ── Support services ────────────────────────────────────── */
+/* ── Support services — Social Worker & IT pathways ──────── */
 routes.support = (_, isBack) => {
-  const icMap = { phone: I.phone, chat: I.chat, 'chat-heart': I.chatHeart, sun: I.sun, 'shield-heart': I.shieldHeart };
+  const icMap = { phone: I.phone, chat: I.chat, 'chat-heart': I.chatHeart, sun: I.sun, 'shield-heart': I.shieldHeart, wrench: I.wrench };
+  const tickets = S.tickets.slice(0, 6);
   render(`
     ${header('Support Services')}
     <div class="body-pad">
       <div class="hero-card"><p class="lead">${esc(MM.SUPPORT.intro)}</p></div>
+      <div class="pathway-row">
+        ${MM.SUPPORT.pathways.map((p, i) => `
+          <button class="pathway" data-path="${p.kind}" style="animation-delay:${i * .07}s;background:linear-gradient(150deg, ${p.color[0]}, ${p.color[1]})">
+            <span class="pw-ic">${icMap[p.icon]}</span>
+            <b>${esc(p.name)}</b>
+            <p>${esc(p.desc)}</p>
+            <span class="pw-cta">${esc(p.cta)} ›</span>
+          </button>`).join('')}
+      </div>
+      ${tickets.length ? `
+        <div class="info-card tickets-card">
+          <h3><span class="ic">${I.ticket}</span>My support requests</h3>
+          <div class="tkt-list">
+            ${tickets.map(t => `
+              <div class="tkt">
+                <span class="tkt-kind ${t.kind}">${t.kind === 'it' ? '🛠' : '💜'}</span>
+                <span class="grow">
+                  <b>${esc(t.subject)}</b>
+                  <small>${esc(t.ref)} · ${new Date(t.createdAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short' })}${t.source === 'phq9' ? ' · from your survey' : ''}</small>
+                </span>
+                <em class="tkt-status">${esc(t.status)}</em>
+              </div>`).join('')}
+          </div>
+          <p class="tkt-note" style="margin:10px 0 0">${esc(MM.SUPPORT.ticketNote)}</p>
+        </div>` : ''}
       ${MM.SUPPORT.services.map((s, i) => `
         <div class="svc-card" style="animation-delay:${i * .06}s">
           <span class="svc-ic" style="background:linear-gradient(140deg, ${s.color[0]}, ${s.color[1]})">${icMap[s.icon]}</span>
@@ -946,13 +1822,15 @@ routes.support = (_, isBack) => {
         </div>`).join('')}
     </div>
   `, { theme: 'theme-purple', backAnim: isBack });
+  app.querySelectorAll('.pathway').forEach(b => b.addEventListener('click', () => ticketModal(b.dataset.path)));
   app.querySelectorAll('[data-route]').forEach(b => b.addEventListener('click', () => {
+    if (!hasChat()) return ticketModal('social');
     if (!chatOpen()) return toast('Chat unlocks after your Pre-Survey ✨');
     nav(b.dataset.route);
   }));
 };
 
-/* ── Help Now ────────────────────────────────────────────── */
+/* ── Help Now (breathing with countdown) ─────────────────── */
 routes.help = () => {
   render(`
     ${header('Help Now')}
@@ -970,34 +1848,349 @@ routes.help = () => {
           ${MM.HELP_NOW.lines.map(l => `<a class="svc-btn" href="${l.href}">${I.phone}${esc(l.label)}: ${esc(l.value)}</a>`).join('')}
         </div>
       </div>
+      <div class="info-card beacon-help-card">
+        <h3><span class="ic">🌟</span>${esc(MM.HOPE.title)}</h3>
+        <p class="hope-quote">“${esc(MM.HOPE.lead)}”</p>
+        <div class="svc-acts" style="margin-top:10px">
+          <button class="svc-btn" id="help-hope">✨ Open Beacon of Hope</button>
+        </div>
+      </div>
+
       <div class="info-card">
         <h3><span class="ic">${I.sun}</span>Breathe with me — 4 · 6 · 7</h3>
         <div class="breathe-wrap">
-          <div class="breathe-ring"><div class="breathe-ball" id="bball"><span id="btext">Tap to start</span></div></div>
+          <div class="breathe-ring"><div class="breathe-ball" id="bball"><span id="btext">Tap to start</span><b class="bnum" id="bnum"></b></div></div>
           <div class="breathe-count" id="bcount">Breathe in 4s — hold 6s — out 7s</div>
         </div>
+      </div>
+
+      <div class="info-card">
+        <h3><span class="ic">${I.info}</span>Using MojaMind</h3>
+        <ul>
+          <li><b>Voice navigation:</b> tap the microphone in the header and say “home”, “art activities”, “hope”, or “help now”.</li>
+          <li><b>Accessibility:</b> the ♿ button makes text bigger, raises contrast, or calms motion.</li>
+          <li><b>Privacy &amp; security:</b> see how your journal is encrypted, set a PIN, export or erase your data.</li>
+          <li><b>Support:</b> request a Social Worker or IT Technical Support from Support Services at any time.</li>
+        </ul>
+        <div class="svc-acts" style="margin-top:12px">
+          <button class="svc-btn alt" id="help-privacy">${I.shield}Privacy &amp; Security</button>
+          ${MMVoice.supported() ? `<button class="svc-btn alt" id="help-voice">${I.mic}Voice commands</button>` : ''}
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3><span class="ic">${I.user}</span>My study group</h3>
+        <p>You are in <b>${esc(groupOf().name)}</b> — ${esc(groupOf().desc)}.</p>
+        <p class="tkt-note">Your facilitator assigns your group. Changing it alters which parts of the study you take part in, so please only change it if your facilitator asked you to.</p>
+        <div class="svc-acts" style="margin-top:10px">
+          <button class="svc-btn alt" id="help-group">Change my study group</button>
+        </div>
+        ${S.groupChanges.length ? `<p class="tkt-note" style="margin-top:10px">Last changed ${new Date(S.groupChanges[S.groupChanges.length - 1].at).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })}.</p>` : ''}
       </div>
     </div>
   `, { theme: 'theme-purple' });
 
-  const ball = $('#bball'), text = $('#btext'), count = $('#bcount');
-  let timer = null;
+  $('#help-hope')?.addEventListener('click', () => beaconOfHopeModal());
+  $('#help-privacy')?.addEventListener('click', () => nav('#/privacy'));
+  $('#help-voice')?.addEventListener('click', () => voiceHelpModal());
+  $('#help-group')?.addEventListener('click', () => groupChangeModal());
+
+  const ball = $('#bball'), text = $('#btext'), count = $('#bcount'), num = $('#bnum');
+  let timer = null, tick = null;
   const phases = [['in', 'Breathe in…', 4], ['hold', 'Hold…', 6], ['out', 'Breathe out…', 7]];
   let pi = 0;
+  function stopAll() {
+    clearTimeout(timer); clearInterval(tick); timer = tick = null; pi = 0;
+    ball.className = 'breathe-ball'; text.textContent = 'Tap to start';
+    num.textContent = ''; count.textContent = 'Breathe in 4s — hold 6s — out 7s';
+  }
   function step() {
     const [cls, label, secs] = phases[pi % 3];
     ball.className = 'breathe-ball ' + cls;
     text.textContent = label;
+    let left = secs;
+    num.textContent = left;
     count.textContent = `${secs} seconds — you're doing great`;
+    clearInterval(tick);
+    tick = setInterval(() => {
+      left--;
+      if (left > 0) { num.textContent = left; if (navigator.vibrate) navigator.vibrate(6); }
+    }, 1000);
     if (navigator.vibrate) navigator.vibrate(20);
     pi++;
     timer = setTimeout(step, secs * 1000);
   }
-  ball.parentElement.addEventListener('click', () => {
-    if (timer) { clearTimeout(timer); timer = null; pi = 0; ball.className = 'breathe-ball'; text.textContent = 'Tap to start'; count.textContent = 'Breathe in 4s — hold 6s — out 7s'; }
-    else step();
+  ball.parentElement.addEventListener('click', () => { timer ? stopAll() : step(); });
+};
+
+/* ── Privacy, security & intelligence ────────────────────── */
+routes.privacy = (_, isBack) => {
+  const mode = Vault.currentMode();
+  const tf = MMNLP.transformerInfo();
+  const modeCopy = {
+    pin:    ['PIN protected', 'Your journal is encrypted with a key made from your PIN. The PIN is never stored, so without it nobody can read this data — not even the study team.'],
+    device: ['Encrypted on this device', 'Your journal is encrypted with a key held on this phone. It stops casual snooping through browser storage. Add a PIN for protection that survives someone having your unlocked phone.'],
+    plain:  ['Not encrypted here', 'This browser did not give MojaMind its encryption tools (that usually means the page is not served over HTTPS). Your journal is stored as plain text on this device.'],
+  }[mode] || ['Unknown', ''];
+
+  render(`
+    ${header('Privacy & Security', { backTo: '#/home' })}
+    <div class="body-pad">
+      <div class="sec-hero ${mode}">
+        <span class="sec-ic">${I.shield}</span>
+        <div class="grow">
+          <h2>${esc(modeCopy[0])}</h2>
+          <p>${esc(modeCopy[1])}</p>
+          <span class="sec-badge">AES-GCM 256 · PBKDF2 ${Vault.ITERATIONS.toLocaleString('en')} rounds</span>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3><span class="ic">${I.lock}</span>PIN lock</h3>
+        <p>Ask for a PIN each time MojaMind opens, and lock automatically after five quiet minutes.</p>
+        <div class="svc-acts">
+          ${Vault.hasPin()
+            ? `<button class="svc-btn" id="pin-change">Change PIN</button>
+               <button class="svc-btn alt" id="pin-off">Remove PIN</button>
+               <button class="svc-btn alt" id="pin-now">Lock now</button>`
+            : `<button class="svc-btn" id="pin-on">Set up a PIN</button>`}
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3><span class="ic">${I.brain}</span>On-device intelligence</h3>
+        <p>Everything below runs on your phone. Nothing you write, say or draw is ever uploaded.</p>
+        <div class="set-row">
+          <div class="grow"><b>Moja Guide language engine</b><small>MojaLex — built in, instant, no data</small></div>
+          <span class="set-pill on">Always on</span>
+        </div>
+        <div class="set-row">
+          <div class="grow">
+            <b>Deeper feeling detection</b>
+            <small>${tf ? `${esc(tf.label)} — loaded` : `Quantized ${esc(MMNLP.MODELS[S.ai.model].label)} · one-time ~${MMNLP.MODELS[S.ai.model].approxMB} MB download, then works offline`}</small>
+          </div>
+          <label class="switch"><input id="set-tf" type="checkbox" ${MMNLP.transformerReady() ? 'checked' : ''} /><span class="knob"></span></label>
+        </div>
+        <div class="tf-progress hidden" id="tf-progress"><div class="track"><div class="fill" id="tf-bar"></div></div><small id="tf-status">Preparing…</small></div>
+        <div class="set-row">
+          <div class="grow"><b>Moja Vision</b><small>Reads colour, strokes and words in your art, on this device</small></div>
+          <label class="switch"><input id="set-vision" type="checkbox" ${S.ai.vision ? 'checked' : ''} /><span class="knob"></span></label>
+        </div>
+        <div class="set-row">
+          <div class="grow"><b>Voice navigation</b><small>${MMVoice.supported() ? 'Move around by speaking — audio is never stored' : 'Not available in this browser'}</small></div>
+          <label class="switch"><input id="set-voice" type="checkbox" ${MMVoice.isOn() ? 'checked' : ''} ${MMVoice.supported() ? '' : 'disabled'} /><span class="knob"></span></label>
+        </div>
+        <div class="set-row">
+          <div class="grow"><b>Predictive shortcuts</b><small>Learns your habits on this phone to suggest the next step</small></div>
+          <label class="switch"><input id="set-predict" type="checkbox" ${S.ai.predictive ? 'checked' : ''} /><span class="knob"></span></label>
+        </div>
+        ${S.ai.predictive && Predict.next('home', 3).length ? `
+          <div class="predict-peek">
+            <small>What it currently expects you to open next</small>
+            <div>${Predict.next('home', 3).map(g => `<span class="pp">${esc(g.label)} · ${Math.round(g.score * 100)}%</span>`).join('')}</div>
+            <button class="link" id="predict-forget">Forget what it learned</button>
+          </div>` : ''}
+      </div>
+
+      <div class="info-card">
+        <h3><span class="ic">${I.download}</span>Your data</h3>
+        <p>This journal belongs to you. Take a copy whenever you like, or erase everything from this device.</p>
+        <div class="svc-acts">
+          <button class="svc-btn alt" id="data-export">Download my journal</button>
+          <button class="svc-btn danger" id="data-wipe">Erase everything</button>
+        </div>
+        <p class="tkt-note" style="margin-top:10px">Erasing removes your surveys, activities, pictures, drawings, voice notes and chats from this phone. It cannot be undone.</p>
+      </div>
+
+      ${ionityFooter()}
+    </div>
+  `, { theme: 'theme-purple', backAnim: isBack });
+
+  /* PIN management */
+  $('#pin-on')?.addEventListener('click', () => pinModal('set'));
+  $('#pin-change')?.addEventListener('click', () => pinModal('change'));
+  $('#pin-now')?.addEventListener('click', () => { Vault.lock(); lockScreen('Locked. Enter your PIN to continue.'); });
+  $('#pin-off')?.addEventListener('click', () => {
+    confirmPhrase({
+      title: 'Remove your PIN?',
+      body: 'Your journal stays encrypted with a device key, but anyone holding your unlocked phone could open MojaMind and read it.',
+      phrase: 'I am sure',
+      danger: true,
+      onYes: async () => {
+        await Vault.clearPin(S);
+        toast('PIN removed — your journal is still encrypted on this device');
+        route();
+      },
+    });
+  });
+
+  /* Intelligence toggles */
+  $('#set-tf')?.addEventListener('change', async e => {
+    if (!e.target.checked) { MMNLP.disableTransformer(); S.ai.transformer = false; save(); toast('Back to the built-in engine'); return route(); }
+    e.target.disabled = true;
+    const spec = MMNLP.MODELS[S.ai.model];
+    const wrap = $('#tf-progress'), bar = $('#tf-bar'), status = $('#tf-status');
+    wrap.classList.remove('hidden');
+    try {
+      await MMNLP.enableTransformer(S.ai.model, p => {
+        const pct = p.progress != null ? Math.round(p.progress) : null;
+        if (pct != null) bar.style.width = `${pct}%`;
+        status.textContent = `${p.status === 'download' || p.status === 'progress' ? 'Downloading' : p.status || 'Loading'} ${p.file ? p.file.split('/').pop() : ''} ${pct != null ? pct + '%' : ''}`.trim();
+      });
+      S.ai.transformer = true; save();
+      bar.style.width = '100%';
+      status.textContent = 'Ready — running on your device, offline from now on.';
+      confetti();
+      toast(`${spec.label} is running on your phone ✨`, 4000);
+    } catch (err) {
+      S.ai.transformer = false; save();
+      e.target.checked = false;
+      wrap.classList.add('hidden');
+      toast('Could not load the model — check your connection and try again 📶', 4000);
+    } finally { e.target.disabled = false; }
+  });
+  $('#set-vision')?.addEventListener('change', e => { S.ai.vision = e.target.checked; save(); toast(e.target.checked ? 'Moja Vision on 🎨' : 'Moja Vision off'); });
+  $('#set-voice')?.addEventListener('change', () => toggleVoiceNav());
+  $('#set-predict')?.addEventListener('change', e => {
+    S.ai.predictive = e.target.checked; save();
+    toast(e.target.checked ? 'Predictive shortcuts on' : 'Predictive shortcuts off');
+    route();
+  });
+  $('#predict-forget')?.addEventListener('click', () => { Predict.reset(); toast('Forgotten — it will learn again from here'); route(); });
+
+  /* Data */
+  $('#data-export')?.addEventListener('click', () => {
+    const blob = new Blob([Vault.exportBundle(S)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `mojamind-journal-${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    toast('Your journal has been downloaded 💜');
+  });
+  $('#data-wipe')?.addEventListener('click', () => {
+    confirmPhrase({
+      title: 'Erase everything?',
+      body: 'Every survey answer, reflection, picture, drawing, voice note and chat on this phone will be permanently deleted.',
+      phrase: 'I am sure',
+      danger: true,
+      onYes: () => { Vault.wipe(); location.reload(); },
+    });
   });
 };
+
+/** Change study group — guarded, because it changes the whole journey. */
+function groupChangeModal() {
+  let picked = S.group;
+  const m = modal(`
+    <h3>Change study group</h3>
+    <p style="font-size:12.8px;line-height:1.6;color:#ffffff;margin:0 0 12px">
+      Only change this if your facilitator asked you to. Your surveys, activities and reflections
+      stay exactly as they are — but which features you can reach will change.</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${[1, 2, 3].map(g => `
+        <button class="opt-choice ${S.group === g ? 'sel' : ''}" data-g="${g}">
+          <span class="oc-radio"></span>
+          <span class="grow">
+            <h5><span class="oc-emoji">${g === 1 ? '📋' : g === 2 ? '🎨' : '🌟'}</span>${esc(MM.GROUPS[g].name)}${S.group === g ? ' — current' : ''}</h5>
+            <p>${esc(MM.GROUPS[g].desc)}</p>
+          </span>
+        </button>`).join('')}
+    </div>
+    <div class="modal-btns"><button class="btn btn-ghost" id="gc-cancel">Cancel</button></div>
+  `);
+  m.querySelector('#gc-cancel').onclick = () => closeModal();
+  m.querySelectorAll('[data-g]').forEach(b => b.addEventListener('click', () => {
+    picked = +b.dataset.g;
+    if (picked === S.group) return toast(`You are already in ${MM.GROUPS[picked].name} 💜`);
+    const from = MM.GROUPS[S.group] || { name: 'your current group' };
+    const to = MM.GROUPS[picked];
+    const losing = [
+      from.art && !to.art && 'Art Activities',
+      from.chat && !to.chat && 'Chat',
+    ].filter(Boolean);
+    const gaining = [
+      !from.art && to.art && 'Art Activities',
+      !from.chat && to.chat && 'Chat',
+    ].filter(Boolean);
+    closeModal();
+    confirmPhrase({
+      title: `Move to ${to.name}?`,
+      body: `You are moving from ${from.name} to ${to.name}.`
+        + (losing.length ? ` You will no longer have access to ${losing.join(' and ')} — existing work stays saved, but is hidden.` : '')
+        + (gaining.length ? ` You will gain access to ${gaining.join(' and ')}.` : '')
+        + ' Are you sure?',
+      phrase: 'I am sure',
+      confirmLabel: `Move to ${to.name}`,
+      danger: !!losing.length,
+      onYes: () => {
+        S.groupChanges.push({ from: S.group, to: picked, at: Date.now() });
+        S.group = picked;
+        save();
+        confetti();
+        toast(`You are now in ${to.name} ✨`);
+        nav('#/home');
+        if (location.hash === '#/home') route();
+      },
+    });
+  }));
+}
+
+/** A confirmation that cannot be tapped through by accident. */
+function confirmPhrase({ title, body, phrase = 'I am sure', confirmLabel = 'Confirm', danger = false, onYes }) {
+  const m = modal(`
+    <h3>${danger ? '⚠️ ' : ''}${esc(title)}</h3>
+    <p style="font-size:13px;line-height:1.65;color:#ffffff;margin:0 0 12px">${esc(body)}</p>
+    <p class="phrase-ask">Type <b>${esc(phrase)}</b> below to continue.</p>
+    <input class="tkt-input phrase-input" id="cp-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${esc(phrase)}" aria-label="Type ${esc(phrase)} to confirm" />
+    <div class="modal-btns">
+      <button class="btn btn-ghost" id="cp-no">Cancel</button>
+      <button class="btn ${danger ? 'btn-danger' : 'btn-primary'}" id="cp-yes" disabled>${esc(confirmLabel)}</button>
+    </div>
+  `);
+  const input = m.querySelector('#cp-input');
+  const yes = m.querySelector('#cp-yes');
+  const norm = s => s.trim().toLowerCase().replace(/\s+/g, ' ');
+  input.addEventListener('input', () => {
+    const ok = norm(input.value) === norm(phrase);
+    yes.disabled = !ok;
+    input.classList.toggle('ok', ok);
+  });
+  input.addEventListener('keydown', e => { if (e.key === 'Enter' && !yes.disabled) yes.click(); });
+  m.querySelector('#cp-no').onclick = () => closeModal();
+  yes.onclick = () => { closeModal(); onYes && onYes(); };
+  setTimeout(() => input.focus(), 60);
+}
+
+/** Set or change the PIN. */
+function pinModal(kind) {
+  const m = modal(`
+    <h3>${kind === 'change' ? 'Change your PIN' : 'Set up a PIN'}</h3>
+    <p style="font-size:12.8px;line-height:1.6;color:#ffffff;margin:0 0 12px">
+      Choose 4 digits or more. This PIN becomes the key to your journal — keep it somewhere safe,
+      because it is never stored and cannot be recovered.</p>
+    <input class="tkt-input" id="pin-a" type="password" inputmode="numeric" maxlength="12" placeholder="New PIN" autocomplete="new-password" />
+    <input class="tkt-input" id="pin-b" type="password" inputmode="numeric" maxlength="12" placeholder="Confirm PIN" autocomplete="new-password" />
+    <div class="modal-btns">
+      <button class="btn btn-ghost" id="pin-cancel">Cancel</button>
+      <button class="btn btn-primary" id="pin-save">Save PIN</button>
+    </div>
+  `);
+  m.querySelector('#pin-cancel').onclick = () => closeModal();
+  m.querySelector('#pin-save').onclick = async () => {
+    const a = m.querySelector('#pin-a').value.trim();
+    const b = m.querySelector('#pin-b').value.trim();
+    if (a.length < 4) return toast('Please use at least 4 characters');
+    if (a !== b) return toast('The two PINs do not match');
+    const ok = await Vault.setPin(a, S);
+    closeModal();
+    if (!ok) return toast('This browser cannot encrypt storage here (needs HTTPS)');
+    confetti();
+    toast('PIN set — your journal is locked to you now 🔒');
+    route();
+  };
+}
 
 /* ── Survey lists (pre / post) ───────────────────────────── */
 function surveyList(phase, isBack) {
@@ -1010,6 +2203,8 @@ function surveyList(phase, isBack) {
       <div class="hero-card">
         <h2>${esc(intro.title)}</h2>
         <p>${esc(intro.body)}</p>
+        <button class="video-btn" id="survey-video-btn" style="margin-top:10px"><span class="play">${I.play}</span>Watch ${title} Guide Video 🎬</button>
+        <p class="stellenbosch-note" style="margin-top:12px">🎓 ${esc(intro.note)}</p>
       </div>
       ${ids.map((id, i) => {
         const def = MM.SURVEYS[id];
@@ -1020,16 +2215,21 @@ function surveyList(phase, isBack) {
         return `
         <div class="survey-card c${def.num} ${rec ? 'is-done' : ''}" data-survey="${id}" style="animation-delay:${i * .07}s" role="button" tabindex="0">
           <span class="numtile"><b>${def.num}</b><span>${title}</span></span>
-          <span class="s-name">${esc(def.name)}</span>
+          <span class="s-name">${esc(def.name)}<small class="s-count">${total} questions</small></span>
           <span class="s-status">
             ${I.heart(!!rec)}
-            <em class="${rec ? 'on' : 'off'}">${rec ? 'Completed' : (dCount ? 'In progress' : 'Not Started')}</em>
+            <em class="${rec ? 'Completed' : 'off'}">${rec ? 'Completed' : (dCount ? 'In progress' : 'Not Started')}</em>
           </span>
           ${!rec && dCount ? `<span class="ring">${Math.round((dCount / total) * 100)}%</span>` : ''}
         </div>`;
       }).join('')}
     </div>
   `, { theme: 'theme-purple', backAnim: isBack });
+
+  $('#survey-video-btn')?.addEventListener('click', () => {
+    MMVideo.playVideoModal(phase, { onStart: () => nav(`#/survey/${phase}/${ids[0]}`) });
+  });
+
   app.querySelectorAll('[data-survey]').forEach(c => {
     const go = () => nav(`#/survey/${phase}/${c.dataset.survey}`);
     c.addEventListener('click', go);
@@ -1047,35 +2247,43 @@ routes.survey = (params) => {
   const [phase, id] = params;
   const def = MM.SURVEYS[id];
   if (!def || !['pre', 'post'].includes(phase)) return nav('#/home');
+  if (phase === 'post' && !postOpen()) { toast('Complete your Pre-Survey first ✨'); return nav('#/pre'); }
   const rec = S.surveys[phase][id];
   render(`
     ${header(def.name, { backTo: `#/${phase}` })}
-    ${rec ? completedHTML(def, phase) : runnerHTML(def, S.drafts[`${phase}:${id}`], { pageLabel: 'Page 1/1' })}
+    ${rec ? completedHTML(def, phase) : runnerHTML(def, S.drafts[`${phase}:${id}`], { pageLabel: 'Page 1/1', blurb: def.blurb })}
   `, { theme: `theme-${def.theme}` });
 
-  if (rec) {
-    $('#redo')?.addEventListener('click', () => {
-      delete S.surveys[phase][id]; save(); route();
-    });
-    return;
-  }
+  if (rec) return; // completed surveys are locked — no redo
+
   wireRunner(def, `${phase}:${id}`, answers => {
     S.surveys[phase][id] = { answers, completedAt: Date.now() };
     save(); confetti();
     const allDone = phase === 'pre' ? preDone() : postDone();
-    const m = modal(`
-      <div class="celebrate">
-        <svg class="big-heart" viewBox="0 0 24 24" fill="#f3256b"><path d="M12 21s-7.5-4.7-10-9.3C.4 8.6 2.3 4.9 6 4.5c2-.2 3.9.8 6 3 2.1-2.2 4-3.2 6-3 3.7.4 5.6 4.1 4 7.2C19.5 16.3 12 21 12 21Z"/></svg>
-        <h3>${esc(def.name)} completed!</h3>
-        <p>${allDone
-          ? (phase === 'pre'
-            ? 'Amazing! Your Pre-Survey is done — Art Activities, Chat and your Post-Survey are now unlocked. Your 8-week journey begins! 🎨'
-            : 'That was the final check-in. Thank you for being part of this study — you did something wonderful for yourself. 💜')
-          : 'Thank you for your honesty. Every answer helps us support you better.'}</p>
-        <button class="btn btn-primary btn-block" id="cel-ok">Continue</button>
-      </div>
-    `);
-    m.querySelector('#cel-ok').onclick = () => { closeModal(); nav(`#/${phase}`); };
+    const unlockBits = [hasArt() && 'Art Activities', hasChat() && 'Chat'].filter(Boolean);
+    const preMsg = unlockBits.length
+      ? `Amazing! Your Pre-Survey is done — ${unlockBits.join(', ')} and your Post-Survey pathway are now unlocked. Your 8-week journey begins! 🎨`
+      : 'Amazing! Your Pre-Survey is done — your 8-week journey and Post-Survey pathway are now set. 💜';
+    const celebrate = () => {
+      const m = modal(`
+        <div class="celebrate">
+          <svg class="big-heart" viewBox="0 0 24 24" fill="#f3256b"><path d="M12 21s-7.5-4.7-10-9.3C.4 8.6 2.3 4.9 6 4.5c2-.2 3.9.8 6 3 2.1-2.2 4-3.2 6-3 3.7.4 5.6 4.1 4 7.2C19.5 16.3 12 21 12 21Z"/></svg>
+          <h3>${esc(def.name)} completed!</h3>
+          <p>${allDone
+            ? (phase === 'pre' ? preMsg
+              : 'That was the final check-in. Thank you for being part of this study — you did something wonderful for yourself. 💜')
+            : 'Thank you for your honesty. Every answer helps us support you better.'}</p>
+          <button class="btn btn-primary btn-block" id="cel-ok">Continue</button>
+        </div>
+      `);
+      m.querySelector('#cel-ok').onclick = () => { closeModal(); nav(`#/${phase}`); };
+    };
+    // Stellenbosch protocol: PHQ-9 screening on the Mental Health Survey
+    if (id === 'mental') {
+      const screen = phqScreen(answers);
+      if (screen.atRisk) return riskModal(phase, screen, celebrate);
+    }
+    celebrate();
   });
 };
 
@@ -1086,7 +2294,7 @@ function completedHTML(def, phase) {
         <svg class="big-heart" viewBox="0 0 24 24" fill="#f3256b"><path d="M12 21s-7.5-4.7-10-9.3C.4 8.6 2.3 4.9 6 4.5c2-.2 3.9.8 6 3 2.1-2.2 4-3.2 6-3 3.7.4 5.6 4.1 4 7.2C19.5 16.3 12 21 12 21Z"/></svg>
         <h3>Completed</h3>
         <p>You have already completed the ${esc(def.name)} for this ${phase === 'pre' ? 'pre' : 'post'}-survey. Thank you!</p>
-        <button class="btn btn-ghost btn-block" id="redo">Redo survey (demo)</button>
+        <p class="locked-note">${I.lock} Completed surveys are locked and cannot be taken again.</p>
       </div>
     </div>
   </div>`;
@@ -1094,6 +2302,7 @@ function completedHTML(def, phase) {
 
 /* ── Art activities ──────────────────────────────────────── */
 routes.art = (params, isBack) => {
+  if (!hasArt()) { toast('Art activities are not part of your study group 💜'); return nav('#/home'); }
   if (!artOpen()) { toast('Complete your Pre-Survey to unlock Art Activities ✨'); return nav('#/pre'); }
   if (!params.length) {
     if (!S.artAboutSeen) return nav('#/art/about');
@@ -1103,6 +2312,12 @@ routes.art = (params, isBack) => {
   const id = parseInt(params[0], 10);
   const a = MM.ACTIVITIES.find(x => x.id === id);
   if (!a) return nav('#/art');
+  // Weekly unlock is a study rule, so enforce it on the route itself —
+  // not only on the list card, which a typed URL bypasses.
+  if (a.week > currentWeek() && !actState(a.id)) {
+    toast(`This activity unlocks in week ${a.week} 🌱`);
+    return nav('#/art');
+  }
   if (params[1] === 'detail') return artDetail(a, params[2] || 'start');
   return artOptions(a);
 };
@@ -1111,7 +2326,10 @@ function artAbout() {
   render(`
     ${header('About Activities', { backTo: '#/home' })}
     <div class="body-pad">
-      <div class="hero-card"><p class="lead">${esc(MM.ART_ABOUT.heroBody)}</p></div>
+      <div class="hero-card">
+        <p class="lead">${esc(MM.ART_ABOUT.heroBody)}</p>
+        <button class="video-btn" id="about-vid-btn" style="margin-top:10px"><span class="play">${I.play}</span>Watch Creative Resilience Walkthrough 🎬</button>
+      </div>
       <div class="info-card">
         <h3><span class="ic">${I.palette}</span>${esc(MM.ART_ABOUT.lead)}</h3>
         <div style="display:flex;flex-direction:column;gap:14px">
@@ -1127,6 +2345,9 @@ function artAbout() {
       </div>
     </div>
   `, { theme: 'theme-purple' });
+  $('#about-vid-btn')?.addEventListener('click', () => {
+    MMVideo.playVideoModal('general', { onStart: () => nav('#/art') });
+  });
   $('#about-next').onclick = () => { S.artAboutSeen = true; save(); nav('#/art'); };
 }
 
@@ -1145,11 +2366,12 @@ function artList(isBack) {
         const [c1, c2] = MM.ACT_COLORS[i % MM.ACT_COLORS.length];
         const done = !!st?.submittedAt;
         const started = !!st && !done;
+        const hasVideo = !!MM.ACTIVITY_VIDEOS[a.id];
         return `<div class="act-card ${done ? 'done' : ''} ${locked ? 'locked' : ''}" data-id="${a.id}" data-locked="${locked}" style="animation-delay:${i * .05}s" role="button" tabindex="0">
           <span class="acttile" style="background:linear-gradient(160deg, ${c1}, ${c2})">
             <span>Activity</span><b>${a.id}</b><em>Week ${a.week}</em>
           </span>
-          <span class="a-name">${esc(a.name)}</span>
+          <span class="a-name">${esc(a.name)}${hasVideo ? `<small class="a-video">${I.video} video guides</small>` : ''}</span>
           <span class="a-status">
             ${done
               ? `<span class="st-ic" style="background:#fdf2f8;color:#f3256b">${I.heart(true)}</span><em>Completed</em>`
@@ -1171,6 +2393,7 @@ function artList(isBack) {
 
 function artOptions(a) {
   const st = actState(a.id);
+  const locked = !!st?.submittedAt;
   let sel = st?.option ?? null;
   render(`
     ${header(`Activity ${a.id}`, { backTo: '#/art' })}
@@ -1178,12 +2401,12 @@ function artOptions(a) {
       <div class="hero-card">
         <h2>${esc(a.name)}</h2>
         <p>${esc(a.about)}</p>
-        <p class="lead">Please select one of the options below.</p>
+        <p class="lead">${locked ? 'This activity has been submitted — your choice is locked in. 🔒' : 'Please select one of the options below.'}</p>
       </div>
       ${a.options.map((opt, i) => {
         const kind = MM.ART_OPTION_KINDS[i];
         const [title, desc] = opt.split(/:\s(.+)/);
-        return `<button class="opt-choice ${sel === i ? 'sel' : ''}" data-i="${i}" style="animation-delay:${i * .06}s">
+        return `<button class="opt-choice ${sel === i ? 'sel' : ''} ${locked && sel !== i ? 'dim' : ''}" data-i="${i}" style="animation-delay:${i * .06}s" ${locked ? 'disabled' : ''}>
           <span class="oc-radio"></span>
           <span class="grow">
             <h5><span class="oc-emoji">${kind.emoji}</span>Option ${i + 1} — ${esc(title)}</h5>
@@ -1193,31 +2416,244 @@ function artOptions(a) {
       }).join('')}
     </div>
     <div class="act-foot-btns">
-      <button class="btn btn-primary" id="opt-next" style="min-width:150px">Next</button>
+      <button class="btn btn-primary" id="opt-next" style="min-width:150px">${locked ? 'View my work' : 'Next'}</button>
     </div>
   `, { theme: 'theme-purple' });
-  app.querySelectorAll('.opt-choice').forEach(b => b.addEventListener('click', () => {
-    sel = +b.dataset.i;
-    app.querySelectorAll('.opt-choice').forEach(x => x.classList.toggle('sel', x === b));
-    if (navigator.vibrate) navigator.vibrate(8);
-  }));
+  if (!locked) {
+    app.querySelectorAll('.opt-choice').forEach(b => b.addEventListener('click', () => {
+      sel = +b.dataset.i;
+      app.querySelectorAll('.opt-choice').forEach(x => x.classList.toggle('sel', x === b));
+      if (navigator.vibrate) navigator.vibrate(8);
+    }));
+  }
   $('#opt-next').onclick = () => {
     if (sel == null) return toast('Choose the option that feels right for you 🎨');
-    S.activities[a.id] = Object.assign({ uploads: [], reflections: {} }, S.activities[a.id], { option: sel, startedAt: actState(a.id)?.startedAt || Date.now() });
-    save();
+    if (!locked) {
+      S.activities[a.id] = Object.assign({ uploads: [], voice: [], reflections: {} }, S.activities[a.id], { option: sel, startedAt: actState(a.id)?.startedAt || Date.now() });
+      save();
+    }
     nav(`#/art/${a.id}/detail/start`);
   };
+}
+
+/* ── Voice capture (MediaRecorder + on-device speech-to-text) ── */
+let voiceCap = null; // {rec, stream, recog, chunks[], transcript, timer, startedAt}
+function stopVoiceCapture(silent = true) {
+  if (!voiceCap) return;
+  try { voiceCap.recog?.stop(); } catch { /* noop */ }
+  try { if (voiceCap.rec?.state !== 'inactive') voiceCap.rec.stop(); } catch { /* noop */ }
+  try { voiceCap.stream?.getTracks().forEach(t => t.stop()); } catch { /* noop */ }
+  clearInterval(voiceCap.timer);
+  voiceCap = null;
+}
+
+async function startVoiceCapture(a, st, ui) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  MMVoice.pause(); // recording a voice note always wins the microphone
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch {
+    return toast('Microphone access is needed for voice notes — check your permissions 🎤');
+  }
+  const mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'].find(t => window.MediaRecorder && MediaRecorder.isTypeSupported(t)) || '';
+  const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+  voiceCap = { rec, stream, chunks: [], transcript: '', finalT: '', timer: null, startedAt: Date.now(), recog: null };
+
+  rec.ondataavailable = e => { if (e.data.size) voiceCap?.chunks.push(e.data); };
+  rec.onstop = () => {
+    const cap = voiceCap; // capture before cleanup
+    if (!cap) return;
+    const blob = new Blob(cap.chunks, { type: mime || 'audio/webm' });
+    const dur = Math.round((Date.now() - cap.startedAt) / 1000);
+    const reader = new FileReader();
+    reader.onload = () => {
+      st.voice = st.voice || [];
+      st.voice.push({ src: reader.result, transcript: (cap.finalT + ' ' + cap.transcript).replace(/\s+/g, ' ').trim(), dur, at: Date.now() });
+      save();
+      toast('Voice note saved 🎤');
+      artDetail(a, 'voice');
+    };
+    reader.readAsDataURL(blob);
+    try { cap.stream.getTracks().forEach(t => t.stop()); } catch { /* noop */ }
+    clearInterval(cap.timer);
+    voiceCap = null;
+  };
+
+  // Live on-device transcription while recording (where supported)
+  if (SR) {
+    const recog = new SR();
+    recog.lang = 'en-ZA';
+    recog.continuous = true;
+    recog.interimResults = true;
+    recog.onresult = e => {
+      if (!voiceCap) return;
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) voiceCap.finalT += e.results[i][0].transcript + ' ';
+        else interim += e.results[i][0].transcript;
+      }
+      voiceCap.transcript = interim;
+      const live = ui.live;
+      if (live) { live.textContent = (voiceCap.finalT + ' ' + interim).replace(/\s+/g, ' ').trim() || 'Listening…'; }
+    };
+    recog.onerror = () => { /* transcription is best-effort */ };
+    try { recog.start(); voiceCap.recog = recog; } catch { /* noop */ }
+  } else if (ui.live) {
+    ui.live.textContent = 'Recording… (transcription needs an online-capable browser)';
+  }
+
+  rec.start(250);
+  const MAX_S = 90;
+  voiceCap.timer = setInterval(() => {
+    if (!voiceCap) return;
+    const s = Math.round((Date.now() - voiceCap.startedAt) / 1000);
+    if (ui.clock) ui.clock.textContent = `${String(Math.floor(s / 60))}:${String(s % 60).padStart(2, '0')} / 1:30`;
+    if (s >= MAX_S) { toast('Voice notes pause at 90 seconds — saved for you 💜'); stopAndSave(); }
+  }, 250);
+
+  function stopAndSave() {
+    try { voiceCap?.recog?.stop(); } catch { /* noop */ }
+    try { if (voiceCap && voiceCap.rec.state !== 'inactive') voiceCap.rec.stop(); } catch { /* noop */ }
+  }
+  return stopAndSave;
+}
+
+function speechRecognitionSupported() {
+  return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+}
+
+/* ── Tiny reflection dictation ───────────────────────────────
+   A small mic on each reflection box, entirely separate from
+   the full voice-note recorder: speech goes straight into the
+   textarea as text. Nothing is recorded or saved as audio. */
+let reflectionDictation = null; // {recog, idx, base, finalT}
+function stopReflectionDictation() {
+  if (!reflectionDictation) return;
+  try { reflectionDictation.recog.stop(); } catch { /* noop */ }
+  reflectionDictation = null;
+  MMVoice.resume();
+}
+function toggleReflectionDictation(idx, textarea, micBtn) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return toast('Voice dictation needs a browser like Chrome or Edge 🎤');
+
+  if (reflectionDictation && reflectionDictation.idx === idx) {
+    stopReflectionDictation();
+    micBtn.classList.remove('on'); micBtn.innerHTML = I.mic;
+    return;
+  }
+  if (reflectionDictation) stopReflectionDictation(); // switch questions mid-flow
+
+  MMVoice.pause(); // dictation always wins the microphone
+  const recog = new SR();
+  recog.lang = 'en-ZA'; recog.continuous = true; recog.interimResults = true;
+  const existing = textarea.value.trim();
+  const base = existing ? existing + (/[.!?]$/.test(existing) ? ' ' : '. ') : '';
+  reflectionDictation = { recog, idx, base, finalT: '' };
+
+  const endDictation = () => {
+    if (reflectionDictation?.idx === idx) { reflectionDictation = null; MMVoice.resume(); }
+    micBtn.classList.remove('on'); micBtn.innerHTML = I.mic;
+  };
+
+  recog.onresult = e => {
+    if (!reflectionDictation || reflectionDictation.idx !== idx) return;
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) reflectionDictation.finalT += e.results[i][0].transcript + ' ';
+      else interim += e.results[i][0].transcript;
+    }
+    textarea.value = (reflectionDictation.base + reflectionDictation.finalT + interim).replace(/\s+/g, ' ');
+    textarea.dispatchEvent(new Event('input', { bubbles: true })); // saves + triggers the tiny AI note
+  };
+  recog.onerror = e => {
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') toast('Microphone access is needed to dictate 🎤');
+    endDictation();
+  };
+  recog.onend = () => {
+    const was = reflectionDictation?.idx === idx;
+    endDictation();
+    if (was) { scheduleReflectionNote(idx, textarea.value, true); toast('Got it — read it over and edit anything you like ✍️', 2200); }
+  };
+
+  try {
+    recog.start();
+    micBtn.classList.add('on'); micBtn.innerHTML = I.stop;
+    toast('Listening — speak your reflection 🎙', 1600);
+  } catch { /* already starting */ }
+}
+
+/* ── Tiny on-device encouragement ────────────────────────────
+   Every reflection gets a one-line, warm read-out from MojaLex
+   — the small always-on language model (js/nlp.js), never the
+   optional heavier transformer. It comments with care, not
+   false cheer: distress is met gently, not spun positive. */
+const reflNoteTimers = {};
+function reflectionEncouragement(read) {
+  const pick = arr => arr[Math.random() * arr.length | 0];
+  if (read.risk.level === 'crisis' || read.risk.level === 'urgent') {
+    return { tone: 'care', text: 'That sounds really heavy to carry — you do not have to hold it alone.', help: true };
+  }
+  if (read.risk.level === 'elevated' || read.risk.level === 'watch') {
+    return {
+      tone: 'care', text: pick([
+        'Thank you for writing something so honest. Be gentle with yourself today. 💜',
+        'That took courage to put into words — well done for showing up for yourself.',
+      ]),
+    };
+  }
+  const topicLine = {
+    family: 'family clearly matters to you', art: 'your creativity is really coming through',
+    stigma: 'that takes real courage to name', medication: 'looking after yourself like this matters',
+    sleep: 'rest matters more than we admit', relationships: 'the people in your life shape this story',
+    work: 'that is a real part of your world',
+  }[read.topics[0]];
+  if (read.sentiment.label === 'positive') {
+    return {
+      tone: 'good', text: pick([
+        'I love the warmth in this ✨', 'That is a beautiful thing to notice about yourself.',
+        topicLine ? `Lovely — ${topicLine}.` : 'This reflection glows with something good.',
+      ].filter(Boolean)),
+    };
+  }
+  return {
+    tone: 'calm', text: pick([
+      'Thank you for putting this into words — that takes honesty.',
+      topicLine ? `Noted with care — ${topicLine}.` : 'Every reflection here helps your journey take shape.',
+      'There is no right or wrong answer here, only yours. 🌱',
+    ].filter(Boolean)),
+  };
+}
+function scheduleReflectionNote(idx, text, immediate = false) {
+  clearTimeout(reflNoteTimers[idx]);
+  const run = () => {
+    const el = $(`[data-note="${idx}"]`);
+    if (!el) return;
+    const trimmed = (text || '').trim();
+    if (trimmed.split(/\s+/).filter(Boolean).length < 4) { el.classList.add('hidden'); el.innerHTML = ''; return; }
+    const read = MMNLP.analyse(trimmed); // tiny, instant, on-device only — no upload, no heavy model
+    const note = reflectionEncouragement(read);
+    el.dataset.tone = note.tone;
+    el.innerHTML = `${I.sparkle}<span>${esc(note.text)}</span>${note.help ? '<button class="refl-help-link" data-help="1">Help Now</button>' : ''}`;
+    el.classList.remove('hidden');
+    el.querySelector('[data-help]')?.addEventListener('click', () => nav('#/help'));
+  };
+  if (immediate) run(); else reflNoteTimers[idx] = setTimeout(run, 900);
 }
 
 function artDetail(a, tab) {
   const st = actState(a.id);
   if (!st || st.option == null) return nav(`#/art/${a.id}`);
+  const locked = !!st.submittedAt;
   const kind = MM.ART_OPTION_KINDS[st.option];
-  const tabs = [['start', 'Start Here'], ['materials', 'Materials'], ['pictures', 'Pictures'], ['reflections', 'Reflections']];
+  const tabs = [['start', 'Start Here'], ['materials', 'Materials'], ['pictures', 'Pictures'], ['voice', 'Voice'], ['reflections', 'Reflections']];
   const uploadSrc = upload => typeof upload === 'string' ? upload : upload.src;
   const uploadAnalysis = upload => typeof upload === 'object' ? upload.analysis : null;
   const analysedUploads = st.uploads.map(uploadAnalysis).filter(Boolean);
   const latestAnalysis = analysedUploads[analysedUploads.length - 1];
+  const videoOpts = MM.ACTIVITY_VIDEOS[a.id];
+  const voice = st.voice || [];
 
   let body = '';
   if (tab === 'start') {
@@ -1227,7 +2663,7 @@ function artDetail(a, tab) {
           ${a.startHere.map(([b, t]) => `
             <div class="step-li"><span class="pen">${I.pencil}</span><p><b>${esc(b)}</b> ${esc(t)}</p></div>`).join('')}
         </div>
-        <button class="video-btn" id="play-video"><span class="play">${I.play}</span>Play Video</button>
+        <button class="video-btn" id="play-video"><span class="play">${I.play}</span>${videoOpts ? `Watch: Option ${st.option + 1} inspiration video` : 'Play Video'}</button>
       </div>
       <div class="act-foot-btns" style="padding:0">
         <button class="btn btn-primary" data-go="materials" style="min-width:150px">Start</button>
@@ -1247,14 +2683,14 @@ function artDetail(a, tab) {
     body = `
       ${st.uploads.length
         ? `<div class="upload-grid">${st.uploads.map((upload, i) => `
-            <div class="shot"><img src="${uploadSrc(upload)}" alt="Upload ${i + 1}" />${uploadAnalysis(upload) ? `<span class="shot-read" title="Colours read by Mojo Guide">${I.sparkle}</span>` : ''}<button class="del" data-del="${i}" aria-label="Delete">${I.x}</button></div>`).join('')}
+            <div class="shot ${upload.kind === 'drawing' ? 'is-drawing' : ''}"><img src="${uploadSrc(upload)}" alt="${upload.kind === 'drawing' ? 'Drawing' : 'Upload'} ${i + 1}" />${upload.kind === 'drawing' ? '<span class="shot-tag">🖍 drawn here</span>' : ''}${uploadAnalysis(upload) ? `<span class="shot-read" data-vision="${i}" title="What Moja Vision saw">${I.sparkle}</span>` : ''}${locked ? '' : `<button class="del" data-del="${i}" aria-label="Delete">${I.x}</button>`}</div>`).join('')}
           </div>`
-        : `<div class="info-card"><p class="empty-note">No pictures have been uploaded yet.</p></div>`}
+        : `<div class="info-card"><p class="empty-note">Nothing here yet — upload a photo of your work, or draw it right on your phone. 🖍</p></div>`}
       ${latestAnalysis ? `
         <div class="colour-insight">
           <span class="colour-insight-mark">${I.sparkle}</span>
           <div class="grow">
-            <h4>Mojo Guide colour note</h4>
+            <h4>Moja Guide colour note</h4>
             <p>${esc(latestAnalysis.feedback)}</p>
             <div class="colour-palette">${latestAnalysis.palette.map((colour, i) => `<span style="--swatch:${colour}" title="Palette colour ${i + 1}"></span>`).join('')}</div>
             <small>Read on this device from colour only · not a mental-health assessment</small>
@@ -1262,23 +2698,69 @@ function artDetail(a, tab) {
         </div>`
         : st.uploads.length ? `<button class="btn btn-ghost read-colours" id="read-colours">${I.sparkle} Read colours</button>` : ''}
       <input type="file" id="file-in" accept="image/*" multiple class="hidden" />
-      <div class="act-foot-btns" style="padding:0;justify-content:space-between">
-        <button class="btn btn-ghost" id="upload-btn" style="display:inline-flex;align-items:center;gap:8px">${I.camera} Upload</button>
+      ${locked ? '' : `
+        <div class="make-row">
+          <button class="make-btn" id="upload-btn">${I.camera}<b>Upload a photo</b><small>of art you made off the phone</small></button>
+          <button class="make-btn draw" id="draw-btn">${I.brush}<b>Draw it here</b><small>finger or pen, right on your screen</small></button>
+        </div>`}
+      <div class="act-foot-btns" style="padding:0;justify-content:flex-end">
         <button class="btn btn-primary" data-go="reflections">Reflect</button>
       </div>`;
-  } else {
+  } else if (tab === 'voice') {
     body = `
-      <div class="info-card">
-        <div style="display:flex;flex-direction:column;gap:18px">
+      <div class="info-card voice-card">
+        <h3><span class="ic">${I.mic}</span>Speak your story</h3>
+        <p>Record a voice note for ${esc(a.name)} — MojaMind writes down what it hears, on your device, so your spoken words can become reflections too.</p>
+        ${locked ? '' : `
+        <div class="rec-stage" id="rec-stage">
+          <button class="rec-btn" id="rec-btn" aria-label="Start recording">${I.mic}</button>
+          <div class="rec-meta">
+            <b id="rec-clock">0:00 / 1:30</b>
+            <p class="rec-live" id="rec-live">Tap the microphone to start</p>
+          </div>
+        </div>`}
+      </div>
+      ${voice.length ? voice.map((v, i) => `
+        <div class="voice-note">
+          <div class="vn-head">
+            <span class="vn-ic">${I.mic}</span>
+            <b>Voice note ${i + 1}</b>
+            <small>${v.dur ? `${Math.floor(v.dur / 60)}:${String(v.dur % 60).padStart(2, '0')} · ` : ''}${new Date(v.at).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short' })}</small>
+            ${locked ? '' : `<button class="del vn-del" data-vdel="${i}" aria-label="Delete voice note">${I.x}</button>`}
+          </div>
+          <audio controls preload="metadata" src="${v.src}"></audio>
+          ${v.transcript ? `
+            <div class="vn-transcript">
+              <small>${I.sparkle} AI transcript (read on this device)</small>
+              <p>${esc(v.transcript)}</p>
+              ${locked ? '' : `<button class="btn btn-ghost vn-use" data-vuse="${i}">Use in reflections</button>`}
+            </div>` : '<p class="vn-none">No transcript was captured for this note.</p>'}
+        </div>`).join('') : `<div class="info-card"><p class="empty-note">No voice notes yet${locked ? '.' : ' — your voice matters, whenever you’re ready. 🎤'}</p></div>`}
+      <div class="act-foot-btns" style="padding:0">
+        <button class="btn btn-primary" data-go="reflections" style="min-width:150px">Reflect</button>
+      </div>`;
+  } else {
+    const ai = a.id - 1;
+    const [rc1, rc2] = MM.ACT_COLORS[ai % MM.ACT_COLORS.length];
+    const canDictate = speechRecognitionSupported();
+    body = `
+      <div class="info-card refl-card" style="--rc-top:${hexA(rc1, .16)};--rc-bot:${hexA(rc2, .12)};--rc-solid1:${rc1};--rc-solid2:${rc2}">
+        <h3><span class="ic">${I.sparkle}</span>Reflect on your creation</h3>
+        <p class="refl-sub">Honest and short is enough — there is no right answer here.</p>
+        <div class="refl-list">
           ${a.reflections.map((q, i) => `
-            <div class="refl-q">
-              <label for="rq${i}"><svg class="pen-mini" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>${i + 1}. ${esc(q)}</label>
-              <textarea id="rq${i}" data-r="${i}" placeholder="Your reflection… (no right or wrong)">${esc(st.reflections[i] || '')}</textarea>
+            <div class="refl-q" data-ri="${i}">
+              <label for="rq${i}"><span class="refl-num">${i + 1}</span>${esc(q)}</label>
+              <div class="refl-input-wrap">
+                <textarea id="rq${i}" data-r="${i}" placeholder="${locked ? '' : 'Your reflection… (no right or wrong)'}" ${locked ? 'readonly' : ''}>${esc(st.reflections[i] || '')}</textarea>
+                ${!locked && canDictate ? `<button class="refl-mic" data-dictate="${i}" aria-label="Speak this reflection instead of typing" title="Speak your answer">${I.mic}</button>` : ''}
+              </div>
+              <div class="refl-note hidden" data-note="${i}" aria-live="polite"></div>
             </div>`).join('')}
         </div>
       </div>
       <div class="act-foot-btns" style="padding:0">
-        <button class="btn btn-primary" id="submit-refl" style="min-width:150px">${st.submittedAt ? 'Update' : 'Submit'}</button>
+        ${locked ? '' : `<button class="btn btn-primary" id="submit-refl" style="min-width:150px">Submit</button>`}
       </div>`;
   }
 
@@ -1287,6 +2769,7 @@ function artDetail(a, tab) {
     <div class="body-pad" style="gap:12px">
       <div class="hero-card" style="padding:13px 16px">
         <p class="lead" style="margin:0">Option ${st.option + 1} — ${kind.emoji} ${esc(kind.name)}</p>
+        ${locked ? `<p class="locked-strip">${I.lock} Submitted ${new Date(st.submittedAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })} — locked to protect your original expression</p>` : ''}
       </div>
       <div class="tabs-bar" role="tablist">
         ${tabs.map(([k, lbl]) => `<button class="tab-link ${tab === k ? 'active' : ''}" role="tab" aria-selected="${tab === k}" data-tab="${k}">${lbl}</button>`).join('')}
@@ -1298,66 +2781,197 @@ function artDetail(a, tab) {
   app.querySelectorAll('.tab-link').forEach(t => t.addEventListener('click', () => nav(`#/art/${a.id}/detail/${t.dataset.tab}`)));
   app.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => nav(`#/art/${a.id}/detail/${b.dataset.go}`)));
 
-  $('#play-video')?.addEventListener('click', () => modal(`
-    <h3>${esc(a.name)} — video guide</h3>
-    <div style="aspect-ratio:16/9;border-radius:16px;display:grid;place-items:center;background:linear-gradient(140deg,#8a2eae,#3d1160);color:#fff">
-      <div style="text-align:center;padding:16px">
-        <div style="font-size:34px">🎬</div>
-        <p style="font-size:13px;opacity:.85;margin:8px 0 0">Your facilitator's video guide will appear here when it is published to your group.</p>
-      </div>
-    </div>
-    <div class="modal-btns"><button class="btn btn-primary" onclick="closeModal()">Close</button></div>
-  `));
+  if (tab === 'reflections') {
+    // Show the tiny on-device read straight away for anything already written.
+    a.reflections.forEach((_, i) => scheduleReflectionNote(i, st.reflections[i] || '', true));
+  }
 
-  $('#upload-btn')?.addEventListener('click', () => $('#file-in').click());
-  $('#file-in')?.addEventListener('change', async e => {
-    const files = [...e.target.files].slice(0, 6);
-    toast(`Reading colour${files.length > 1 ? 's' : ''} on this device…`, 1800);
-    for (const f of files) {
-      const url = await shrinkImage(f);
-      const analysis = await analyzeArtwork(url);
-      st.uploads.push({ src: url, analysis });
-    }
-    save(); toast(`${files.length} picture${files.length > 1 ? 's' : ''} added 📸`);
-    artDetail(a, 'pictures');
+  /* Interactive Themed Walkthrough Video Engine for ALL activities & options */
+  $('#play-video')?.addEventListener('click', () => {
+    MMVideo.playVideoModal(a.id, {
+      option: st.option,
+      actId: a.id,
+      onStart: () => nav(`#/art/${a.id}/detail/pictures`),
+    });
   });
-  $('#read-colours')?.addEventListener('click', async () => {
-    const button = $('#read-colours');
-    button.disabled = true; button.textContent = 'Reading colours…';
-    for (let i = 0; i < st.uploads.length; i++) {
-      if (uploadAnalysis(st.uploads[i])) continue;
-      const src = uploadSrc(st.uploads[i]);
-      st.uploads[i] = { src, analysis: await analyzeArtwork(src) };
-    }
-    save(); toast('Colour note ready ✨');
-    artDetail(a, 'pictures');
-  });
-  app.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', e => {
+
+  app.querySelectorAll('[data-vision]').forEach(b => b.addEventListener('click', e => {
     e.stopPropagation();
-    st.uploads.splice(+b.dataset.del, 1); save();
-    artDetail(a, 'pictures');
+    const an = uploadAnalysis(st.uploads[+b.dataset.vision]);
+    if (an) visionModal({ feedback: an.feedback, palette: an.palette, words: an.words, capabilities: { text: !!globalThis.TextDetector } });
   }));
 
-  app.querySelectorAll('[data-r]').forEach(t => t.addEventListener('input', () => {
-    st.reflections[t.dataset.r] = t.value; save();
-  }));
-  $('#submit-refl')?.addEventListener('click', () => {
-    const filled = a.reflections.filter((_, i) => (st.reflections[i] || '').trim()).length;
-    if (!filled) return toast('Share at least one reflection before submitting 💭');
-    const first = !st.submittedAt;
-    st.submittedAt = Date.now(); save();
-    if (first) {
-      confetti();
+  if (!locked) {
+    $('#draw-btn')?.addEventListener('click', () => openDrawPad(a));
+    $('#upload-btn')?.addEventListener('click', () => $('#file-in').click());
+    $('#file-in')?.addEventListener('change', async e => {
+      const files = [...e.target.files].slice(0, 6);
+      toast(`Moja Vision is looking at your picture${files.length > 1 ? 's' : ''}…`, 1800);
+      let last = null;
+      for (const f of files) {
+        const url = await shrinkImage(f);
+        const vision = await MMVision.read(url);
+        last = vision;
+        st.uploads.push({
+          src: url, kind: 'photo', at: Date.now(),
+          analysis: {
+            feedback: vision.feedback, palette: vision.palette,
+            dominant: vision.colour?.dominant, brightness: vision.colour?.brightness,
+            contrast: vision.colour?.contrast, words: vision.words || null,
+            faces: vision.faces || 0, analyzedAt: Date.now(),
+          },
+        });
+      }
+      save(); toast(`${files.length} picture${files.length > 1 ? 's' : ''} added 📸`);
+      artDetail(a, 'pictures');
+      if (last) setTimeout(() => visionModal(last), 240);
+    });
+    $('#read-colours')?.addEventListener('click', async () => {
+      const button = $('#read-colours');
+      button.disabled = true; button.textContent = 'Reading colours…';
+      for (let i = 0; i < st.uploads.length; i++) {
+        if (uploadAnalysis(st.uploads[i])) continue;
+        const src = uploadSrc(st.uploads[i]);
+        st.uploads[i] = { src, analysis: await analyzeArtwork(src) };
+      }
+      save(); toast('Colour note ready ✨');
+      artDetail(a, 'pictures');
+    });
+    app.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation();
+      st.uploads.splice(+b.dataset.del, 1); save();
+      artDetail(a, 'pictures');
+    }));
+
+    /* Voice recorder wiring */
+    const recBtn = $('#rec-btn');
+    if (recBtn) {
+      let stopFn = null;
+      recBtn.addEventListener('click', async () => {
+        if (voiceCap) { stopFn?.(); recBtn.classList.remove('rec-on'); recBtn.innerHTML = I.mic; return; }
+        const ui = { live: $('#rec-live'), clock: $('#rec-clock') };
+        recBtn.classList.add('rec-on'); recBtn.innerHTML = I.stop;
+        ui.live.textContent = 'Listening…';
+        stopFn = await startVoiceCapture(a, st, ui);
+        if (!voiceCap) { recBtn.classList.remove('rec-on'); recBtn.innerHTML = I.mic; }
+      });
+    }
+    app.querySelectorAll('[data-vdel]').forEach(b => b.addEventListener('click', () => {
+      st.voice.splice(+b.dataset.vdel, 1); save();
+      artDetail(a, 'voice');
+    }));
+    app.querySelectorAll('[data-vuse]').forEach(b => b.addEventListener('click', () => {
+      const v = (st.voice || [])[+b.dataset.vuse];
+      if (!v?.transcript) return;
+      const slot = a.reflections.findIndex((_, i) => !(st.reflections[i] || '').trim());
+      const idx = slot === -1 ? a.reflections.length - 1 : slot;
+      st.reflections[idx] = ((st.reflections[idx] || '') + ' ' + v.transcript).trim();
+      save();
+      toast('Transcript added to your reflections ✍️');
+      artDetail(a, 'reflections');
+    }));
+
+    app.querySelectorAll('[data-dictate]').forEach(b => b.addEventListener('click', () => {
+      const idx = +b.dataset.dictate;
+      toggleReflectionDictation(idx, $(`#rq${idx}`), b);
+    }));
+    app.querySelectorAll('[data-r]').forEach(t => t.addEventListener('input', () => {
+      st.reflections[t.dataset.r] = t.value; save();
+      scheduleReflectionNote(+t.dataset.r, t.value);
+    }));
+    $('#submit-refl')?.addEventListener('click', () => {
+      const filled = a.reflections.filter((_, i) => (st.reflections[i] || '').trim()).length;
+      if (!filled) return toast('Share at least one reflection before submitting 💭');
       const m = modal(`
-        <div class="celebrate">
-          <div style="font-size:56px">🎨</div>
-          <h3>Activity ${a.id} submitted!</h3>
-          <p>Beautiful work. Sit with your creation for a moment — you can revisit or update your reflections any time.</p>
-          <button class="btn btn-primary btn-block" id="cel-ok">Back to activities</button>
+        <h3>Submit ${esc(a.name)}?</h3>
+        <p style="font-size:13px;line-height:1.65;color:#ffffff;text-align:center;margin:0 0 6px">
+          Once submitted, this activity is locked and cannot be edited — your original expression is preserved exactly as it is. 🔒</p>
+        <div class="modal-btns">
+          <button class="btn btn-ghost" id="sub-no">Keep working</button>
+          <button class="btn btn-primary" id="sub-yes">Submit</button>
         </div>`);
-      m.querySelector('#cel-ok').onclick = () => { closeModal(); nav('#/art'); };
-    } else { toast('Reflections updated 💜'); nav('#/art'); }
+      m.querySelector('#sub-no').onclick = () => closeModal();
+      m.querySelector('#sub-yes').onclick = () => {
+        closeModal();
+        st.submittedAt = Date.now(); save();
+        confetti();
+        const c = modal(`
+          <div class="celebrate">
+            <div style="font-size:56px">🎨</div>
+            <h3>Activity ${a.id} submitted!</h3>
+            <p>Beautiful work. Sit with your creation for a moment — it is preserved exactly as you made it.</p>
+            <button class="btn btn-primary btn-block" id="cel-ok">Back to activities</button>
+          </div>`);
+        c.querySelector('#cel-ok').onclick = () => { closeModal(); nav('#/art'); };
+      };
+    });
+  }
+}
+
+/* ── Draw on your device ─────────────────────────────────── */
+function openDrawPad(a) {
+  const st = actState(a.id);
+  if (!st) return;
+  if (st.submittedAt) return toast('This activity is submitted and locked 🔒');
+
+  MMVoice.pause(); // the drawing pad is a focused space
+
+  const host = document.createElement('div');
+  host.className = 'draw-overlay';
+  host.setAttribute('role', 'dialog');
+  host.setAttribute('aria-modal', 'true');
+  host.setAttribute('aria-label', `Drawing pad for ${a.name}`);
+  document.body.appendChild(host);
+
+  const close = () => { pad.cleanup(); host.remove(); MMVoice.resume(); };
+
+  const pad = MMDraw.mount(host, {
+    onClose: close,
+    onSave: async (dataUrl, meta) => {
+      if (!dataUrl) return toast('Make a mark or two first 🖍');
+      host.classList.add('reading');
+      toast('Moja Vision is looking at your drawing…', 1800);
+      st.uploads.push({
+        src: dataUrl,
+        kind: 'drawing',
+        analysis: {
+          feedback: meta.vision.feedback,
+          palette: meta.vision.palette,
+          dominant: meta.vision.colour?.dominant,
+          brightness: meta.vision.colour?.brightness,
+          contrast: meta.vision.colour?.contrast,
+          words: meta.vision.words || null,
+          faces: meta.vision.faces || 0,
+          geometry: meta.vision.geometry,
+          analyzedAt: Date.now(),
+        },
+        at: Date.now(),
+      });
+      save();
+      close();
+      confetti();
+      artDetail(a, 'pictures');
+      setTimeout(() => visionModal(meta.vision), 260);
+    },
   });
+}
+
+/** Moja Vision's warm read of what was just made. */
+function visionModal(vision) {
+  const words = vision.words?.length
+    ? `<div class="vision-words"><small>Words I could read in your art</small><p>${vision.words.slice(0, 6).map(w => `“${esc(w)}”`).join(' · ')}</p></div>`
+    : '';
+  modal(`
+    <div class="vision-modal">
+      <span class="vision-mark">${I.sparkle}</span>
+      <h3>Moja Vision</h3>
+      <div class="colour-palette big">${(vision.palette || []).map(c => `<span style="--swatch:${c}"></span>`).join('')}</div>
+      <p class="vision-text">${esc(vision.feedback)}</p>
+      ${words}
+      <small class="vision-foot">Read on this device from colour, strokes${vision.capabilities?.text ? ' and text' : ''} · a friendly description, not a mental-health assessment</small>
+      <div class="modal-btns"><button class="btn btn-primary btn-block" onclick="closeModal()">Thank you</button></div>
+    </div>
+  `);
 }
 
 function shrinkImage(file) {
@@ -1450,15 +3064,49 @@ function analyzeArtwork(src) {
 
 /* ── Chat ────────────────────────────────────────────────── */
 routes.chat = (params, isBack) => {
+  if (!hasChat() && !S.adminMode) { toast('Chat is not part of your study group 💜'); return nav('#/home'); }
   if (!chatOpen()) { toast('Complete your Pre-Survey to unlock Chat ✨'); return nav('#/pre'); }
   if (params.length >= 2) return chatThread(params[0], parseInt(params[1], 10));
   chatChannels(params[0] === 'individual' ? 'individual' : 'group', isBack);
 };
 
+function adminLoginModal() {
+  const m = modal(`
+    <h3>Facilitator access</h3>
+    <p style="font-size:12.8px;line-height:1.6;color:#ffffff;text-align:center;margin:0 0 12px">${esc(MM.ADMIN.hint)}</p>
+    <input class="tkt-input" id="adm-code" placeholder="Access code" autocomplete="off" />
+    <div class="modal-btns">
+      <button class="btn btn-ghost" id="adm-cancel">Cancel</button>
+      <button class="btn btn-primary" id="adm-go">Enter</button>
+    </div>
+  `);
+  m.querySelector('#adm-cancel').onclick = () => closeModal();
+  const go = () => {
+    if (m.querySelector('#adm-code').value.trim().toUpperCase() === MM.ADMIN.code) {
+      S.adminMode = true; save(); closeModal();
+      toast('Facilitator mode on — replies now send as Facilitator 🎓');
+      route();
+    } else toast('That code doesn’t match — check with the study team');
+  };
+  m.querySelector('#adm-go').onclick = go;
+  m.querySelector('#adm-code').addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+}
+
+function pendingHandover(scope, actId) {
+  const q = S.agentQueue[`${scope}:${actId}`];
+  return q && !q.resolvedAt ? q : null;
+}
+
 function chatChannels(scope, isBack) {
+  const pendingCount = Object.values(S.agentQueue).filter(q => q && !q.resolvedAt).length;
   render(`
     ${header('Chat', { backTo: '#/home' })}
     <div class="body-pad">
+      ${S.adminMode ? `
+        <div class="admin-band">
+          <span>🎓 <b>Facilitator mode</b>${pendingCount ? ` · ${pendingCount} handover${pendingCount > 1 ? 's' : ''} waiting` : ' · all caught up'}</span>
+          <button class="link" id="adm-exit">Exit</button>
+        </div>` : ''}
       <div class="seg" role="tablist">
         <button class="${scope === 'group' ? 'active' : ''}" data-scope="group" role="tab">Group</button>
         <button class="${scope === 'individual' ? 'active' : ''}" data-scope="individual" role="tab">Individual</button>
@@ -1472,20 +3120,24 @@ function chatChannels(scope, isBack) {
         const last = msgs[msgs.length - 1];
         const readKey = `${scope}:${a.id}`;
         const unread = msgs.filter(m2 => m2.who !== 'me' && m2.at > (S.chatRead[readKey] || 0)).length;
+        const handover = pendingHandover(scope, a.id);
         const [c1, c2] = MM.ACT_COLORS[i % MM.ACT_COLORS.length];
         return `<div class="chan-card" data-open="${a.id}" style="animation-delay:${i * .05}s" role="button" tabindex="0">
           <span class="ch-ic" style="background:linear-gradient(140deg, ${c1}, ${c2})">${a.id}</span>
-          <h4>${esc(a.name)}${last ? `<span class="last">${esc(last.who === 'me' ? 'You: ' : last.who === 'guide' ? 'Mojo Guide: ' : 'Facilitator: ')}${esc(last.text)}</span>` : `<span class="last">Say hello 👋</span>`}</h4>
+          <h4>${esc(a.name)}${handover && S.adminMode ? '<span class="handover-flag">🙋 handover requested</span>' : ''}${last ? `<span class="last">${esc(last.who === 'me' ? 'You: ' : last.who === 'guide' ? 'Moja Guide: ' : last.who === 'sys' ? '' : 'Facilitator: ')}${esc(last.text)}</span>` : `<span class="last">Say hello 👋</span>`}</h4>
           ${unread ? `<span class="unread">${unread}</span>` : ''}
         </div>`;
       }).join('')}
+      ${S.adminMode ? '' : `<button class="fac-link" id="fac-access">🎓 Facilitator access</button>`}
     </div>
   `, { theme: 'theme-purple', backAnim: isBack });
   app.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => chatChannels(b.dataset.scope, false)));
   app.querySelectorAll('.chan-card').forEach(c => c.addEventListener('click', () => nav(`#/chat/${scope}/${c.dataset.open}`)));
+  $('#fac-access')?.addEventListener('click', adminLoginModal);
+  $('#adm-exit')?.addEventListener('click', () => { S.adminMode = false; save(); toast('Facilitator mode off'); route(); });
 }
 
-/* ── Mojo Guide — indexed, activity-aware, safe ─────────── */
+/* ── Moja Guide — indexed, activity-aware, safe ─────────── */
 function fillAIContext(template, activity) {
   const latestUpload = [...(actState(activity.id)?.uploads || [])].reverse().find(upload => typeof upload === 'object' && upload.analysis);
   const values = {
@@ -1519,31 +3171,52 @@ function indexedKnowledgeReply(text, activity) {
 }
 
 function facilitatorReply(text, activity) {
-  if (MM.AI.crisisRx.test(text)) {
+  // On-device language understanding first: safety before cleverness.
+  const read = MMNLP.analyse(text);
+
+  if (read.risk.level === 'crisis' || MM.AI.crisisRx.test(text)) {
     setTimeout(() => toast('💜 You are not alone — the Help button is right at the top', 6000), 2600);
-    return MM.AI.crisisReply;
+    return { text: MM.AI.crisisReply, handover: true, read, escalate: 'crisis' };
+  }
+  if (read.risk.level === 'urgent') {
+    return {
+      text: 'That sounds really heavy right now, and I do not want you to carry it alone. '
+        + 'I have asked a human facilitator to come into this chat. If it feels urgent, tap Help at the top — '
+        + 'or call Lifeline on 0861 1113 any time, day or night. I am staying right here with you. 💜',
+      handover: true, read, escalate: 'urgent',
+    };
+  }
+  if (MM.AI.handoverRx.test(text)) {
+    return { text: MM.AI.handoverReply, handover: true, read };
   }
   if (!S.aiMemory) S.aiMemory = {};
   const previous = S.aiMemory[activity.id];
   if (previous && /^(?:(?:yes|yeah|yep|okay|ok|sure)(?:,?\s+please)?|please|tell me more)[.!\s]*$/i.test(text)) {
     const followUp = `Absolutely. For ${activity.name}, choose one tiny next step and give it five unhurried minutes. You can come back and tell me what changed — I’ll remember we were talking about ${previous.topic}.`;
     S.lastAiReply = followUp; save();
-    return followUp;
+    return { text: followUp, read };
   }
   const indexed = indexedKnowledgeReply(text, activity);
   if (indexed) {
     S.aiMemory[activity.id] = { topic: indexed.topic, at: Date.now() };
     S.lastAiReply = indexed.text; save();
-    return indexed.text;
+    return { text: indexed.text, read };
   }
   const intent = MM.AI.intents.find(i => i.rx.test(text));
   const pool = intent ? intent.replies : MM.AI.fallback;
   let pick;
   do { pick = pool[Math.random() * pool.length | 0]; } while (pool.length > 1 && pick === S.lastAiReply);
-  const reply = fillAIContext(pick, activity);
+  let reply = fillAIContext(pick, activity);
+
+  // Let the sentiment read colour the reply when the words were clearly felt.
+  if (read.sentiment.label === 'negative' && read.sentiment.confidence > .6 && !intent) {
+    reply = `I can hear that this is weighing on you. ${reply}`;
+  } else if (read.sentiment.label === 'positive' && read.sentiment.confidence > .7 && !intent) {
+    reply = `I love the lift in that message! ${reply}`;
+  }
   S.aiMemory[activity.id] = { topic: intent?.name || 'reflection', at: Date.now() };
   S.lastAiReply = reply; save();
-  return reply;
+  return { text: reply, read };
 }
 
 function chatThread(scope, actId) {
@@ -1560,29 +3233,37 @@ function chatThread(scope, actId) {
     save();
   }
   const msgs = S.chat[scope][actId];
-  S.chatRead[`${scope}:${actId}`] = Date.now(); save();
+  const qKey = `${scope}:${actId}`;
+  S.chatRead[qKey] = Date.now(); save();
 
   const fmt = ts => {
     const d = new Date(ts);
     return `${String(d.getDate()).padStart(2, '0')} ${d.toLocaleString('en', { month: 'short' })} ${d.getFullYear()}  |  ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   };
-  const whoLabel = who => who === 'me' ? 'Me' : who === 'guide' ? 'Mojo Guide' : 'Facilitator';
+  const whoLabel = who => who === 'me' ? 'Me' : who === 'guide' ? 'Moja Guide' : 'Facilitator';
+  const bubbleHTML = m => m.who === 'sys'
+    ? `<div class="sysline">${esc(m.text)}</div>`
+    : `<div class="bubble ${m.who === 'me' ? 'me' : m.who === 'guide' ? 'them guide' : 'them'}">
+        <p>${esc(m.text)}</p>
+        <span class="meta"><b>${whoLabel(m.who)}</b> | ${fmt(m.at)}</span>
+      </div>`;
+  const handover = pendingHandover(scope, actId);
+
   render(`
     ${header(a.name, { backTo: `#/chat/${scope === 'individual' ? 'individual' : ''}` })}
     <div class="chat-scroll" id="chat-scroll">
       <div class="ai-guide-banner">
         <span class="ai-guide-mark">${I.sparkle}</span>
-        <span><b>Mojo Guide</b><small>Activity-aware support</small></span>
+        <span><b>Moja Guide</b><small>Activity-aware support · AI</small></span>
+        ${S.adminMode
+          ? `<button class="handover-btn adm" id="adm-resolve" ${handover ? '' : 'disabled'}>${handover ? 'Mark handled' : 'No handover'}</button>`
+          : `<button class="handover-btn" id="ask-human">${handover ? (handover.joinedAt ? '🎓 Facilitator here' : '🙋 Requested…') : '🙋 Talk to a human'}</button>`}
       </div>
-      ${msgs.map(m => `
-        <div class="bubble ${m.who === 'me' ? 'me' : m.who === 'guide' ? 'them guide' : 'them'}">
-          <p>${esc(m.text)}</p>
-          <span class="meta"><b>${whoLabel(m.who)}</b> | ${fmt(m.at)}</span>
-        </div>`).join('')}
+      ${msgs.map(bubbleHTML).join('')}
     </div>
     <div class="chat-input-row">
-      <input id="chat-in" placeholder="Type a message…" autocomplete="off" maxlength="600" />
-      <button class="send" id="chat-send" aria-label="Send">${I.send}</button>
+      <input id="chat-in" placeholder="${S.adminMode ? 'Reply as Facilitator…' : 'Type a message…'}" autocomplete="off" maxlength="600" />
+      <button class="send ${S.adminMode ? 'adm' : ''}" id="chat-send" aria-label="Send">${I.send}</button>
     </div>
   `, { theme: 'theme-purple' });
 
@@ -1590,39 +3271,617 @@ function chatThread(scope, actId) {
   const toBottom = () => { app.scrollTop = app.scrollHeight; };
   toBottom();
 
+  const pushMsg = m => {
+    msgs.push(m);
+    S.chatRead[qKey] = Date.now(); save();
+    if (!$('#chat-scroll')) return;
+    scroll.insertAdjacentHTML('beforeend', bubbleHTML(m));
+    toBottom();
+  };
+
+  /* A pending handover "joins" shortly after it was requested (demo). */
+  const maybeJoinFacilitator = () => {
+    const q = pendingHandover(scope, actId);
+    if (!q || q.joinedAt || S.adminMode) return;
+    const wait = Math.max(600, 9000 - (Date.now() - q.requestedAt));
+    setTimeout(() => {
+      const q2 = pendingHandover(scope, actId);
+      if (!q2 || q2.joinedAt) return;
+      q2.joinedAt = Date.now(); save();
+      pushMsg({ who: 'fac', text: MM.AI.handoverAck, at: Date.now() });
+      const btn = $('#ask-human'); if (btn) btn.textContent = '🎓 Facilitator here';
+    }, wait);
+  };
+  maybeJoinFacilitator();
+
+  const requestHandover = () => {
+    if (pendingHandover(scope, actId)) return toast('A facilitator has already been asked to join 💜');
+    S.agentQueue[qKey] = { requestedAt: Date.now() };
+    save();
+    pushMsg({ who: 'sys', text: 'A human facilitator has been requested for this chat.', at: Date.now() });
+    const btn = $('#ask-human'); if (btn) btn.textContent = '🙋 Requested…';
+    maybeJoinFacilitator();
+  };
+  $('#ask-human')?.addEventListener('click', requestHandover);
+  $('#adm-resolve')?.addEventListener('click', () => {
+    const q = pendingHandover(scope, actId);
+    if (!q) return;
+    q.resolvedAt = Date.now(); save();
+    pushMsg({ who: 'sys', text: 'Handover handled — Moja Guide is supporting this chat again.', at: Date.now() });
+    const btn = $('#adm-resolve'); if (btn) { btn.textContent = 'No handover'; btn.disabled = true; }
+    toast('Marked handled 🎓');
+  });
+
   const sendMsg = () => {
     const inp = $('#chat-in');
     const text = inp.value.trim();
     if (!text) return;
-    msgs.push({ who: 'me', text, at: Date.now() });
-    save(); inp.value = '';
-    scroll.insertAdjacentHTML('beforeend', `
-      <div class="bubble me"><p>${esc(text)}</p><span class="meta"><b>Me</b> | ${fmt(Date.now())}</span></div>`);
-    toBottom();
-    // Facilitator reply — intent-aware AI with typing indicator
-    const reply = facilitatorReply(text, a);
+
+    if (S.adminMode) {
+      // Facilitator replies by hand — no AI in the loop.
+      pushMsg({ who: 'fac', text, at: Date.now() });
+      inp.value = '';
+      return;
+    }
+
+    pushMsg({ who: 'me', text, at: Date.now() });
+    inp.value = '';
+
+    const q = pendingHandover(scope, actId);
+    if (q?.joinedAt) {
+      // A human facilitator is in the loop — warm, human-paced replies.
+      const pool = MM.FACILITATOR_REPLIES;
+      const reply = pool[Math.random() * pool.length | 0];
+      setTimeout(() => {
+        if (!$('#chat-scroll')) return;
+        scroll.insertAdjacentHTML('beforeend', `<div class="bubble them typing" id="typing"><i></i><i></i><i></i></div>`);
+        toBottom();
+        setTimeout(() => { $('#typing')?.remove(); pushMsg({ who: 'fac', text: reply, at: Date.now() }); }, 1600 + Math.random() * 1800);
+      }, 1200);
+      return;
+    }
+
+    // Moja Guide (AI) reply — intent-aware with typing indicator
+    const res = facilitatorReply(text, a);
+    if (res.handover && !pendingHandover(scope, actId)) {
+      S.agentQueue[qKey] = { requestedAt: Date.now() }; save();
+      const btn = $('#ask-human'); if (btn) btn.textContent = '🙋 Requested…';
+    }
+    // Distress in chat opens the same social-worker pathway as the surveys.
+    if (res.escalate && !S.tickets.some(t => t.source === 'chat' && Date.now() - t.createdAt < 6 * 36e5)) {
+      const t = newTicket('social', 'Wellbeing check-in requested (chat)',
+        `Moja Guide flagged ${res.escalate} distress in the ${a.name} ${scope} chat.`, 'chat');
+      pushMsg({ who: 'sys', text: `A social worker has been asked to reach out (${t.ref}).`, at: Date.now() });
+    }
     setTimeout(() => {
       if (!$('#chat-scroll')) return;
       scroll.insertAdjacentHTML('beforeend', `<div class="bubble them typing" id="typing"><i></i><i></i><i></i></div>`);
       toBottom();
       setTimeout(() => {
         $('#typing')?.remove();
-        msgs.push({ who: 'guide', text: reply, at: Date.now() });
-        S.chatRead[`${scope}:${actId}`] = Date.now(); save();
-        if (!$('#chat-scroll')) return;
-        scroll.insertAdjacentHTML('beforeend', `
-          <div class="bubble them guide"><p>${esc(reply)}</p><span class="meta"><b>Mojo Guide</b> | ${fmt(Date.now())}</span></div>`);
-        toBottom();
-      }, 900 + Math.min(2600, reply.length * 16));
+        pushMsg({ who: 'guide', text: res.text, at: Date.now() });
+        if (res.handover) maybeJoinFacilitator();
+      }, 900 + Math.min(2600, res.text.length * 16));
     }, 700);
   };
   $('#chat-send').onclick = sendMsg;
   $('#chat-in').addEventListener('keydown', e => { if (e.key === 'Enter') sendMsg(); });
 }
 
-/* ── Boot ────────────────────────────────────────────────── */
+/* ── Games Hub ─────────────────────────────────────────────── */
+routes.games = () => {
+  render(`
+    ${header('Games & Resilience Hub 🎮', { backTo: '#/home' })}
+    <div class="body-pad" style="gap:14px">
+      <div class="hero-card games-hero">
+        <span class="spark-badge">RELAX &amp; PLAY</span>
+        <h2 class="hdr-glare">Choose Your Resilience Game</h2>
+        <p class="lead">Take a mindful 2-minute pause between study activities. Relax in your peaceful meadow, fly as a bumblebee in 3D, or pop bubbles in cosmic harmonies!</p>
+      </div>
+
+      <div class="game-hub-grid">
+        <!-- Game 1: Moja Meadow 2D -->
+        <div class="card game-card">
+          <div class="game-card-head">
+            <span class="game-badge">2D PEACEFUL GARDEN</span>
+            <span class="game-icon">🌸</span>
+          </div>
+          <h3>Moja Meadow</h3>
+          <p>Nourish flowers to the sky (Giant Mega Bloom +50 🌟), hydrate soil worms (+3 💧) and ants (+2 💧), offer dewdrop nectar to butterflies (+5 / +10), summon summer rain (🌧️), and catch falling Rain Stars (⭐ +5) in a peaceful 2-minute retreat.</p>
+          <div class="game-stats-row">
+            <span class="chip">🌸 <b>${S.game.blooms}</b> Blooms</span>
+            <span class="chip">🌟 <b>${S.game.megaBlooms || 0}</b> Sky Blooms</span>
+            <span class="chip">⭐ <b>${S.game.rainStars || 0}</b> Rain Stars</span>
+            <span class="chip">🐛 <b>${S.game.wormsHydrated || 0}</b> Worms</span>
+            <span class="chip">⏳ <b>2:00</b></span>
+          </div>
+          <button class="btn btn-primary btn-block" onclick="nav('#/game')">Play Moja Meadow 🌸</button>
+        </div>
+
+        <!-- Game 2: Moja Bee 3D -->
+        <div class="card game-card">
+          <div class="game-card-head">
+            <span class="game-badge" style="background:#ffb703;color:#1c1917">3D SUNRAY FLIGHT</span>
+            <span class="game-icon">🐝</span>
+          </div>
+          <h3>Moja Bee 3D: Sunray Flight</h3>
+          <p>Fly your happy bumblebee through sunny 3D skies. Collect glowing Sunrays (+10) and Pollen Blossom pods (+15 &amp; Honey Rush!), dodge storm clouds, and enjoy realistic crash slowdown wobble.</p>
+          <div class="game-stats-row">
+            <span class="chip">🏆 High: <b>${S.game3d?.highScore || 0}</b> pts</span>
+            <span class="chip">☀️ <b>${S.game3d?.sunrays || 0}</b> Sunrays</span>
+            <span class="chip">🍯 <b>${S.game3d?.pollen || 0}</b> Pollen</span>
+            <span class="chip">⏳ <b>2:00</b></span>
+          </div>
+          <button class="btn btn-primary btn-block" style="background:linear-gradient(135deg,#ffb703,#f3256b);color:#fff" onclick="nav('#/game3d')">Fly Moja Bee 3D 🐝</button>
+        </div>
+
+        <!-- Game 3: Moja Pop Bubble Odyssey -->
+        <div class="card game-card">
+          <div class="game-card-head">
+            <span class="game-badge" style="background:#8a2eae;color:#fff">BUBBLE SHOOTER</span>
+            <span class="game-icon">🫧</span>
+          </div>
+          <h3>Moja Pop: Bubble Odyssey</h3>
+          <p>Aim with precision trajectory lasers! Match 3+ glossy bubbles with harmonic pentatonic chimes, trigger cascading floating avalanches, and detonate Hope Supernova Bombs in 2 action-packed minutes.</p>
+          <div class="game-stats-row">
+            <span class="chip">🏆 High: <b>${S.gameBubble?.highScore || 0}</b> pts</span>
+            <span class="chip">🫧 <b>${S.gameBubble?.bubblesPopped || 0}</b> Popped</span>
+            <span class="chip">🔥 Best: <b>x${S.gameBubble?.combos || 1}</b></span>
+            <span class="chip">⏳ <b>2:00</b></span>
+          </div>
+          <button class="btn btn-primary btn-block" style="background:linear-gradient(135deg,#8a2eae,#3366ff);color:#fff" onclick="nav('#/gamebubble')">Play Moja Pop 🫧</button>
+        </div>
+      </div>
+
+      <div class="card game-card" style="display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:16px">
+        <div>
+          <b style="font-size:14.5px;color:#ffffff">🌟 Need instant inspiration?</b>
+          <p style="font-size:12.5px;color:rgba(255,255,255,0.92);margin:3px 0 0">Ignite the Beacon of Hope for uplifting multi-language affirmations.</p>
+        </div>
+        <button class="btn btn-secondary" onclick="beaconOfHopeModal()" style="white-space:nowrap;margin-left:10px">Ignite ✨</button>
+      </div>
+
+      ${ionityFooter()}
+    </div>
+  `);
+};
+
+/* ── Moja Bee 3D Screen ────────────────────────────────────── */
+routes.game3d = () => {
+  render(`
+    ${header('Moja Bee 3D 🐝🌻', { backTo: '#/games' })}
+    <div class="body-pad orbit-pad">
+      <div class="meadow-hud orbit-hud">
+        <span class="hud-chip">🏆 <b id="orbit-score">0</b></span>
+        <span class="hud-chip">⭐ High: <b id="orbit-high">${S.game3d?.highScore || 0}</b></span>
+        <span class="hud-chip">☀️ <b id="orbit-sunrays">0</b></span>
+        <span class="hud-chip">🍯 <b id="orbit-pollen">0</b></span>
+        <span class="hud-chip timer-chip">⏳ <span id="orbit-timer">2:00</span></span>
+        <span class="hud-chip">📏 <span id="orbit-dist">0m</span></span>
+      </div>
+      <div class="orbit-frame">
+        <canvas id="orbit-canvas" aria-label="Moja Bee 3D Sunray Flight"></canvas>
+        <div class="orbit-controls-overlay">
+          <button class="orbit-boost-btn" id="orbit-boost" style="background:linear-gradient(135deg,#ffb703,#e02043);border-color:#ffe066" title="Honey Rush Boost">⚡ HONEY RUSH</button>
+        </div>
+      </div>
+      <div class="orbit-actions" style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn btn-outline btn-block" onclick="nav('#/games')">🎮 All Games Hub</button>
+        <button class="btn btn-secondary btn-block" onclick="nav('#/gamebubble')">🫧 Play Moja Pop</button>
+      </div>
+      <p class="meadow-hint" style="text-align:center">
+        <b>Touch &amp; drag anywhere</b> to guide your bumblebee · Collect <b>☀️ Sunrays (+10)</b> · Gather <b>🍯 Pollen (+15 &amp; Rush!)</b> · Storm clouds cause a dizzy wobble slowdown!
+      </p>
+    </div>
+  `);
+
+  $('#orbit-boost')?.addEventListener('click', () => {
+    MMGame3D.triggerBoost();
+  });
+
+  MMGame3D.mount();
+};
+
+window.addEventListener('hashchange', () => {
+  if (!location.hash.startsWith('#/game3d')) MMGame3D.stop();
+});
+
+/* ── Moja Pop Bubble Odyssey Screen ────────────────────────── */
+routes.gamebubble = () => {
+  render(`
+    ${header('Moja Pop: Bubble Odyssey 🫧✨', { backTo: '#/games' })}
+    <div class="body-pad bubble-pad">
+      <div class="meadow-hud bubble-hud">
+        <span class="hud-chip">🏆 <b id="bubble-score">0</b></span>
+        <span class="hud-chip">⭐ High: <b id="bubble-high">${S.gameBubble?.highScore || 0}</b></span>
+        <span class="hud-chip">🔥 Combo: <b id="bubble-combo">—</b></span>
+        <span class="hud-chip timer-chip" title="2-Minute Countdown Challenge">⏳ <span id="bubble-timer">2:00</span></span>
+        <button class="hud-chip hud-btn" id="bubble-swap" title="Swap loaded bubble">🔄 Swap</button>
+      </div>
+      <div class="bubble-frame">
+        <canvas id="bubble-canvas" aria-label="Moja Pop Bubble Shooter Odyssey"></canvas>
+      </div>
+      <div class="bubble-actions" style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn btn-outline btn-block" onclick="nav('#/games')">🎮 All Games Hub</button>
+        <button class="btn btn-primary btn-block" style="background:linear-gradient(135deg,#ffb703,#f3256b);color:#fff" onclick="nav('#/game3d')">🐝 Play Moja Bee 3D</button>
+      </div>
+      <p class="meadow-hint" style="text-align:center">
+        <b>Touch &amp; drag to aim</b> trajectory laser with wall reflections · Match 3+ to pop harmonic chimes · Disconnect floating clusters for <b>💥 MEGA AVALANCHES</b> · Tap <b>🔄 Swap</b> or cannon bubble to switch!
+      </p>
+    </div>
+  `);
+
+  $('#bubble-swap')?.addEventListener('click', () => {
+    MMBubble.swapBubbles();
+  });
+
+  MMBubble.mount();
+};
+
+window.addEventListener('hashchange', () => {
+  if (!location.hash.startsWith('#/gamebubble')) MMBubble.stop();
+});
+
+/* ── Writer / Journal Screen ───────────────────────────────── */
+routes.journal = (args = []) => {
+  const subview = args[0] || 'write'; // 'write' | 'entries'
+  const entries = MMJournal.getEntries();
+
+  render(`
+    ${header('Journal & Writer 📖✍️', { backTo: '#/home' })}
+    <div class="body-pad" style="gap:14px">
+      <div class="tabs-bar" role="tablist">
+        <button class="tab-link ${subview === 'write' ? 'active' : ''}" id="j-tab-write">✍️ New Entry</button>
+        <button class="tab-link ${subview === 'entries' ? 'active' : ''}" id="j-tab-entries">📚 Saved Notes (${entries.length})</button>
+      </div>
+
+      ${subview === 'write' ? `
+        <!-- Procedural 432Hz & Nature Soundscape Bar -->
+        ${typeof MMSoundscape !== 'undefined' ? MMSoundscape.soundscapeBarHTML() : ''}
+
+        <!-- Journal Writer View -->
+        <div class="card journal-card">
+          <div class="journal-prompts-bar">
+            <span class="j-prompt-lbl">💡 Spark prompt:</span>
+            <button class="btn btn-ghost btn-sm" id="j-shuffle-prompt">Shuffle</button>
+          </div>
+          <div class="j-prompt-box" id="j-prompt-text">${esc(pick(MM.JOURNAL_PROMPTS))}</div>
+
+          <div class="field" style="margin-top:10px">
+            <input type="text" id="j-title" placeholder="Note title or thought headline…" maxlength="60" />
+          </div>
+
+          <div class="j-mood-picker">
+            <span style="font-size:12px;font-weight:600;color:var(--ink)">Mood right now:</span>
+            <div class="j-mood-chips">
+              <button class="j-mood-btn active" data-mood="🌟 Hopeful">🌟 Hopeful</button>
+              <button class="j-mood-btn" data-mood="😌 Peaceful">😌 Peaceful</button>
+              <button class="j-mood-btn" data-mood="😊 Joyful">😊 Joyful</button>
+              <button class="j-mood-btn" data-mood="😐 Neutral">😐 Neutral</button>
+              <button class="j-mood-btn" data-mood="🌱 Reflective">🌱 Reflective</button>
+            </div>
+          </div>
+
+          <div class="j-editor-wrap">
+            <textarea id="j-body" placeholder="Write or speak your thoughts freely… Everything is private and encrypted with AES-256 on your phone."></textarea>
+            <div class="j-editor-bar">
+              <span id="j-char-count">0 characters</span>
+              <span class="j-enc-badge">🔒 AES-GCM Encrypted</span>
+            </div>
+          </div>
+
+          <!-- Speech-to-Text, Draw Studio & Tiny OCR Bar -->
+          <div class="j-tools-bar">
+            <button class="btn btn-secondary j-tool-btn" id="j-mic-btn">
+              ${I.mic} <span id="j-mic-lbl">Speak to Write</span>
+            </button>
+            <button class="btn btn-ghost j-tool-btn" id="j-draw-btn">
+              ${I.brush} <span>Draw / Paint</span>
+            </button>
+            <label class="btn btn-outline j-tool-btn" id="j-ocr-label" style="cursor:pointer">
+              ${I.camera} <span>Scan Note</span>
+              <input type="file" id="j-ocr-file" accept="image/*" style="display:none" />
+            </label>
+          </div>
+
+          <!-- Tiny Connected AI Companion Reflection Bubble -->
+          <div class="tiny-ai-companion" id="j-tiny-ai">
+            <div class="tiny-ai-head">
+              <span class="tiny-ai-avatar">🌱</span>
+              <b>Tiny Connected AI Companion</b>
+              <small>On-Device Insight</small>
+            </div>
+            <p class="tiny-ai-msg" id="j-ai-msg">Start typing or speaking — I will offer gentle reflections and seeds of hope as you write.</p>
+            <button class="btn btn-ghost btn-sm" id="j-ai-refresh" style="align-self:flex-start">✨ Reflect on this thought</button>
+          </div>
+
+          <button class="btn btn-primary btn-block" id="j-save-btn" style="margin-top:12px">
+            🔒 Save Note to Vault
+          </button>
+        </div>
+      ` : `
+        <!-- Saved Journal Entries & Resilience Constellation -->
+        <div class="journal-entries-list">
+          ${entries.length ? `
+            <!-- Resilience Constellation Map -->
+            <div class="card constellation-card">
+              <div class="const-head">
+                <span class="spark-badge">RESILIENCE CONSTELLATION</span>
+                <span class="air-ai-pill">✨ On-Device NLP</span>
+              </div>
+              <h3 style="margin:6px 0 2px;font-size:16.5px;font-weight:800;color:#ffffff">Your Theme Constellation</h3>
+              <p style="font-size:12.5px;color:rgba(255,255,255,0.88);margin:0 0 14px">Glowing inner strength stars connected across your written reflections.</p>
+              <div class="const-grid">
+                ${(typeof MMNLP !== 'undefined' && MMNLP.resilienceConstellation ? MMNLP.resilienceConstellation(entries) : []).map(t => `
+                  <div class="const-star ${t.count > 0 ? 'lit' : ''}" style="--star-color:${t.color}">
+                    <span class="const-icon">${t.icon}</span>
+                    <b class="const-name">${t.name}</b>
+                    <span class="const-badge">${t.count} star${t.count === 1 ? '' : 's'}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          ${entries.length ? entries.map(e => {
+            const themes = (typeof MMNLP !== 'undefined' && MMNLP.extractThemes) ? MMNLP.extractThemes(e.body + ' ' + (e.title || '')) : [];
+            return `
+              <div class="card journal-entry-card" data-jid="${e.id}">
+                <div class="j-entry-head">
+                  <span class="j-entry-mood">${esc(e.mood || '🌿 Note')}</span>
+                  <span class="j-entry-date">${new Date(e.updatedAt || e.createdAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                </div>
+                <h3 class="j-entry-title">${esc(e.title || 'Untitled Note')}</h3>
+                <p class="j-entry-body">${esc(e.body)}</p>
+                ${themes.length ? `
+                  <div class="j-themes-row">
+                    ${themes.map(t => `<span class="j-theme-chip" style="--tc:${t.color}">${t.icon} ${t.name}</span>`).join('')}
+                  </div>
+                ` : ''}
+                ${e.aiInsight ? `
+                  <div class="j-entry-ai">
+                    <span>${e.aiInsight.icon || '🌱'} <b>Tiny Guide:</b></span> ${esc(e.aiInsight.message)}
+                  </div>
+                ` : ''}
+                <div class="j-entry-actions">
+                  <button class="btn btn-ghost btn-sm j-read-aloud" data-text="${esc(e.body)}">🔊 Read Aloud</button>
+                  <button class="btn btn-ghost btn-sm j-del-entry" data-del="${e.id}">Delete</button>
+                </div>
+              </div>
+            `;
+          }).join('') : `
+            <div class="card" style="text-align:center;padding:28px 16px">
+              <div style="font-size:36px;margin-bottom:8px">📖</div>
+              <h3 style="margin:0 0 6px">No Saved Notes Yet</h3>
+              <p style="font-size:13px;color:var(--ink-soft);margin:0 0 16px">Your thoughts, spoken reflections, and scanned notes will be stored safely here, encrypted on your phone.</p>
+              <button class="btn btn-primary" onclick="nav('#/journal/write')">Write Your First Note ✍️</button>
+            </div>
+          `}
+        </div>
+      `}
+
+      ${ionityFooter()}
+    </div>
+  `);
+
+  $('#j-tab-write')?.addEventListener('click', () => nav('#/journal/write'));
+  $('#j-tab-entries')?.addEventListener('click', () => nav('#/journal/entries'));
+
+  if (subview === 'write') {
+    if (typeof MMSoundscape !== 'undefined') MMSoundscape.wireEvents(app);
+    let selectedMood = '🌟 Hopeful';
+    const bodyEl = $('#j-body');
+    const titleEl = $('#j-title');
+    const charCountEl = $('#j-char-count');
+    const aiMsgEl = $('#j-ai-msg');
+    const micBtn = $('#j-mic-btn');
+    const micLbl = $('#j-mic-lbl');
+
+    app.querySelectorAll('.j-mood-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        app.querySelectorAll('.j-mood-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedMood = btn.dataset.mood;
+      });
+    });
+
+    $('#j-shuffle-prompt')?.addEventListener('click', () => {
+      $('#j-prompt-text').textContent = pick(MM.JOURNAL_PROMPTS);
+    });
+
+    let aiDebounce = null;
+    const updateAi = (text) => {
+      clearTimeout(aiDebounce);
+      aiDebounce = setTimeout(() => {
+        const ref = MMJournal.generateAiReflection(text);
+        if (ref && aiMsgEl) {
+          aiMsgEl.textContent = ref.message;
+          const av = $('#j-tiny-ai .tiny-ai-avatar');
+          if (av) av.textContent = ref.icon;
+        }
+      }, 700);
+    };
+
+    bodyEl?.addEventListener('input', () => {
+      const len = bodyEl.value.length;
+      charCountEl.textContent = `${len} characters`;
+      updateAi(bodyEl.value);
+    });
+
+    $('#j-ai-refresh')?.addEventListener('click', () => {
+      const text = ((titleEl?.value || '') + ' ' + (bodyEl?.value || '')).trim();
+      const ref = MMJournal.generateAiReflection(text) || {
+        icon: '🌟',
+        message: 'Your words hold great strength. In every sentence written, you plant a seed of resilience.',
+      };
+      if (aiMsgEl) aiMsgEl.textContent = ref.message;
+      const av = $('#j-tiny-ai .tiny-ai-avatar');
+      if (av) av.textContent = ref.icon;
+      toast('Tiny AI reflected on your note ✨');
+    });
+
+    // Voice Dictation
+    let recording = false;
+    micBtn?.addEventListener('click', () => {
+      if (!recording) {
+        MMJournal.startDictation((finalText, interimText) => {
+          if (bodyEl) {
+            bodyEl.value = (bodyEl.value + ' ' + finalText).trim();
+            charCountEl.textContent = `${bodyEl.value.length} characters`;
+            updateAi(bodyEl.value);
+          }
+        }, (isRec) => {
+          recording = isRec;
+          if (isRec) {
+            micBtn.classList.add('rec-pulse');
+            if (micLbl) micLbl.textContent = 'Recording… tap to stop';
+          } else {
+            micBtn.classList.remove('rec-pulse');
+            if (micLbl) micLbl.textContent = 'Speak to Write';
+          }
+        });
+      } else {
+        MMJournal.stopDictation((isRec) => {
+          recording = isRec;
+          micBtn.classList.remove('rec-pulse');
+          if (micLbl) micLbl.textContent = 'Speak to Write';
+        });
+      }
+    });
+
+    // Draw / Paint Studio in Journal
+    $('#j-draw-btn')?.addEventListener('click', () => {
+      const host = document.createElement('div');
+      host.className = 'draw-overlay';
+      document.body.appendChild(host);
+      const close = () => { pad.cleanup(); host.remove(); };
+      const pad = MMDraw.mount(host, {
+        onClose: close,
+        onSave: async (dataUrl, meta) => {
+          if (!dataUrl) return toast('Make a mark or two first 🖍');
+          close();
+          const noteText = `[🎨 Attached Drawing: ${meta.strokeCount || 1} strokes · Moja Vision: "${meta.vision?.feedback || 'Creative Expression'}"]`;
+          if (bodyEl) {
+            bodyEl.value = (bodyEl.value + (bodyEl.value ? '\n\n' : '') + noteText).trim();
+            charCountEl.textContent = `${bodyEl.value.length} characters`;
+            updateAi(bodyEl.value);
+          }
+          toast('Drawing saved and attached to your note 🎨✨');
+          confetti();
+        },
+      });
+    });
+
+    // Tiny OCR
+    $('#j-ocr-file')?.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      toast('Scanning note with Tiny OCR… 📷', 2000);
+      const text = await MMJournal.performTinyOCR(file);
+      if (text && bodyEl) {
+        bodyEl.value = (bodyEl.value + (bodyEl.value ? '\n\n' : '') + text).trim();
+        charCountEl.textContent = `${bodyEl.value.length} characters`;
+        updateAi(bodyEl.value);
+        toast('Handwritten text scanned into note ✨');
+      }
+    });
+
+    // Save Note
+    $('#j-save-btn')?.addEventListener('click', () => {
+      const title = titleEl?.value.trim() || '';
+      const body = bodyEl?.value.trim() || '';
+      if (!body) {
+        toast('Please write or speak a few words before saving ✍️');
+        return;
+      }
+      const ref = MMJournal.generateAiReflection(body);
+      MMJournal.saveEntry({
+        title: title || 'Reflection',
+        body,
+        mood: selectedMood,
+        aiInsight: ref,
+      });
+      toast('Note encrypted and saved to your private Vault 🔒💜');
+      confetti();
+      nav('#/journal/entries');
+    });
+  } else {
+    // Entries view events
+    app.querySelectorAll('.j-read-aloud').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const text = btn.dataset.text;
+        if (MMVoice.supported()) {
+          MMVoice.speak(text, { persona: 'warmth', force: true });
+          toast('Reading note aloud with Piper Voice 🔊✨');
+        } else {
+          toast('Speech synthesis not available on this device');
+        }
+      });
+    });
+
+    app.querySelectorAll('.j-del-entry').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.del;
+        modal(`
+          <h3>Delete Journal Entry?</h3>
+          <p style="font-size:13px;line-height:1.6;color:var(--ink-soft);margin:8px 0 16px">
+            Are you sure you want to erase this private note from your device?
+          </p>
+          <div class="modal-btns">
+            <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-primary" id="confirm-del-entry" style="background:#ed1c24">Delete Note</button>
+          </div>
+        `).querySelector('#confirm-del-entry').onclick = () => {
+          MMJournal.deleteEntry(id);
+          closeModal();
+          toast('Note deleted from Vault 🗑️');
+          nav('#/journal/entries');
+        };
+      });
+    });
+  }
+};
+routes.writer = routes.journal;
+
+/* ── Portfolio & Certificate Route ─────────────────────────── */
+routes.portfolio = () => {
+  if (typeof MMPortfolio !== 'undefined') {
+    MMPortfolio.showPortfolioModal();
+  }
+};
+
+/* ── Boot ────────────────────────────────────────────────────
+   The vault is opened before anything renders, so no screen is
+   ever drawn from an unverified or still-locked journal.       */
 window.closeModal = closeModal;
-route();
+
+(async function boot() {
+  bootSplash();
+  let opened;
+  try { opened = await Vault.open(); }
+  catch { opened = { state: null, locked: false, mode: 'plain' }; }
+
+  Vault.onLock(() => lockScreen('Locked after a few quiet minutes. Enter your PIN to continue.'));
+
+  if (opened.locked) { lockScreen(); return; }
+
+  S = hydrate(opened.state);
+  applyA11y();
+
+  if (opened.corrupt) {
+    setTimeout(() => toast('This device could not unlock its saved journal — starting fresh', 5000), 800);
+  }
+  if (S.ai?.voiceNav && MMVoice.supported()) MMVoice.start();
+
+  route();
+
+  // Restore the optional transformer in the background, from cache.
+  if (S.ai?.transformer) {
+    MMNLP.enableTransformer(S.ai.model)
+      .then(() => toast('Deeper feeling detection ready ✨', 2400))
+      .catch(() => { S.ai.transformer = false; save(); });
+  }
+})();
 
 /* PWA install prompt */
 let deferredPrompt = null;
@@ -1632,7 +3891,7 @@ window.addEventListener('beforeinstallprompt', e => {
   setTimeout(() => {
     if (!deferredPrompt || sessionStorage.getItem('mm-install-asked')) return;
     sessionStorage.setItem('mm-install-asked', '1');
-    toast('Tip: add MojoMind to your home screen 💜', 3600);
+    toast('Tip: add MojaMind to your home screen 💜', 3600);
   }, 12000);
 });
 
