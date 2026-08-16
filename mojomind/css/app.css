@@ -1887,6 +1887,39 @@ body.rm *, body.rm *::before, body.rm *::after {
   transition-duration: .01ms !important; scroll-behavior: auto !important;
 }
 
+/* ── Low-power render path (budget phones / Save-Data) ────────
+   backdrop-filter + heavy blur/shadow are the biggest GPU cost on
+   low-end Android. Neutralise them so the app stays smooth on the
+   inexpensive devices most participants use. Colours/gradients stay
+   so the look is preserved; only the expensive compositing is cut. */
+body.low-power *,
+body.low-power *::before,
+body.low-power *::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+  animation-duration: .01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .08s !important;
+}
+/* Give translucent glass panels a solid-ish fallback so text stays
+   readable once the blur behind them is removed. */
+body.low-power .tile,
+body.low-power .info-card,
+body.low-power .hero-card,
+body.low-power .doc-card,
+body.low-power .modal-card,
+body.low-power .chan-card,
+body.low-power .act-card,
+body.low-power #tabbar,
+body.low-power .admin-band,
+body.low-power .chat-input-bar {
+  background-color: rgba(20, 8, 36, .92) !important;
+}
+body.low-power #stars { display: none !important; }
+
 /* ── Sign-in extras: group picker + DataFree ─────────────── */
 .group-pick { margin: 2px 0 14px; }
 .gp-lbl { display: block; color: rgba(255,255,255,.8); font-size: 12.2px; font-weight: 600; margin: 0 2px 8px; }

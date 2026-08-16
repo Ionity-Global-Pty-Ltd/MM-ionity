@@ -238,6 +238,16 @@ function hydrate(loaded) {
   if (!s.gameMerge) s.gameMerge = { highScore: 0, totalMerges: 0, maxTier: 0, sound: false };
   if (!s.soundscape) s.soundscape = { on: false };
   if (!s.journal) s.journal = [];
+  // Normalise every activity record so partial/legacy entries can never
+  // crash array access (uploads/voice/reflections). Fixes "activity crashed".
+  if (s.activities && typeof s.activities === 'object') {
+    for (const k of Object.keys(s.activities)) {
+      const a = s.activities[k]; if (!a || typeof a !== 'object') continue;
+      if (!Array.isArray(a.uploads)) a.uploads = [];
+      if (!Array.isArray(a.voice)) a.voice = [];
+      if (!a.reflections || typeof a.reflections !== 'object') a.reflections = {};
+    }
+  }
   globalThis.S = s;
   return s;
 }
@@ -307,6 +317,28 @@ function modal(html, { onClose } = {}) {
 }
 function closeModal(cb) { $('#modal-root').innerHTML = ''; cb && cb(); }
 
+/* ── Low-power detection ─────────────────────────────────────
+   Most participants are on inexpensive, low-RAM Android phones on
+   slow/limited data. Auto-detect that and switch on a lightweight
+   render path: no tap-aura particles, minimal confetti, no ambient
+   petals, and CSS that drops the expensive backdrop-blur/heavy
+   shadows (the biggest GPU cost on budget devices). Also honoured
+   when the user turns on Reduce Motion. */
+const LOW_POWER = (() => {
+  try {
+    const c = navigator.connection || {};
+    const mem = navigator.deviceMemory;            // GB (Chrome/Android)
+    const cores = navigator.hardwareConcurrency;   // logical cores
+    return (typeof mem === 'number' && mem <= 4)
+      || (typeof cores === 'number' && cores <= 4)
+      || !!c.saveData
+      || /(^|\b)(2g|slow-2g|3g)\b/.test(c.effectiveType || '')
+      || matchMedia('(prefers-reduced-motion: reduce)').matches;
+  } catch { return false; }
+})();
+globalThis.MM_LOWPOWER = LOW_POWER;
+try { if (LOW_POWER && document.body) document.body.classList.add('low-power'); } catch (_) {}
+
 /* ── Accessibility engine ────────────────────────────────── */
 function applyA11y() {
   const a = S.a11y || {};
@@ -314,9 +346,11 @@ function applyA11y() {
   if (phone) phone.style.zoom = a.textScale && a.textScale !== 1 ? a.textScale : '';
   document.body.classList.toggle('hc', !!a.highContrast);
   document.body.classList.toggle('rm', !!a.reduceMotion);
+  // low-power is auto OR forced by the Reduce Motion switch
+  document.body.classList.toggle('low-power', LOW_POWER || !!a.reduceMotion);
 }
 function motionReduced() {
-  return S.a11y?.reduceMotion || matchMedia('(prefers-reduced-motion: reduce)').matches;
+  return LOW_POWER || S.a11y?.reduceMotion || matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 function a11yModal() {
   const a = S.a11y;
@@ -474,9 +508,11 @@ addEventListener('pointerdown', e => {
 
 /* Ambient floating petals — deferred for zero-lag initial paint */
 function initAmbientStars() {
+  if (motionReduced()) return; // skip ambient petals on low-power / reduced-motion
   const wrap = $('#stars');
   if (!wrap || wrap.children.length > 0) return;
-  for (let k = 0; k < 12; k++) {
+  const count = LOW_POWER ? 0 : 12;
+  for (let k = 0; k < count; k++) {
     const i = document.createElement('i');
     const sz = 6 + Math.random() * 14;
     i.style.cssText = `left:${Math.random() * 100}vw;top:${60 + Math.random() * 40}vh;width:${sz}px;height:${sz}px;animation-duration:${16 + Math.random() * 20}s;animation-delay:${-Math.random() * 30}s;`;
@@ -3104,7 +3140,7 @@ async function startVoiceCapture(a, st, ui) {
     const reader = new FileReader();
     reader.onload = () => {
       st.voice = st.voice || [];
-      st.voice.push({ src: reader.result, transcript: (cap.finalT + ' ' + cap.transcript).replace(/\s+/g, ' ').trim(), dur, at: Date.now() });
+      (st.voice = Array.isArray(st.voice) ? st.voice : []).push({ src: reader.result, transcript: (cap.finalT + ' ' + cap.transcript).replace(/\s+/g, ' ').trim(), dur, at: Date.now() });
       save();
       toast('Voice note saved 🎤');
       artDetail(a, 'voice');
@@ -3360,6 +3396,10 @@ function scheduleReflectionNote(idx, text, immediate = false) {
 function artDetail(a, tab) {
   const st = actState(a.id);
   if (!st || st.option == null) return nav(`#/art/${a.id}`);
+  // Normalise legacy/partial records so array access can never crash.
+  st.uploads = Array.isArray(st.uploads) ? st.uploads : [];
+  st.voice = Array.isArray(st.voice) ? st.voice : [];
+  st.reflections = st.reflections && typeof st.reflections === 'object' ? st.reflections : {};
   const locked = !!st.submittedAt; // Submitted activities are locked
   const kind = MM.ART_OPTION_KINDS[st.option];
   const tabs = [['start', 'Start Here'], ['materials', 'Materials'], ['pictures', 'Pictures'], ['voice', 'Voice'], ['reflections', 'Reflections']];
@@ -3621,7 +3661,7 @@ function artDetail(a, tab) {
       const url = await shrinkImage(f);
       const vision = await MMVision.read(url);
       last = vision;
-      st.uploads.push({
+      (st.uploads = Array.isArray(st.uploads) ? st.uploads : []).push({
         src: url, kind: 'photo', at: Date.now(),
         analysis: {
           feedback: vision.feedback, palette: vision.palette,
@@ -3746,7 +3786,7 @@ async function openDrawPad(a) {
       if (!dataUrl) return toast('Make a mark or two first 🖍');
       host.classList.add('reading');
       toast('Moja Vision is looking at your drawing…', 1800);
-      st.uploads.push({
+      (st.uploads = Array.isArray(st.uploads) ? st.uploads : []).push({
         src: dataUrl,
         kind: 'drawing',
         analysis: {

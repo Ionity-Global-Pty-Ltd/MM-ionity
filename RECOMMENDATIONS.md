@@ -51,4 +51,25 @@ Done this session: service worker no longer pre-downloads the whole app; heavy m
 - Keep the 2.9 GB media zip **out of git** (`.gitignore` now covers `*.zip`); host videos on a CDN or Azure Blob and reference by URL.
 - Consider trimming the duplicate `mojomind/` tree once you confirm only the root is deployed.
 
-*© 2026 Ionity (Pty) Ltd — Building Tomorrow, Today.*
+---
+
+## F. Making it an African-continent impact app
+
+The users are often vulnerable, low-income people on cheap phones and expensive data. Design for *that* reality and the reach multiplies:
+
+1. **Radical data-thinness** — the app is already offline-first; go further: ship a "lite" build under ~1 MB, host videos on a CDN/Blob with adaptive low-res versions, and add a "download over Wi-Fi only" toggle. Every MB saved = real money to a user.
+2. **Zero-rating / DataFree partnerships** — work with SA networks (Vodacom/MTN/Telkom, Cell C) and platforms like Datafree/binu to zero-rate the domain so using the app costs the participant nothing. This is the single biggest access lever on the continent.
+3. **Multi-language** — externalise all strings and add isiZulu, isiXhosa, Afrikaans, Sesotho, and (for continental reach) Swahili, French, Portuguese, Arabic. On-device translation + text-to-speech makes it usable for low-literacy users.
+4. **Feature-phone / low-end reach** — a companion **USSD + SMS** flow (via the Twilio kit already available here) for check-ins, reminders, and risk-triage where smartphones aren't available. Huge for rural reach.
+5. **Voice-first & low-literacy UX** — lean on the existing on-device voice: spoken instructions, voice-note journaling, icon-driven navigation, and audio surveys so reading isn't a barrier.
+6. **Offline sync that survives bad networks** — the new `MMSync` queue already retries; add background sync + conflict-free merge so a week offline still uploads cleanly when signal returns.
+7. **Clinical safety at scale** — the PHQ-9 risk flag should notify a real on-call social worker (SMS/WhatsApp via Twilio) and connect to national helplines (e.g. SADAG) by country.
+8. **POPIA/GDPR-grade privacy & data residency** — keep data in-region (Azure South Africa North), anonymised IDs, right-to-erasure. Trust is the product for abuse survivors.
+9. **Facilitator tooling** — a lightweight web dashboard (built on the same backend) for cohort progress, at-risk alerts, and broadcast messaging, so one facilitator can support 115–200+ participants.
+10. **Evidence & funding** — anonymised, aggregate pre/post outcome dashboards make the impact fundable and publishable — turning the study into a scalable, grant-ready programme across countries.
+
+Prioritise **1–4** first: they directly remove the cost, language, and device barriers that keep the most vulnerable users out.
+
+---
+
+*© 2026 Ionity (Pty) Ltd — Building Tomorrow, Today. Anything is Possible with God.*
