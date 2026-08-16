@@ -1,0 +1,19 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+
+    "STORAGE_CONN": "<your Azure Storage account connection string>",
+    "MM_TABLE": "mojamind",
+
+    "MM_WRITE_KEY": "<public write token shipped in the app (MM.SYNC.key)>",
+    "MM_ADMIN_KEY": "<SECRET admin key — required to read /messages; never ship in the app>",
+
+    "CORS_ALLOWED_ORIGIN": "https://ionity.art"
+  },
+  "Host": {
+    "CORS": "https://ionity.art",
+    "CORSCredentials": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "mojamind-api",
+  "version": "1.0.0",
+  "description": "MojaMind study backend — Azure Functions + Table Storage. Implements the MMSync API contract (ingest / messages / config).",
+  "author": "Johan Wilhelm van Antwerp — Ionity (Pty) Ltd",
+  "license": "SEE LICENSE",
+  "main": "**/index.js",
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "@azure/data-tables": "^13.2.2"
+  }
+}
