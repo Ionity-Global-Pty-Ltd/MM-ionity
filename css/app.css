@@ -885,6 +885,9 @@ body::after {
 }
 @keyframes shout-cloud-turn { to { transform: rotate(1turn); } }
 .auth-logo { width: 84px; height: 84px; margin-bottom: 10px; filter: drop-shadow(0 6px 18px rgba(243,37,107,.45)); }
+/* Official Moja Mind brand lockup (flower + wordmark on purple) — soften the
+   square edge so it reads as a clean glowing tile on the dark auth screens. */
+.mm-brand-logo { border-radius: 22px; }
 .auth-wrap h1 { color: #fff; font-size: 30px; font-weight: 800; margin: 6px 0 4px; letter-spacing: .3px; }
 .auth-wrap h1.auth-title { font-size: 26px; line-height: 1.2; }
 .auth-wrap .sub { color: var(--pink-200); font-size: 14.5px; font-weight: 500; margin: 0 0 26px; }
