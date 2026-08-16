@@ -56,8 +56,12 @@ const MMPixelThoughts = (() => {
     if (!ac) {
       ac = new AC();
       masterGain = ac.createGain();
-      masterGain.gain.setValueAtTime(0.18, ac.currentTime);
-      masterGain.connect(ac.destination);
+      masterGain.gain.setValueAtTime(0.10, ac.currentTime);
+      const lp = ac.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.setValueAtTime(1800, ac.currentTime);
+      masterGain.connect(lp);
+      lp.connect(ac.destination);
     }
     if (ac.state === 'suspended') ac.resume();
     return ac;
@@ -74,7 +78,7 @@ const MMPixelThoughts = (() => {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(f, now + i * 0.1);
         g.gain.setValueAtTime(0.001, now + i * 0.1);
-        g.gain.linearRampToValueAtTime(0.08 / freqs.length, now + i * 0.1 + 1.2);
+        g.gain.linearRampToValueAtTime(0.045 / freqs.length, now + i * 0.1 + 1.2);
         g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
         osc.connect(g);
         g.connect(masterGain);

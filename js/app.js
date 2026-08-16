@@ -2,7 +2,7 @@
    MojaMind — Creative Resilience PWA
    App shell, router, state and screens.
    Pathing per the Aug 2026 design update:
-   Splash → Sign In → Terms (Accept) → Demographics → Welcome → Home
+   Splash → Sign In → Terms (Accept) → Welcome → Demographics → Home
    Home → Instructions | Support | Pre-Survey | Art* | Chat* | Post-Survey
    (* availability depends on study group: G1 surveys only,
       G2 adds art, G3 adds chat)
@@ -10,66 +10,108 @@
    ============================================================ */
 'use strict';
 
-/* ── Bespoke Creative Resilience & Mojo Mind Icons (24x24 geometry, 2px stroke) ─ */
+/* ── Bespoke Creative Resilience & MojaMind Icons (24x24 geometry, 2px stroke) ─ */
 const I = {
-  back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>',
-  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.2 12 3l9 7.2"/><path d="M5 9.5V20a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5V9.5"/><path d="M9.5 21v-5a2.5 2.5 0 0 1 5 0v5"/><circle cx="12" cy="8.5" r="1.5" fill="currentColor"/></svg>',
-  headset: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-4a9 9 0 0 1 18 0v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/><path d="M12 12.5a2.5 2.5 0 0 1 2.5 2.5v1.5a1.5 1.5 0 0 1-3 0V15a2.5 2.5 0 0 1 .5-1.5Z"/></svg>',
-  doc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m8.5 13 1.8 1.8 4.2-4.2M8.5 18h7"/></svg>',
-  clipboardCheck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="17" rx="3"/><path d="M9 4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1H9z"/><path d="m8.5 13.5 2.3 2.3 4.7-4.8"/><circle cx="12" cy="18.5" r="1" fill="currentColor"/></svg>',
-  clipboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="17" rx="3"/><path d="M9 4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1H9z"/><path d="M8.5 11h7M8.5 15h7"/></svg>',
-  palette: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9 9 0 1 1 9-9c0 2.2-1.8 3-3.5 3H15a2 2 0 0 0-1.4 3.4c.6.6.4 2.6-1.6 2.6Z"/><circle cx="7.5" cy="11.5" r="1.5" fill="currentColor"/><circle cx="10.5" cy="7.5" r="1.5" fill="currentColor"/><circle cx="15.5" cy="7.5" r="1.5" fill="currentColor"/><circle cx="18" cy="11.5" r="1.5" fill="currentColor"/></svg>',
-  chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8 8 0 0 1-8 8H4l2.3-2.9A8 8 0 1 1 21 11.5Z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/><path d="M12 7.5a1.5 1.5 0 0 1 1.5 1.5"/></svg>',
-  info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 7.5v.01M11 11h1.5v6h1.5"/><circle cx="12" cy="3" r="1" fill="currentColor"/></svg>',
-  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
-  phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v2a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 3.1 4.2 2 2 0 0 1 5.1 2h2a2 2 0 0 1 2 1.7c.13.96.36 1.9.7 2.8a2 2 0 0 1-.45 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.25a2 2 0 0 1 2.1-.45c.9.34 1.84.57 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>',
-  send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>',
+  back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>',
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>',
+  headset: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14v-3a9 9 0 0 1 18 0v3"/><rect x="2" y="13" width="4" height="7" rx="2"/><rect x="18" y="13" width="4" height="7" rx="2"/><path d="M20 20v1a2 2 0 0 1-2 2h-4"/></svg>',
+  doc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>',
+  clipboardCheck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="18" rx="2.5"/><path d="M9 4V2.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5V4"/><path d="m8.5 13.5 2.5 2.5 5-5"/></svg>',
+  clipboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="18" rx="2.5"/><path d="M9 4V2.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5V4"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="13" y2="18"/></svg>',
+  palette: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.97 3.63 9.09 8.35 9.87.58.1 1.05-.39 1.05-.98v-1.12c0-.83.67-1.5 1.5-1.5h1.6c3.87 0 7-3.13 7-7 0-5.52-4.48-9.27-9.5-9.27z"/><circle cx="7.5" cy="10" r="1.1" fill="currentColor"/><circle cx="10.5" cy="6.5" r="1.1" fill="currentColor"/><circle cx="14.5" cy="7" r="1.1" fill="currentColor"/><circle cx="17" cy="11" r="1.1" fill="currentColor"/></svg>',
+  chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 0 1-4.2-.92L3 20l1.2-3.6A7.52 7.52 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/><circle cx="8" cy="12" r="1.15" fill="currentColor"/><circle cx="12" cy="12" r="1.15" fill="currentColor"/><circle cx="16" cy="12" r="1.15" fill="currentColor"/></svg>',
+  info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="11"/><circle cx="12" cy="7.5" r="1.2" fill="currentColor"/></svg>',
+  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2.5"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+  phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+  send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>',
   play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.54.84l10-6.5a1 1 0 0 0 0-1.68l-10-6.5A1 1 0 0 0 8 5.5Z"/></svg>',
-  camera: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h2.4l1.2-2.4A1 1 0 0 1 8.5 5h7a1 1 0 0 1 .9.6L17.6 8H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="14" r="3.4"/></svg>',
-  pencil: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>',
-  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
-  heart: (on) => `<svg viewBox="0 0 24 24" fill="${on ? '#f3256b' : '#c9c3d1'}"><path d="M12 21s-7.5-4.7-10-9.3C.4 8.6 2.3 4.9 6 4.5c2-.2 3.9.8 6 3 2.1-2.2 4-3.2 6-3 3.7.4 5.6 4.1 4 7.2C19.5 16.3 12 21 12 21Z"/></svg>`,
-  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
-  compass: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/></svg>',
-  sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.4M12 19.1v2.4M4.3 4.3 6 6M18 18l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.3 19.7 6 18M18 6l1.7-1.7"/></svg>',
-  shieldHeart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-3.6 8-10V5.2L12 2 4 5.2V12c0 6.4 8 10 8 10Z"/><path d="M12 15.5s-3.2-2-4.2-4c-.7-1.3.1-2.9 1.7-3 .9-.1 1.7.4 2.5 1.3.8-.9 1.6-1.4 2.5-1.3 1.6.1 2.4 1.7 1.7 3-1 2-4.2 4-4.2 4Z"/></svg>',
-  chatHeart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8 8 0 0 1-8 8H4l2.3-2.9A8 8 0 1 1 21 11.5Z"/><path d="M13 13.5s-2.6-1.6-3.4-3.2c-.5-1 .1-2.3 1.4-2.4.7 0 1.3.3 2 1 .7-.7 1.3-1 2-1 1.3.1 1.9 1.4 1.4 2.4-.8 1.6-3.4 3.2-3.4 3.2Z"/></svg>',
-  gift: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4"/><path d="M5 12v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8M12 8v13"/><path d="M12 8s-4.5.2-5.5-2C5.8 4.4 7.4 3 9 3.5 11 4.2 12 8 12 8Zm0 0s4.5.2 5.5-2c.7-1.6-.9-3-2.5-2.5C13 4.2 12 8 12 8Z"/></svg>',
-  download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>',
-  logout: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>',
-  user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>',
-  keyIc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4.5"/><path d="m11.2 11.8 8.3-8.3M17 6l2.5 2.5M14 9l2.5 2.5"/></svg>',
-  reset: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 4v4h4"/></svg>',
-  sparkle: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 5.7a2 2 0 0 0 1.3 1.3L21 11l-5.8 2a2 2 0 0 0-1.3 1.3L12 20l-1.9-5.7a2 2 0 0 0-1.3-1.3L3 11l5.8-2a2 2 0 0 0 1.3-1.3L12 2Z"/><circle cx="19" cy="5" r="1.6"/><circle cx="5" cy="19" r="1.3"/></svg>',
-  wrench: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4.5 4.5 0 0 0-6 5.6L3 17.6a2 2 0 0 0 0 2.8l.6.6a2 2 0 0 0 2.8 0l5.7-5.7a4.5 4.5 0 0 0 5.6-6l-3 3-2.8-.7-.7-2.8Z"/></svg>',
-  mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5M8.5 21.5h7"/></svg>',
-  stop: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg>',
-  a11y: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.6" r="2.1"/><path d="M4.5 8.6c2.5.8 5 1.2 7.5 1.2s5-.4 7.5-1.2"/><path d="M12 9.8v4.4M12 14.2l-2.8 6M12 14.2l2.8 6"/></svg>',
-  ticket: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2.5 2.5 0 0 0 0 6v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2.5 2.5 0 0 0 0-6Z"/><path d="M13 5v2M13 11v2M13 17v2"/></svg>',
-  video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="13" height="12" rx="2.5"/><path d="m15.5 10.5 6-3.5v10l-6-3.5"/></svg>',
-  handHeart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8.5s-2.4-1.6-3.2-3c-.5-1 .1-2.2 1.3-2.3.7 0 1.3.4 1.9 1 .6-.6 1.2-1 1.9-1 1.2.1 1.8 1.3 1.3 2.3-.8 1.4-3.2 3-3.2 3Z"/><path d="M3 14.5h3l3.2 1.4c.7.3 1.1 1 .9 1.8-.2.9-1.1 1.4-2 1.2l-2.1-.6"/><path d="M9.5 18.4 15 20l6-2.6c.8-.4 1.1-1.4.6-2.1-.4-.6-1.1-.8-1.8-.6L16 16"/></svg>',
-  brush: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/><path d="M6.5 14c-1.9 0-3.5 1.6-3.5 3.5 0 1-.4 2-1 2.7 1 .5 2 .8 3 .8 2.5 0 4.5-2 4.5-4.5A2.5 2.5 0 0 0 6.5 14Z"/></svg>',
-  shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-3.6 8-10V5.2L12 2 4 5.2V12c0 6.4 8 10 8 10Z"/><path d="m8.6 12 2.3 2.3 4.5-4.6"/></svg>',
-  brain: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 3.5A2.5 2.5 0 0 0 7 6a2.5 2.5 0 0 0-1.6 4.4A2.6 2.6 0 0 0 6 15.4 2.5 2.5 0 0 0 8.5 19a2.3 2.3 0 0 0 3.5-2V5a1.6 1.6 0 0 0-2.5-1.5Z"/><path d="M14.5 3.5A2.5 2.5 0 0 1 17 6a2.5 2.5 0 0 1 1.6 4.4A2.6 2.6 0 0 1 18 15.4 2.5 2.5 0 0 1 15.5 19a2.3 2.3 0 0 1-3.5-2"/></svg>',
-  gamepad: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="6"/><path d="M6 12h4M8 10v4M15 11h.01M17 13h.01M15 13h.01M17 11h.01"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>',
-  journal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10M6 14h6"/><path d="m14 18 3-3 3 3-3-3v6" stroke-width="1.6"/></svg>',
+  camera: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>',
+  pencil: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>',
+  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+  heart: (on) => `<svg viewBox="0 0 24 24" fill="${on ? '#f3256b' : 'none'}" stroke="${on ? '#f3256b' : 'currentColor'}" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 12.572l-7.5 7.428-7.5-7.428m0 0a5 5 0 1 1 7.5-6.566 5 5 0 1 1 7.5 6.572"/></svg>`,
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  compass: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="currentColor"/></svg>',
+  sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
+  shieldHeart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 9c-.8-1-2-1.5-3.2-1-1.3.6-1.8 2.2-.8 3.5 1 1.4 4 4 4 4s3-2.6 4-4c1-1.3.5-2.9-.8-3.5-1.2-.5-2.4 0-3.2 1z" fill="currentColor"/></svg>',
+  chatHeart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 0 1-4.2-.92L3 20l1.2-3.6A7.52 7.52 0 0 1 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/><path d="M12 9.5c-.6-.8-1.5-1.2-2.4-.8-1 .5-1.3 1.7-.6 2.7.8 1.1 3 3.1 3 3.1s2.2-2 3-3.1c.7-1 .4-2.2-.6-2.7-.9-.4-1.8 0-2.4.8z" fill="currentColor"/></svg>',
+  gift: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8M12 8v13"/><path d="M12 8s-4.5.2-5.5-2C5.8 4.4 7.4 3 9 3.5 11 4.2 12 8 12 8Zm0 0s4.5.2 5.5-2c.7-1.6-.9-3-2.5-2.5C13 4.2 12 8 12 8Z"/></svg>',
+  download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>',
+  logout: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>',
+  user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>',
+  keyIc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 8.8-8.8M16 6.5l2.5 2.5M13 9.5l2.5 2.5"/></svg>',
+  reset: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 2.6-6.4"/><polyline points="3 4 3 9 8 9"/></svg>',
+  sparkle: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 6.8L21 11l-6.8 2.2L12 20l-2.2-6.8L3 11l6.8-2.2L12 2z"/><circle cx="19" cy="4" r="1.3"/><circle cx="5" cy="19" r="1.3"/></svg>',
+  wrench: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4.5 4.5 0 0 0-6 5.6L3 17.6a2 2 0 0 0 0 2.8l.6.6a2 2 0 0 0 2.8 0l5.7-5.7a4.5 4.5 0 0 0 5.6-6l-3 3-2.8-.7-.7-2.8Z"/></svg>',
+  mic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>',
+  stop: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="3"/></svg>',
+  a11y: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.5" r="2.2"/><path d="M4.5 8.5c2.5.8 5 1.2 7.5 1.2s5-.4 7.5-1.2"/><path d="M12 9.7v4.5M12 14.2l-3 6M12 14.2l3 6"/></svg>',
+  ticket: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><line x1="13" y1="5" x2="13" y2="19" stroke-dasharray="2 2"/></svg>',
+  video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="14" height="14" rx="3"/><path d="m16 10 5-3.5v11L16 14"/></svg>',
+  handHeart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8.5s-2.4-1.6-3.2-3c-.5-1 .1-2.2 1.3-2.3.7 0 1.3.4 1.9 1 .6-.6 1.2-1 1.9-1 1.2.1 1.8 1.3 1.3 2.3-.8 1.4-3.2 3-3.2 3Z" fill="currentColor"/><path d="M3 14.5h3l3.2 1.4c.7.3 1.1 1 .9 1.8-.2.9-1.1 1.4-2 1.2l-2.1-.6"/><path d="M9.5 18.4 15 20l6-2.6c.8-.4 1.1-1.4.6-2.1-.4-.6-1.1-.8-1.8-.6L16 16"/></svg>',
+  brush: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.34-3 3 0 1.31-1.16 1.7-1.67 2.18-.46.44-.08 1.88 1.1 1.88 3.31 0 6.57-2.3 6.57-5.5 0-1.66-1.34-3-3-3z"/></svg>',
+  shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>',
+  brain: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 4a3.5 3.5 0 0 0-3.5 3.5 3.5 3.5 0 0 0-1.5 6 3.5 3.5 0 0 0 3.5 5.5 3.5 3.5 0 0 0 3.5-3V8a4 4 0 0 0-2-4z"/><path d="M14.5 4a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1 1.5 6 3.5 3.5 0 0 1-3.5 5.5 3.5 3.5 0 0 1-3.5-3V8a4 4 0 0 1 2-4z"/></svg>',
+  gamepad: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="6"/><path d="M6 12h4M8 10v4"/><circle cx="15.5" cy="10.5" r=".8" fill="currentColor"/><circle cx="18" cy="12" r=".8" fill="currentColor"/><circle cx="15.5" cy="13.5" r=".8" fill="currentColor"/><circle cx="13" cy="12" r=".8" fill="currentColor"/></svg>',
+  journal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M4 7h16M8 3v18"/><line x1="12" y1="11" x2="16" y2="11"/><line x1="12" y1="15" x2="16" y2="15"/></svg>',
 };
 
-/* Official Ionity & Mojo Mind color palette */
+/* Official Ionity & MojaMind color palette */
 const SHOUT_COLORS = ['#3366FF', '#00d2ff', '#ffd166', '#8a2eae', '#34c759'];
 
-/* Official Mojo Mind brand emblem */
+/* Official MojaMind brand emblem — High Definition Vector SVG (0 raster cutoffs) */
 function flowerSVG(size = 34, opts = {}) {
-  return `<img src="./assets/branding/mojomind-flower.png" alt="Mojo Mind" width="${size}" height="${size}" class="brand-flower-img" style="width:${size}px;height:${size}px;object-fit:contain;filter:drop-shadow(0 3px 10px rgba(51,102,255,0.5));display:inline-block;vertical-align:middle" />`;
+  const id = opts.id || ('mm-flw-' + Math.random().toString(36).slice(2, 7));
+  const dropGlow = opts.noShadow ? '' : 'filter:drop-shadow(0 4px 14px rgba(51,102,255,0.45));';
+  return `<svg viewBox="0 0 100 100" width="${size}" height="${size}" class="brand-flower-img ${opts.className || ''}" style="width:${size}px;height:${size}px;display:inline-block;vertical-align:middle;${dropGlow}overflow:visible;flex-shrink:0" aria-label="MojaMind Emblem">
+    <defs>
+      <linearGradient id="${id}-r" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FF453A"/><stop offset="100%" stop-color="#D70015"/></linearGradient>
+      <linearGradient id="${id}-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#30D158"/><stop offset="100%" stop-color="#1B8738"/></linearGradient>
+      <linearGradient id="${id}-c" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00D2FF"/><stop offset="100%" stop-color="#007AFF"/></linearGradient>
+      <linearGradient id="${id}-b" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3366FF"/><stop offset="100%" stop-color="#1D4ED8"/></linearGradient>
+      <linearGradient id="${id}-p" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#BF5AF2"/><stop offset="100%" stop-color="#7B21A8"/></linearGradient>
+      <linearGradient id="${id}-o" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFB340"/><stop offset="100%" stop-color="#FF5E3A"/></linearGradient>
+      <radialGradient id="${id}-core" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="25%" stop-color="#FFE066"/><stop offset="70%" stop-color="#FFB703"/><stop offset="100%" stop-color="#FB8500"/></radialGradient>
+    </defs>
+    <g transform="rotate(0 50 50)">
+      <path d="M 50 6 C 61 6, 65 24, 58 39 C 54 45, 46 45, 42 39 C 35 24, 39 6, 50 6 Z" fill="url(#${id}-r)"/>
+      <path d="M 50 11 C 56 11, 59 23, 55 33 C 52 37, 48 37, 45 33 C 41 23, 44 11, 50 11 Z" fill="rgba(255,255,255,0.28)"/>
+    </g>
+    <g transform="rotate(60 50 50)">
+      <path d="M 50 6 C 61 6, 65 24, 58 39 C 54 45, 46 45, 42 39 C 35 24, 39 6, 50 6 Z" fill="url(#${id}-g)"/>
+      <path d="M 50 11 C 56 11, 59 23, 55 33 C 52 37, 48 37, 45 33 C 41 23, 44 11, 50 11 Z" fill="rgba(255,255,255,0.28)"/>
+    </g>
+    <g transform="rotate(120 50 50)">
+      <path d="M 50 6 C 61 6, 65 24, 58 39 C 54 45, 46 45, 42 39 C 35 24, 39 6, 50 6 Z" fill="url(#${id}-c)"/>
+      <path d="M 50 11 C 56 11, 59 23, 55 33 C 52 37, 48 37, 45 33 C 41 23, 44 11, 50 11 Z" fill="rgba(255,255,255,0.28)"/>
+    </g>
+    <g transform="rotate(180 50 50)">
+      <path d="M 50 6 C 61 6, 65 24, 58 39 C 54 45, 46 45, 42 39 C 35 24, 39 6, 50 6 Z" fill="url(#${id}-b)"/>
+      <path d="M 50 11 C 56 11, 59 23, 55 33 C 52 37, 48 37, 45 33 C 41 23, 44 11, 50 11 Z" fill="rgba(255,255,255,0.28)"/>
+    </g>
+    <g transform="rotate(240 50 50)">
+      <path d="M 50 6 C 61 6, 65 24, 58 39 C 54 45, 46 45, 42 39 C 35 24, 39 6, 50 6 Z" fill="url(#${id}-p)"/>
+      <path d="M 50 11 C 56 11, 59 23, 55 33 C 52 37, 48 37, 45 33 C 41 23, 44 11, 50 11 Z" fill="rgba(255,255,255,0.28)"/>
+    </g>
+    <g transform="rotate(300 50 50)">
+      <path d="M 50 6 C 61 6, 65 24, 58 39 C 54 45, 46 45, 42 39 C 35 24, 39 6, 50 6 Z" fill="url(#${id}-o)"/>
+      <path d="M 50 11 C 56 11, 59 23, 55 33 C 52 37, 48 37, 45 33 C 41 23, 44 11, 50 11 Z" fill="rgba(255,255,255,0.28)"/>
+    </g>
+    <!-- Center Core Outer Shade -->
+    <circle cx="50" cy="50" r="16.5" fill="rgba(42,10,68,0.55)"/>
+    <!-- Center Glowing Amber Bead -->
+    <circle cx="50" cy="50" r="14.5" fill="url(#${id}-core)"/>
+    <!-- Specular Gloss Highlight -->
+    <ellipse cx="45.5" cy="44.5" rx="4.8" ry="3.2" transform="rotate(-30 45.5 44.5)" fill="rgba(255,255,255,0.92)"/>
+  </svg>`;
 }
 
-/* Official Mojo Mind logo mark — Smooth transparent brand lockup */
+/* Official MojaMind logo mark — Smooth transparent brand lockup */
 function knotSVG(size = 130) {
-  return `<img src="./assets/branding/mojomind-logo.png" alt="Mojo Mind" class="auth-logo mm-brand-logo" style="width:${size}px;height:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 10px 28px rgba(51,102,255,0.5));display:inline-block;background:transparent;border:none;box-shadow:none" />`;
+  return `<img src="./assets/branding/mojomind-logo.png" alt="MojaMind" class="auth-logo mm-brand-logo" style="width:${size}px;height:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 10px 28px rgba(51,102,255,0.5));display:inline-block;background:transparent;border:none;box-shadow:none" />`;
 }
 
 function mojoLogoHTML(size = 140, extraClass = '') {
-  return `<img src="./assets/branding/mojomind-logo.png" alt="Mojo Mind" class="auth-logo mm-brand-logo ${extraClass}" style="width:${size}px;height:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 10px 28px rgba(51,102,255,0.5));display:inline-block;background:transparent;border:none;box-shadow:none" />`;
+  return `<img src="./assets/branding/mojomind-logo.png" alt="MojaMind" class="auth-logo mm-brand-logo ${extraClass}" style="width:${size}px;height:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 10px 28px rgba(51,102,255,0.5));display:inline-block;background:transparent;border:none;box-shadow:none" />`;
 }
 
 function faceSVG(kind, color, size = 62) {
@@ -88,7 +130,7 @@ function faceSVG(kind, color, size = 62) {
   </svg>`;
 }
 
-/* Official Mojo Mind Animated Talking Flower Mascot (Item 10) */
+/* Official MojaMind Animated Talking Flower Mascot (Item 10) */
 function talkingFlowerSVG(size = 56, isTalking = true) {
   return `<div class="talking-flower-mascot ${isTalking ? 'is-talking' : ''}" style="width:${size}px;height:${size}px;display:inline-flex;align-items:center;justify-content:center;position:relative;vertical-align:middle">
     <svg viewBox="0 0 100 100" width="${size}" height="${size}" style="width:100%;height:100%;filter:drop-shadow(0 4px 14px rgba(51,102,255,0.4))">
@@ -168,9 +210,11 @@ const blankState = () => ({
   usage: { routes: {}, transitions: {}, hours: {}, recent: [] },
   groupChanges: [],          // {from, to, at} — audit of study-group changes
   adminMode: false,
-  game: { blooms: 0, serenity: 0, sound: true, flowers: [], totalPlayMs: 0, wormsHydrated: 0, antsHydrated: 0, megaBlooms: 0, rainStars: 0 }, // Moja Meadow
-  game3d: { highScore: 0, pollen: 0, sunrays: 0, sound: true, bestDistance: 0, crashes: 0, totalFlights: 0 }, // Moja Bee 3D
-  gameBubble: { highScore: 0, bubblesPopped: 0, combos: 0, totalGames: 0, sound: true }, // Moja Pop Bubble Odyssey
+  game: { blooms: 0, serenity: 0, sound: false, flowers: [], totalPlayMs: 0, wormsHydrated: 0, antsHydrated: 0, megaBlooms: 0, rainStars: 0 }, // Moja Meadow
+  game3d: { highScore: 0, pollen: 0, sunrays: 0, sound: false, bestDistance: 0, crashes: 0, totalFlights: 0 }, // Moja Bee 3D
+  gameBubble: { highScore: 0, bubblesPopped: 0, combos: 0, totalGames: 0, sound: false }, // Moja Pop Bubble Odyssey
+  gameMerge: { highScore: 0, totalMerges: 0, maxTier: 0, sound: false }, // Moja Merge
+  soundscape: { on: false },
   journal: [],
   startedAt: null,
 });
@@ -183,14 +227,16 @@ function hydrate(loaded) {
   // v1 participants had no group concept — they had everything.
   if (s.auth && !s.group) s.group = 3;
   if (!s.a11y) s.a11y = { textScale: 1, highContrast: false, reduceMotion: false };
-  if (!s.ai) s.ai = { transformer: false, model: 'distilbert', voiceNav: false, predictive: true, vision: true, voice: { persona: 'warmth', speed: 0.95, pitch: 0.99, whisperModel: 'tiny', chime: true } };
+  if (!s.ai) s.ai = { transformer: false, model: 'distilbert', voiceNav: false, predictive: true, vision: true, voice: { persona: 'warmth', speed: 0.95, pitch: 0.99, whisperModel: 'tiny', chime: false } };
   if (!s.usage) s.usage = { routes: {}, transitions: {}, hours: {}, recent: [] };
   if (!s.groupChanges) s.groupChanges = [];
   if (!s.chat) s.chat = { group: {}, individual: {} };
-  if (!s.game) s.game = { blooms: 0, serenity: 0, sound: true, flowers: [], totalPlayMs: 0, wormsHydrated: 0, antsHydrated: 0, megaBlooms: 0, rainStars: 0 };
+  if (!s.game) s.game = { blooms: 0, serenity: 0, sound: false, flowers: [], totalPlayMs: 0, wormsHydrated: 0, antsHydrated: 0, megaBlooms: 0, rainStars: 0 };
   if (s.game.totalPlayMs == null) s.game.totalPlayMs = 0;
-  if (!s.game3d) s.game3d = { highScore: 0, pollen: 0, sunrays: 0, sound: true, bestDistance: 0, crashes: 0, totalFlights: 0 };
-  if (!s.gameBubble) s.gameBubble = { highScore: 0, bubblesPopped: 0, combos: 0, totalGames: 0, sound: true };
+  if (!s.game3d) s.game3d = { highScore: 0, pollen: 0, sunrays: 0, sound: false, bestDistance: 0, crashes: 0, totalFlights: 0 };
+  if (!s.gameBubble) s.gameBubble = { highScore: 0, bubblesPopped: 0, combos: 0, totalGames: 0, sound: false };
+  if (!s.gameMerge) s.gameMerge = { highScore: 0, totalMerges: 0, maxTier: 0, sound: false };
+  if (!s.soundscape) s.soundscape = { on: false };
   if (!s.journal) s.journal = [];
   globalThis.S = s;
   return s;
@@ -198,7 +244,15 @@ function hydrate(loaded) {
 
 function save() {
   globalThis.S = S;
-  Vault.write(S);
+  try {
+    Vault.write(S);
+  } catch (e) {
+    // Storage full (large artwork / photos). Warn the participant so
+    // work is never silently lost — they can download art to device.
+    const quota = e && (e.name === 'QuotaExceededError' || /quota/i.test(e.message || ''));
+    try { toast(quota ? 'Device storage is full — use ⬇️ Save to Device to keep your artwork 📥' : 'Could not save — please try again', 4200); } catch (_) {}
+    console.warn('[MojaMind] save failed:', e);
+  }
 }
 
 /* Derived flags */
@@ -209,9 +263,19 @@ const preDone  = () => MM.PRE_SURVEYS.every(id => S.surveys.pre[id]?.completedAt
 const postDone = () => MM.POST_SURVEYS.every(id => S.surveys.post[id]?.completedAt);
 const artOpen  = () => hasArt() && preDone();
 const chatOpen = () => (hasChat() && preDone()) || S.adminMode;
-const postOpen = () => preDone();
 const actState = id => S.activities[id] || null;
 const actsDone = () => MM.ACTIVITIES.filter(a => actState(a.id)?.submittedAt).length;
+const allActsDone = () => actsDone() === MM.ACTIVITIES.length;
+/* Sequential gating — an activity stays locked until the previous one
+   is submitted (Week 1 → 2 → 3 …). The first activity is always open. */
+const actLocked = a => {
+  const idx = MM.ACTIVITIES.findIndex(x => x.id === a.id);
+  if (idx <= 0) return false;
+  return !actState(MM.ACTIVITIES[idx - 1].id)?.submittedAt;
+};
+/* Post-survey opens only once pre-surveys AND (for art groups) all
+   art activities are complete. Group 1 has no art, so pre-done unlocks. */
+const postOpen = () => preDone() && (!hasArt() || allActsDone()) || S.adminMode;
 
 /* ── Tiny DOM helpers ────────────────────────────────────── */
 const $ = sel => document.querySelector(sel);
@@ -398,21 +462,32 @@ const FX = (() => {
 })();
 function confetti() { FX.confetti(); }
 
-/* Jump Forth — every tap blooms */
+/* Jump Forth — intelligent burst on tap with frame throttle */
+let _lastBurstTime = 0;
 addEventListener('pointerdown', e => {
-  if (e.isPrimary) FX.burst(e.clientX, e.clientY);
+  if (!e.isPrimary) return;
+  const now = performance.now();
+  if (now - _lastBurstTime < 240) return; // Prevent excessive canvas particle stacking on rapid taps
+  _lastBurstTime = now;
+  FX.burst(e.clientX, e.clientY);
 }, { passive: true });
 
-/* Ambient floating petals */
-(function stars() {
+/* Ambient floating petals — deferred for zero-lag initial paint */
+function initAmbientStars() {
   const wrap = $('#stars');
-  for (let k = 0; k < 16; k++) {
+  if (!wrap || wrap.children.length > 0) return;
+  for (let k = 0; k < 12; k++) {
     const i = document.createElement('i');
-    const sz = 6 + Math.random() * 16;
-    i.style.cssText = `left:${Math.random() * 100}vw;top:${60 + Math.random() * 40}vh;width:${sz}px;height:${sz}px;animation-duration:${14 + Math.random() * 22}s;animation-delay:${-Math.random() * 30}s;`;
+    const sz = 6 + Math.random() * 14;
+    i.style.cssText = `left:${Math.random() * 100}vw;top:${60 + Math.random() * 40}vh;width:${sz}px;height:${sz}px;animation-duration:${16 + Math.random() * 20}s;animation-delay:${-Math.random() * 30}s;`;
     wrap.appendChild(i);
   }
-})();
+}
+if (typeof requestIdleCallback !== 'undefined') {
+  requestIdleCallback(initAmbientStars, { timeout: 1200 });
+} else {
+  setTimeout(initAmbientStars, 250);
+}
 
 /* ── Opening splash — Shout · Stellenbosch · Gilead ──────── */
 function bootSplash() {
@@ -568,6 +643,66 @@ const Predict = (() => {
   return { note, next, prefetch, reset, LABEL, ROUTE };
 })();
 
+/* ── Dynamic On-Demand Subsystem Module Loader ───────────── */
+const _loadedModules = new Set();
+async function ensureModule(name, src) {
+  if (_loadedModules.has(name) || (typeof window[name] !== 'undefined')) {
+    _loadedModules.add(name);
+    return true;
+  }
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.async = true;
+    s.onload = () => { _loadedModules.add(name); resolve(true); };
+    s.onerror = err => { console.warn('Dynamic module load fallback:', src, err); resolve(false); };
+    document.head.appendChild(s);
+  });
+}
+
+/* ── Stop inactive background animation loops & engines ──── */
+function teardownActiveEngines() {
+  try { if (typeof MMGame3D !== 'undefined' && MMGame3D.stop) MMGame3D.stop(); } catch {}
+  try { if (typeof MMGame !== 'undefined' && MMGame.stop) MMGame.stop(); } catch {}
+  try { if (typeof MMBubble !== 'undefined' && MMBubble.stop) MMBubble.stop(); } catch {}
+  try { if (typeof MMPixelThoughts !== 'undefined' && MMPixelThoughts.stop) MMPixelThoughts.stop(); } catch {}
+  try { if (typeof MMVideo !== 'undefined' && MMVideo.stop) MMVideo.stop(); } catch {}
+}
+
+/* ── Lazy Module Proxy Bridges ───────────────────────────── */
+if (typeof window.MMVideo === 'undefined') {
+  window.MMVideo = {
+    playVideoModal: async (key, opts = {}) => {
+      await ensureModule('MMVideo', './js/video.js?v=2.8.2');
+      if (typeof window.MMVideo !== 'undefined' && window.MMVideo.playVideoModal) {
+        window.MMVideo.playVideoModal(key, opts);
+      }
+    }
+  };
+}
+if (typeof window.MMSoundscape === 'undefined') {
+  window.MMSoundscape = {
+    toggle: async () => {
+      await ensureModule('MMSoundscape', './js/soundscape.js?v=2.8.2');
+      if (typeof window.MMSoundscape !== 'undefined' && window.MMSoundscape.toggle) {
+        window.MMSoundscape.toggle();
+      }
+    },
+    isPlaying: () => false,
+    stop: () => {}
+  };
+}
+if (typeof window.MMPortfolio === 'undefined') {
+  window.MMPortfolio = {
+    showPortfolioModal: async () => {
+      await ensureModule('MMPortfolio', './js/portfolio.js?v=2.8.2');
+      if (typeof window.MMPortfolio !== 'undefined' && window.MMPortfolio.showPortfolioModal) {
+        window.MMPortfolio.showPortfolioModal();
+      }
+    }
+  };
+}
+
 /* ── Router ──────────────────────────────────────────────── */
 const routes = {};
 let lastPath = '';
@@ -576,6 +711,7 @@ function back(fallback = '#/home') {
   if (history.length > 1) history.back(); else nav(fallback);
 }
 function route() {
+  teardownActiveEngines(); // Clean up memory and cancel active RAFs
   const raw = location.hash.replace(/^#\/?/, '') || '';
   const parts = raw.split('/').filter(Boolean);
   const name = parts[0] || 'home';
@@ -585,11 +721,11 @@ function route() {
   if (Vault.isLocked()) return lockScreen();
 
   // Guards — the Aug 2026 onboarding pathing:
-  // Sign In → Terms (Accept) → Demographic Survey → Welcome → Home
+  // Sign In → Terms (Accept) → Welcome → Demographic Survey → Home
   if (!S.auth && name !== 'signin') return nav('#/signin');
   if (S.auth && !S.consented && !['terms', 'signin'].includes(name)) return nav('#/terms');
-  if (S.auth && S.consented && !S.demographics && !['demographics', 'help', 'terms', 'signin'].includes(name)) return nav('#/demographics');
-  if (S.auth && S.consented && S.demographics && !S.onboarded && !['welcome', 'help', 'demographics', 'terms', 'signin'].includes(name)) return nav('#/welcome');
+  if (S.auth && S.consented && !S.onboarded && !['welcome', 'help', 'terms', 'signin'].includes(name)) return nav('#/welcome');
+  if (S.auth && S.consented && S.onboarded && !S.demographics && !['demographics', 'help', 'welcome', 'terms', 'signin'].includes(name)) return nav('#/demographics');
 
   const fn = routes[name] || routes.home;
   const isBack = raw.length < lastPath.length && lastPath.startsWith(raw.split('/')[0]);
@@ -947,50 +1083,44 @@ function beaconOfHopeModal() {
   const affs = [...MM.HOPE.affirmations, ...S.hopeSeeds.map(s => ({ title: '🌟 Seed of Hope', text: s.text, sa: s.by }))];
 
   const m = modal(`
-    <div class="beacon-modal">
-      <div class="beacon-icon">
-        <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="4"/>
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
-        </svg>
+    <div class="beacon-modal" style="text-align:center;padding:4px 0 2px">
+      <div class="beacon-icon" style="width:48px;height:48px;margin:0 auto 8px;font-size:24px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#ffd166,#f3256b 60%,#8a2eae);box-shadow:0 6px 20px rgba(243,37,107,0.4)">
+        ☀️
       </div>
-      <h3 class="beacon-title">${esc(MM.HOPE.title)} · Ithemba</h3>
-      <p class="beacon-sub">A safe haven of courage, anonymous seeds of hope &amp; resilience</p>
-      <p class="beacon-lead">“${esc(MM.HOPE.lead)}”</p>
-      
-      <!-- Starlight Sky -->
-      <div style="background:rgba(0,0,0,0.3);border-radius:14px;padding:8px;margin:8px 0;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap">
-        <small style="color:#ffd166;font-weight:700;width:100%;text-align:center">✨ Touch any star to receive a message of courage</small>
-        ${affs.map((_, i) => `<button class="bdot ${i === 0 ? 'active' : ''}" data-star="${i}" style="width:28px;height:28px;border-radius:50%;background:rgba(255,209,102,0.2);border:1.5px solid #ffd166;color:#ffd166;font-size:12px;cursor:pointer;display:grid;place-items:center" title="Star ${i+1}">⭐</button>`).join('')}
-      </div>
+      <h3 class="beacon-title" style="font-size:20px;font-weight:800;margin:0 0 2px;color:#ffffff">Beacon of Hope</h3>
+      <p class="beacon-sub" style="font-size:12px;font-weight:600;color:#ffd166;letter-spacing:0.3px;margin:0 0 12px">Ithemba · Words of Strength</p>
 
-      <div class="beacon-card" id="beacon-card" style="min-height:120px">
-        <h4 id="bh-title">${esc(affs[0].title)}</h4>
-        <p id="bh-text" style="font-size:14px;line-height:1.6">${esc(affs[0].text)}</p>
-        <div class="bh-sa" id="bh-sa">🌿 <i>${esc(affs[0].sa)}</i></div>
-      </div>
+      <!-- Main Affirmation Card View -->
+      <div id="bh-view-card">
+        <div class="beacon-card" id="beacon-card" style="background:rgba(255,255,255,0.07);backdrop-filter:blur(20px);border:1.5px solid rgba(255,209,102,0.3);border-radius:18px;padding:18px 16px;margin-bottom:12px;text-align:left;box-shadow:0 8px 24px rgba(0,0,0,0.4);min-height:115px">
+          <h4 id="bh-title" style="font-size:15px;font-weight:700;color:#ffd166;margin:0 0 6px">${esc(affs[0].title)}</h4>
+          <p id="bh-text" style="font-size:14px;line-height:1.6;color:rgba(255,255,255,0.95);margin:0 0 10px">${esc(affs[0].text)}</p>
+          <div class="bh-sa" id="bh-sa" style="font-size:12px;color:#6ec1ff;background:rgba(0,0,0,0.35);padding:6px 10px;border-radius:8px;display:inline-block">🌿 <i>${esc(affs[0].sa)}</i></div>
+        </div>
 
-      <div class="beacon-nav">
-        <button class="beacon-prev" id="bh-prev" aria-label="Previous affirmation">‹</button>
-        <span style="font-size:11.5px;color:rgba(255,255,255,0.7);font-weight:600" id="bh-counter">1 of ${affs.length}</span>
-        <button class="beacon-next" id="bh-next" aria-label="Next affirmation">›</button>
-      </div>
+        <div class="beacon-nav" style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:14px">
+          <button class="beacon-prev" id="bh-prev" aria-label="Previous affirmation" style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.1);color:#fff;font-size:16px;cursor:pointer">‹</button>
+          <span style="font-size:12.5px;color:rgba(255,255,255,0.85);font-weight:700;letter-spacing:0.5px" id="bh-counter">1 of ${affs.length}</span>
+          <button class="beacon-next" id="bh-next" aria-label="Next affirmation" style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.1);color:#fff;font-size:16px;cursor:pointer">›</button>
+        </div>
 
-      <!-- Plant a Seed of Hope Input -->
-      <div id="bh-seed-box" style="display:none;flex-direction:column;gap:8px;margin-top:10px;background:rgba(255,255,255,0.08);padding:12px;border-radius:14px;border:1.5px solid #ffd166">
-        <label style="font-size:12px;font-weight:700;color:#ffd166">Plant an anonymous Seed of Hope for someone in need:</label>
-        <textarea id="bh-seed-input" rows="2" placeholder="Write a gentle message of strength, courage or care…" style="width:100%;border-radius:8px;padding:8px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:13px;box-sizing:border-box"></textarea>
-        <div style="display:flex;gap:6px;justify-content:flex-end">
-          <button class="btn btn-ghost btn-sm" id="bh-seed-cancel">Cancel</button>
-          <button class="btn btn-primary btn-sm" id="bh-seed-submit">🌟 Plant Star</button>
+        <div class="beacon-acts-row" style="display:flex;gap:10px;margin-bottom:8px">
+          <button class="btn btn-primary" id="bh-read" style="flex:1">🔊 Read Aloud</button>
+          <button class="btn btn-secondary" id="bh-plant-open" style="flex:1">🌱 Plant a Seed</button>
         </div>
       </div>
 
-      <div class="beacon-acts" style="margin-top:12px">
-        <button class="btn btn-secondary btn-sm" id="bh-plant-btn">🌱 Plant a Seed of Hope</button>
-        <button class="btn btn-primary btn-sm" id="bh-read">${I.sparkle} Read Aloud 🔊</button>
-        <button class="btn btn-ghost btn-sm" id="bh-close">Close</button>
+      <!-- Plant a Seed Form View (Clean & dedicated) -->
+      <div id="bh-view-plant" style="display:none;flex-direction:column;gap:10px;text-align:left;background:rgba(255,255,255,0.07);backdrop-filter:blur(20px);border:1.5px solid #ffd166;border-radius:18px;padding:16px;margin-bottom:12px">
+        <b style="font-size:13.5px;color:#ffd166">🌱 Plant an Anonymous Seed of Hope:</b>
+        <textarea id="bh-seed-input" rows="3" placeholder="Write a gentle message of strength, courage or care for a peer…" style="width:100%;border-radius:10px;padding:10px;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:13px;box-sizing:border-box;resize:none;font-family:inherit"></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn btn-ghost btn-sm" id="bh-seed-cancel">Cancel</button>
+          <button class="btn btn-primary btn-sm" id="bh-seed-submit" style="background:linear-gradient(135deg,#ffd166,#f3256b);color:#fff;font-weight:800">🌟 Plant Star</button>
+        </div>
       </div>
+
+      <button class="btn btn-ghost btn-block" id="bh-close" style="font-size:13px;color:rgba(255,255,255,0.7);padding:8px">Close</button>
     </div>
   `);
 
@@ -1000,19 +1130,7 @@ function beaconOfHopeModal() {
     m.querySelector('#bh-text').textContent = cur.text;
     m.querySelector('#bh-sa').innerHTML = `🌿 <i>${esc(cur.sa)}</i>`;
     m.querySelector('#bh-counter').textContent = `${curIndex + 1} of ${affs.length}`;
-    m.querySelectorAll('[data-star]').forEach((d, i) => {
-      d.style.background = (i === curIndex) ? '#ffd166' : 'rgba(255,209,102,0.2)';
-      d.style.color = (i === curIndex) ? '#000' : '#ffd166';
-      d.style.transform = (i === curIndex) ? 'scale(1.2)' : 'scale(1)';
-    });
   }
-
-  m.querySelectorAll('[data-star]').forEach(btn => {
-    btn.onclick = () => {
-      curIndex = parseInt(btn.dataset.star, 10);
-      update();
-    };
-  });
 
   m.querySelector('#bh-prev').onclick = () => {
     curIndex = (curIndex - 1 + affs.length) % affs.length;
@@ -1032,11 +1150,18 @@ function beaconOfHopeModal() {
     }
   };
 
-  const seedBox = m.querySelector('#bh-seed-box');
-  m.querySelector('#bh-plant-btn').onclick = () => {
-    seedBox.style.display = seedBox.style.display === 'none' ? 'flex' : 'none';
+  const cardView = m.querySelector('#bh-view-card');
+  const plantView = m.querySelector('#bh-view-plant');
+
+  m.querySelector('#bh-plant-open').onclick = () => {
+    cardView.style.display = 'none';
+    plantView.style.display = 'flex';
+    m.querySelector('#bh-seed-input')?.focus();
   };
-  m.querySelector('#bh-seed-cancel').onclick = () => { seedBox.style.display = 'none'; };
+  m.querySelector('#bh-seed-cancel').onclick = () => {
+    plantView.style.display = 'none';
+    cardView.style.display = 'block';
+  };
   m.querySelector('#bh-seed-submit').onclick = () => {
     const val = m.querySelector('#bh-seed-input').value.trim();
     if (!val) return toast('Please write a short message of hope first 🌱');
@@ -1166,6 +1291,7 @@ function riskModal(phase, screen, then) {
   const ticket = newTicket('social', MM.RISK.ticketSubject,
     `Automated ${phase}-survey screening flagged for follow-up (PHQ-9).`, 'phq9');
   S.riskFlags.push({ phase, total: screen.total, q9: screen.q9, at: Date.now(), ticketRef: ticket.ref });
+  try { window.MMSync?.record('risk', { phase, total: screen.total, q9: screen.q9, ticketRef: ticket.ref }); } catch (_) {}
   save();
   const m = modal(`
     <div class="celebrate risk-care">
@@ -1199,11 +1325,9 @@ routes.signin = () => {
         ${mojoLogoHTML(130)}
         <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
           <img src="./assets/branding/shout-it-now-logo.png" alt="SHOUT-IT-NOW" style="height:18px;width:auto" />
-          <span style="font-size:11.5px;color:rgba(255,255,255,0.85);font-weight:600">Creative Resilience</span>
         </div>
       </div>
       <h1 class="auth-title">Mobile Number Sign In</h1>
-      <p class="sub">Welcome to your Creative Resilience Journey</p>
       <div class="field">${I.phone}<input id="f-phone" type="text" placeholder="Mobile Number (Test ID: 007)" autocomplete="username" /></div>
       <div class="field">${I.keyIc}<input id="f-pass" type="password" placeholder="Password" autocomplete="current-password" /></div>
       <div class="group-pick" role="group" aria-label="Study group">
@@ -1280,10 +1404,10 @@ routes.terms = () => {
     </div>
   `, { theme: 'theme-auth' });
   $('#t-no').onclick = () => { S.auth = null; save(); nav('#/signin'); toast('You need to accept to take part in the study'); };
-  $('#t-yes').onclick = () => { S.consented = true; save(); nav('#/demographics'); };
+  $('#t-yes').onclick = () => { S.consented = true; save(); nav('#/welcome'); };
 };
 
-/* ── Welcome (after demographics — "Welcome to Creative Resilience") ── */
+/* ── Welcome (after Terms — "Welcome to Creative Resilience") ── */
 routes.welcome = () => {
   render(`
     <div class="auth-wrap" style="justify-content:center;text-align:center;align-items:center">
@@ -1295,7 +1419,7 @@ routes.welcome = () => {
       <p class="auth-foot">A Creative Resilience journey by <img src="./assets/branding/ionity-global-white.png" alt="IONITY GLOBAL" class="auth-io-mini" /><br/><a href="https://www.ionity.co.za" target="_blank" rel="noopener">IONITY GLOBAL</a> · <a class="io-url" href="https://www.ionity.co.za" target="_blank" rel="noopener">www.ionity.co.za</a></p>
     </div>
   `, { theme: 'theme-auth' });
-  $('#w-next').onclick = () => { S.onboarded = true; save(); nav('#/home'); };
+  $('#w-next').onclick = () => { S.onboarded = true; save(); nav('#/demographics'); };
 };
 
 /* ── Question runner (demographics + surveys) ───────────── */
@@ -1421,7 +1545,7 @@ function wireRunner(def, draftKey, onComplete) {
   });
 }
 
-/* ── Demographics (before the welcome screen) ────────────── */
+/* ── Demographics (after the welcome screen, before Home) ─── */
 routes.demographics = () => {
   render(`
     ${header('Demographic Questions')}
@@ -1430,8 +1554,9 @@ routes.demographics = () => {
   wireRunner(MM.DEMOGRAPHICS, 'demographics', answers => {
     S.demographics = { answers, completedAt: Date.now() };
     save(); confetti();
+    try { window.MMSync?.record('demographics', { answers }); } catch (_) {}
     toast('Thank you! Your details are saved 💜');
-    nav('#/welcome');
+    nav('#/home');
   });
 };
 
@@ -1557,9 +1682,12 @@ function nextStep() {
     const due = MM.ACTIVITIES.find(a => a.week <= wk && !actState(a.id)?.submittedAt);
     if (due) return { icon: '🎨', label: `Week ${due.week}: ${due.name}`, route: `#/art/${due.id}`, why: due.week === wk ? 'This week’s creative activity is open for you.' : 'A gentle catch-up, at your own pace.' };
   }
-  if (currentWeek() >= 8 && !postDone()) {
+  if (postOpen() && !postDone()) {
     const nid = MM.POST_SURVEYS.find(id => !S.surveys.post[id]?.completedAt);
     return { icon: '🏁', label: `Complete the ${MM.SURVEYS[nid].name}`, route: '#/post', why: 'The final check-in of your 8-week journey.' };
+  }
+  if (hasArt() && preDone() && !allActsDone()) {
+    return { icon: '🎨', label: 'Finish your art activities', route: '#/art', why: 'Complete all 8 activities to unlock your Post-Survey.' };
   }
   if (!(S.sparks || []).some(s => s.day === dayKey())) {
     return { icon: '✨', label: 'Collect today’s Daily Spark', route: '#/spark', why: 'One moment of inspiration, every day.' };
@@ -1677,68 +1805,6 @@ routes.home = () => {
         <p class="lead">${esc(wc.tail)}</p>
       </div>
 
-      <!-- AI Adaptive Resilience Recommender -->
-      ${(() => {
-        const hr = new Date().getHours();
-        const recentMood = S.moods?.slice(-1)[0]?.mood;
-        const acts = actsDone();
-
-        let rec = {
-          icon: '✨',
-          tag: 'CREATIVE EXPLORATION',
-          title: 'Daily Spark & Creative Ritual',
-          desc: 'Charge your daily constellation and discover mindful creative prompts.',
-          route: '#/spark',
-          btnText: 'Open Daily Spark ✨',
-        };
-
-        if (recentMood === 'bad' || recentMood === 'heavy') {
-          rec = {
-            icon: '🌊',
-            tag: 'EMOTIONAL GROUNDING',
-            title: '4-6-7 Mindful Breath & 432Hz Calm',
-            desc: 'Center your mind with natural 432Hz harmonic soundscapes and guided breathing.',
-            route: '#/help',
-            btnText: 'Breathe & Center 🌊',
-          };
-        } else if (acts < 8 && acts < currentWeek()) {
-          rec = {
-            icon: '🎨',
-            tag: 'CREATIVE VOICE',
-            title: `Week ${currentWeek()} Art Studio: Moja Vision 2.0`,
-            desc: 'Express yourself through digital painting with on-device art psychology & color insights.',
-            route: '#/art',
-            btnText: 'Open Art Studio 🎨',
-          };
-        } else if (hr >= 18 || hr < 5) {
-          rec = {
-            icon: '🌙',
-            tag: 'EVENING REFLECTION',
-            title: 'Writer Journal & Acoustic Reflection',
-            desc: 'Speak or write your evening thoughts in your private AES-256 encrypted vault.',
-            route: '#/journal/write',
-            btnText: 'Open Evening Journal 📖',
-          };
-        }
-
-        return `
-          <div class="ai-recommender-card">
-            <div class="air-head">
-              <span class="spark-badge">${rec.tag}</span>
-              <span class="air-ai-pill">🧠 Adaptive Micro-AI</span>
-            </div>
-            <div class="air-body">
-              <span class="air-icon">${rec.icon}</span>
-              <div class="air-info">
-                <h3>${rec.title}</h3>
-                <p>${rec.desc}</p>
-              </div>
-            </div>
-            <button class="btn btn-primary btn-block air-btn" onclick="nav('${rec.route}')">${rec.btnText}</button>
-          </div>
-        `;
-      })()}
-
       <button class="next-step" id="next-step" aria-label="Suggested next step">
         <span class="ns-emoji" style="display:inline-flex;align-items:center">${talkingFlowerSVG(40, true)}</span>
         <span class="grow">
@@ -1761,19 +1827,6 @@ routes.home = () => {
           </div>` : '';
       })()}
 
-      <!-- Moja Bee 3D Featured Quick Play Block -->
-      <div class="game3d-bottom-card" onclick="nav('#/game3d')" role="button" tabindex="0" aria-label="Play Moja Bee 3D Sunray Flight">
-        <div class="g3b-inner">
-          <div class="g3b-icon">🐝✨</div>
-          <div class="g3b-text">
-            <div class="g3b-tag">3D SUNRAY FLIGHT • 30S CHALLENGE</div>
-            <b>Moja Bee 3D: River &amp; Meadow Flight</b>
-            <p>Fly over blooming sunflower fields and sparkling winding rivers to gather radiant sunrays.</p>
-          </div>
-        </div>
-        <button class="btn btn-primary btn-block g3b-btn">Fly Moja Bee 3D 🐝</button>
-      </div>
-
       <div class="tile-grid">
         ${tile(I.info, 'Instructions', '#/instructions')}
         ${tile(I.headset, 'Support Services', '#/support')}
@@ -1781,7 +1834,7 @@ routes.home = () => {
         ${hasArt() ? tile(I.palette, 'Art Activities', '#/art', { locked: !artOpen(), badge: artOpen() && actsDone() ? `${actsDone()}/8` : null }) : ''}
         ${hasChat() ? tile(I.chat, 'Chat', '#/chat', { locked: !chatOpen() }) : ''}
         ${tile(I.clipboardCheck, 'Post-Survey', '#/post', { locked: !postOpen(), badge: postOpen() ? (postDone() ? '✓' : `${postCount}/4`) : null, badgeDone: postDone() })}
-        ${tile(I.gamepad, 'Games Hub (2D & 3D)', '#/games', { badge: '3 Games 🎮' })}
+        ${tile(I.gamepad, 'Games Hub', '#/games', { badge: '4 Games 🎮' })}
         ${tile(I.journal, 'Writer & Journal', '#/journal', { badge: S.journal?.length ? `${S.journal.length}` : 'New' })}
       </div>
 
@@ -1844,8 +1897,8 @@ function personalLine() {
 
 routes.spark = () => {
   if (!S.sparks) S.sparks = [];
-  const todayDone = S.sparks.some(s => s.day === dayKey());
-  const spark = pickSpark();
+  const todaySpark = S.sparks.find(s => s.day === dayKey());
+  let currentSpark = todaySpark || pickSpark();
   const stars = S.sparks.slice(-56);
   const constellation = stars.map((s, i) => {
     const x = 20 + ((i * 37) % 280), y = 14 + ((i * 53) % 60);
@@ -1856,29 +1909,34 @@ routes.spark = () => {
   }).join('');
 
   render(`
-    ${header('Daily Spark', { backTo: '#/home' })}
+    ${header('Daily Spark ✨', { backTo: '#/home' })}
     <div class="body-pad spark-wrap">
       <svg class="spark-sky" viewBox="0 0 320 80" aria-hidden="true">${constellation}
         ${stars.length ? '' : '<text x="160" y="46" text-anchor="middle" fill="rgba(255,255,255,.45)" font-size="9.5" font-family="Poppins">your collected sparks will shine here</text>'}
       </svg>
-      <div class="spark-stage ${todayDone ? 'lit' : ''}" id="spark-stage">
+      <div class="spark-stage ${todaySpark ? 'lit' : ''}" id="spark-stage">
         <div class="spark-halo" id="spark-halo"></div>
-        <button class="spark-orb" id="spark-orb" aria-label="${todayDone ? 'Today’s spark' : 'Hold to charge your spark'}">
+        <button class="spark-orb" id="spark-orb" aria-label="Tap or hold to ignite your spark">
           ${flowerSVG(70, { petal: '#fff' })}
         </button>
       </div>
       <div class="spark-bottom-wording">
-        <div class="spark-hint" id="spark-hint">${todayDone ? 'Today’s spark is lit ✨' : 'Press &amp; hold the orb.<br/>Breathe in while it charges…'}</div>
+        <div class="spark-hint" id="spark-hint">${todaySpark ? 'Spark is glowing ✨ Tap orb to draw another affirmation' : 'Tap or press &amp; hold the orb.<br/>Breathe in while it charges…'}</div>
         <p class="spark-count">${S.sparks.length ? `⭐ ${S.sparks.length} spark${S.sparks.length > 1 ? 's' : ''} collected on your journey` : 'Collect a spark every day — build your constellation'}</p>
       </div>
-      <div class="spark-card ${todayDone ? '' : 'hidden'}" id="spark-card">
-        <div class="spark-q">“${esc(spark.text)}”</div>
-        <div class="spark-by">— ${esc(spark.by)}</div>
-        <div class="spark-you" id="spark-you"></div>
-        <div class="modal-btns">
-          <button class="btn btn-secondary" id="spark-beacon">🌟 Beacon of Hope</button>
-          <button class="btn btn-ghost" id="spark-share">Share</button>
-          <button class="btn btn-primary" id="spark-home">Carry it with me</button>
+      <div class="spark-card ${todaySpark ? '' : 'hidden'}" id="spark-card">
+        <div class="spark-q" id="spark-q">“${esc(currentSpark.text)}”</div>
+        <div class="spark-by" id="spark-by">— ${esc(currentSpark.by)}</div>
+        <div class="spark-you" id="spark-you">${esc(currentSpark.you || '')}</div>
+        <div class="modal-btns" style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-secondary" id="spark-reignite" style="flex:1">💫 New Spark</button>
+            <button class="btn btn-secondary" id="spark-beacon" style="flex:1">🌟 Beacon of Hope</button>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost" id="spark-share" style="flex:1">Share 📤</button>
+            <button class="btn btn-primary" id="spark-home" style="flex:1">Carry with me ✨</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1886,61 +1944,127 @@ routes.spark = () => {
 
   const orb = $('#spark-orb'), halo = $('#spark-halo'), hint = $('#spark-hint'), stage = $('#spark-stage');
   const cardEl = $('#spark-card');
-  if (todayDone) $('#spark-you').textContent = S.sparks.find(s => s.day === dayKey())?.you || '';
 
-  let charge = 0, chargeIv = null;
-  const HOLD_MS = 2600;
+  let isCharging = false;
 
-  function reveal() {
-    clearInterval(chargeIv);
+  function playSparkChime() {
+    try {
+      const AC = globalThis.AudioContext || globalThis.webkitAudioContext;
+      if (!AC) return;
+      const a = new AC();
+      const notes = [432, 540, 648, 864];
+      notes.forEach((freq, idx) => {
+        const osc = a.createOscillator();
+        const g = a.createGain();
+        const lp = a.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.value = 2000;
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        g.gain.setValueAtTime(0.001, a.currentTime + idx * 0.08);
+        g.gain.linearRampToValueAtTime(0.035, a.currentTime + idx * 0.08 + 0.1);
+        g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + idx * 0.08 + 0.6);
+        osc.connect(lp);
+        lp.connect(g);
+        g.connect(a.destination);
+        osc.start(a.currentTime + idx * 0.08);
+        osc.stop(a.currentTime + idx * 0.08 + 0.65);
+      });
+    } catch { /* audio safeguard */ }
+  }
+
+  function igniteSpark(fresh = false) {
+    if (fresh || !todaySpark) {
+      currentSpark = pickSpark();
+      const you = personalLine();
+      currentSpark.you = you;
+      const today = dayKey();
+      const existingIdx = S.sparks.findIndex(s => s.day === today);
+      if (existingIdx >= 0) {
+        S.sparks[existingIdx] = { day: today, text: currentSpark.text, by: currentSpark.by, you, at: Date.now() };
+      } else {
+        S.sparks.push({ day: today, text: currentSpark.text, by: currentSpark.by, you, at: Date.now() });
+      }
+      save();
+    }
     stage.classList.add('lit');
-    const you = personalLine();
-    S.sparks.push({ day: dayKey(), text: spark.text, by: spark.by, you, at: Date.now() });
-    save();
+    halo.style.setProperty('--p', '1');
+    playSparkChime();
     if (navigator.vibrate) navigator.vibrate([40, 80, 140]);
     confetti();
-    $('#spark-you').textContent = you;
-    hint.innerHTML = 'Today’s spark is lit ✨';
+    const qEl = $('#spark-q');
+    const byEl = $('#spark-by');
+    const youEl = $('#spark-you');
+    if (qEl) qEl.textContent = `“${currentSpark.text}”`;
+    if (byEl) byEl.textContent = `— ${currentSpark.by}`;
+    if (youEl) youEl.textContent = currentSpark.you || personalLine();
+    hint.innerHTML = 'Today’s spark is lit ✨ Tap orb to draw another';
     cardEl.classList.remove('hidden');
     cardEl.classList.add('pop');
   }
-  function startHold(e) {
-    if (todayDone || stage.classList.contains('lit')) return;
-    e.preventDefault();
-    charge = 0;
+
+  function startAutoCharge() {
+    if (isCharging) return;
+    isCharging = true;
     orb.classList.add('charging');
-    hint.textContent = 'Keep holding… breathe in…';
-    chargeIv = setInterval(() => {
-      charge += 50;
-      const p = Math.min(1, charge / HOLD_MS);
+    hint.textContent = 'Charging your spark… breathe in…';
+    const startT = performance.now();
+    const duration = 650; // smooth 650ms charge
+
+    function step(now) {
+      if (!isCharging) return;
+      const p = Math.min(1, (now - startT) / duration);
       halo.style.setProperty('--p', p);
-      if (navigator.vibrate && charge % 500 === 0) navigator.vibrate(6);
-      if (p >= 1) { endHold(); reveal(); }
-    }, 50);
-  }
-  function endHold() {
-    clearInterval(chargeIv);
-    orb.classList.remove('charging');
-    if (!stage.classList.contains('lit')) {
-      halo.style.setProperty('--p', 0);
-      hint.innerHTML = 'Press & hold the orb.<br/>Breathe in while it charges…';
+      if (p >= 1) {
+        isCharging = false;
+        orb.classList.remove('charging');
+        igniteSpark(true);
+      } else {
+        requestAnimationFrame(step);
+      }
     }
+    requestAnimationFrame(step);
   }
-  orb.addEventListener('pointerdown', startHold);
-  orb.addEventListener('pointerup', endHold);
-  orb.addEventListener('pointerleave', endHold);
-  orb.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && !todayDone) { e.preventDefault(); if (!chargeIv) startHold(e); } });
-  orb.addEventListener('keyup', endHold);
+
+  // Pointer interactions (works on tap, click, hold)
+  orb.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    startAutoCharge();
+  });
+
+  orb.addEventListener('pointerup', () => {
+    if (isCharging) {
+      isCharging = false;
+      orb.classList.remove('charging');
+      halo.style.setProperty('--p', '1');
+      igniteSpark(true);
+    }
+  });
+
+  orb.addEventListener('click', e => {
+    e.preventDefault();
+    igniteSpark(true);
+  });
+
+  orb.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      igniteSpark(true);
+    }
+  });
+
+  $('#spark-reignite')?.addEventListener('click', () => {
+    startAutoCharge();
+  });
 
   $('#spark-beacon')?.addEventListener('click', () => beaconOfHopeModal());
   $('#spark-home').onclick = () => { toast('Spark saved to your constellation ⭐'); nav('#/home'); };
   $('#spark-share').onclick = async () => {
-    const rec = S.sparks.find(s => s.day === dayKey()) || { text: spark.text, by: spark.by };
-    const msg = `“${rec.text}” — ${rec.by}\n\n✨ My Daily Spark from MojaMind`;
+    const msg = `“${currentSpark.text}” — ${currentSpark.by}\n\n✨ My Daily Spark from MojaMind`;
     try {
       if (navigator.share) await navigator.share({ title: 'My Daily Spark — MojaMind', text: msg });
       else { await navigator.clipboard.writeText(msg); toast('Spark copied — paste it anywhere 💫'); }
-    } catch { /* user cancelled */ }
+    } catch { /* cancelled */ }
   };
 };
 
@@ -2718,7 +2842,10 @@ function surveyList(phase, isBack) {
 }
 routes.pre = (_, isBack) => surveyList('pre', isBack);
 routes.post = (_, isBack) => {
-  if (!postOpen()) { toast('Complete your Pre-Survey first ✨'); return nav('#/pre'); }
+  if (!postOpen()) {
+    if (!preDone()) { toast('Complete your Pre-Survey first ✨'); return nav('#/pre'); }
+    toast('Finish all 8 art activities to unlock your Post-Survey 🎨'); return nav('#/art');
+  }
   surveyList('post', isBack);
 };
 
@@ -2727,7 +2854,10 @@ routes.survey = (params) => {
   const [phase, id] = params;
   const def = MM.SURVEYS[id];
   if (!def || !['pre', 'post'].includes(phase)) return nav('#/home');
-  if (phase === 'post' && !postOpen()) { toast('Complete your Pre-Survey first ✨'); return nav('#/pre'); }
+  if (phase === 'post' && !postOpen()) {
+    if (!preDone()) { toast('Complete your Pre-Survey first ✨'); return nav('#/pre'); }
+    toast('Finish all 8 art activities to unlock your Post-Survey 🎨'); return nav('#/art');
+  }
   const rec = S.surveys[phase][id];
   render(`
     ${header(def.name, { backTo: `#/${phase}` })}
@@ -2739,6 +2869,7 @@ routes.survey = (params) => {
   wireRunner(def, `${phase}:${id}`, answers => {
     S.surveys[phase][id] = { answers, completedAt: Date.now() };
     save(); confetti();
+    try { window.MMSync?.record('survey', { phase, id, name: def.name, answers }); } catch (_) {}
     const allDone = phase === 'pre' ? preDone() : postDone();
     const unlockBits = [hasArt() && 'Art Activities', hasChat() && 'Chat'].filter(Boolean);
     const preMsg = unlockBits.length
@@ -2792,10 +2923,12 @@ routes.art = (params, isBack) => {
   const id = parseInt(params[0], 10);
   const a = MM.ACTIVITIES.find(x => x.id === id);
   if (!a) return nav('#/art');
-  // Weekly unlock is a study rule, so enforce it on the route itself —
-  // not only on the list card, which a typed URL bypasses.
-  if (a.week > currentWeek() && !actState(a.id)) {
-    toast(`This activity unlocks in week ${a.week} 🌱`);
+  // Sequential unlock is a study rule, so enforce it on the route itself —
+  // not only on the list card, which a typed URL bypasses. Each activity
+  // opens only once the previous one has been submitted.
+  if (actLocked(a) && !actState(a.id)) {
+    const idx = MM.ACTIVITIES.findIndex(x => x.id === a.id);
+    toast(`Complete Activity ${MM.ACTIVITIES[idx - 1].id} first to unlock this one 🌱`);
     return nav('#/art');
   }
   if (params[1] === 'detail') return artDetail(a, params[2] || 'start');
@@ -2845,8 +2978,9 @@ function artList(isBack) {
         const [c1, c2] = MM.ACT_COLORS[i % MM.ACT_COLORS.length];
         const done = !!st?.submittedAt;
         const started = !!st && !done;
+        const locked = !done && !started && actLocked(a);
         const hasVideo = !!MM.ACTIVITY_VIDEOS[a.id];
-        return `<div class="act-card ${done ? 'done' : ''}" data-id="${a.id}" data-locked="false" style="animation-delay:${i * .05}s" role="button" tabindex="0">
+        return `<div class="act-card ${done ? 'done' : ''} ${locked ? 'locked' : ''}" data-id="${a.id}" data-locked="${locked}" style="animation-delay:${i * .05}s" role="button" tabindex="0" aria-disabled="${locked}">
           <span class="acttile" style="background:linear-gradient(160deg, ${c1}, ${c2})">
             <span>Activity</span><b>${a.id}</b><em>Week ${a.week}</em>
           </span>
@@ -2856,7 +2990,9 @@ function artList(isBack) {
               ? `<span class="st-ic" style="background:rgba(51,102,255,0.2);color:#3366FF">${I.heart(true)}</span><em>Completed</em>`
               : started
                 ? `<span class="st-ic" style="background:rgba(255,209,102,0.2);color:#ffd166">${I.pencil}</span><em>In progress</em>`
-                : `<span class="st-ic" style="border:2px solid rgba(255,255,255,0.3);color:transparent">${I.check}</span><em>Open</em>`}
+                : locked
+                  ? `<span class="st-ic" style="border:2px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.6)">${I.lock}</span><em>Locked</em>`
+                  : `<span class="st-ic" style="border:2px solid rgba(255,255,255,0.3);color:transparent">${I.check}</span><em>Open</em>`}
           </span>
         </div>`;
       }).join('')}
@@ -2865,6 +3001,10 @@ function artList(isBack) {
   app.querySelectorAll('.act-card').forEach(c => c.addEventListener('click', () => {
     const aId = parseInt(c.dataset.id, 10);
     const st = actState(aId);
+    if (c.dataset.locked === 'true') {
+      const idx = MM.ACTIVITIES.findIndex(x => x.id === aId);
+      return toast(`Complete Activity ${MM.ACTIVITIES[idx - 1].id} first to unlock this one 🌱`);
+    }
     if (st?.submittedAt) {
       const nextDue = MM.ACTIVITIES.find(x => x.week <= currentWeek() && !actState(x.id)?.submittedAt);
       if (nextDue) {
@@ -2917,11 +3057,13 @@ function artOptions(a) {
     if (sel == null) return toast('Choose the option that feels right for you 🎨');
     S.activities[a.id] = Object.assign({ uploads: [], voice: [], reflections: {} }, S.activities[a.id], { option: sel, startedAt: actState(a.id)?.startedAt || Date.now() });
     save();
-    if (sel === 1) {
-      // Option 2 (Draw on Device) -> Navigate to pictures and auto-open drawing pad
+    // Route by the option's KIND (not a magic index) so every activity —
+    // including 7 & 8 — always opens the correct tool for the chosen option.
+    const kind = MM.ART_OPTION_KINDS[sel]?.key;
+    if (kind === 'draw') {
       nav(`#/art/${a.id}/detail/pictures`);
       setTimeout(() => openDrawPad(a), 350);
-    } else if (sel === 3) {
+    } else if (kind === 'speak') {
       nav(`#/art/${a.id}/detail/voice`);
     } else {
       nav(`#/art/${a.id}/detail/start`);
@@ -3016,65 +3158,145 @@ function speechRecognitionSupported() {
   return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 }
 
-/* ── Tiny reflection dictation ───────────────────────────────
-   A small mic on each reflection box, entirely separate from
-   the full voice-note recorder: speech goes straight into the
-   textarea as text. Nothing is recorded or saved as audio. */
-let reflectionDictation = null; // {recog, idx, base, finalT}
+/* ── Robust Reflection Voice Dictation Engine ─────────────── */
+let reflectionDictation = null; // { recog, idx, base, finalT, active, retryCount, restartTimer }
+
 function stopReflectionDictation() {
   if (!reflectionDictation) return;
-  try { reflectionDictation.recog.stop(); } catch { /* noop */ }
+  reflectionDictation.active = false;
+  clearTimeout(reflectionDictation.restartTimer);
+  try { reflectionDictation.recog?.stop(); } catch { /* noop */ }
   reflectionDictation = null;
-  MMVoice.resume();
+  if (typeof MMVoice !== 'undefined' && typeof MMVoice.resume === 'function') {
+    MMVoice.resume();
+  }
 }
+
 function toggleReflectionDictation(idx, textarea, micBtn) {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) return toast('Voice dictation needs a browser like Chrome or Edge 🎤');
+  if (!SR) {
+    return toast('Voice dictation needs speech recognition support (Chrome, Edge or Safari) 🎤', 3000);
+  }
 
   if (reflectionDictation && reflectionDictation.idx === idx) {
+    const wasText = textarea.value;
     stopReflectionDictation();
-    micBtn.classList.remove('on'); micBtn.innerHTML = I.mic;
+    micBtn.classList.remove('on');
+    micBtn.innerHTML = I.mic;
+    scheduleReflectionNote(idx, wasText, true);
+    toast('Dictation saved ✍️', 1800);
     return;
   }
-  if (reflectionDictation) stopReflectionDictation(); // switch questions mid-flow
 
-  MMVoice.pause(); // dictation always wins the microphone
-  const recog = new SR();
-  recog.lang = 'en-ZA'; recog.continuous = true; recog.interimResults = true;
+  if (reflectionDictation) {
+    stopReflectionDictation(); // Switch question cleanly
+  }
+
+  if (typeof MMVoice !== 'undefined' && typeof MMVoice.pause === 'function') {
+    MMVoice.pause();
+  }
+
   const existing = textarea.value.trim();
   const base = existing ? existing + (/[.!?]$/.test(existing) ? ' ' : '. ') : '';
-  reflectionDictation = { recog, idx, base, finalT: '' };
 
-  const endDictation = () => {
-    if (reflectionDictation?.idx === idx) { reflectionDictation = null; MMVoice.resume(); }
-    micBtn.classList.remove('on'); micBtn.innerHTML = I.mic;
+  const state = {
+    recog: null,
+    idx,
+    base,
+    finalT: '',
+    active: true,
+    retryCount: 0,
+    restartTimer: null,
   };
+  reflectionDictation = state;
 
-  recog.onresult = e => {
-    if (!reflectionDictation || reflectionDictation.idx !== idx) return;
-    let interim = '';
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      if (e.results[i].isFinal) reflectionDictation.finalT += e.results[i][0].transcript + ' ';
-      else interim += e.results[i][0].transcript;
+  function createAndStartRecog() {
+    if (!state.active) return;
+    try {
+      if (state.recog) {
+        try { state.recog.stop(); } catch { /* noop */ }
+      }
+      const recog = new SR();
+      state.recog = recog;
+      recog.continuous = true;
+      recog.interimResults = true;
+      // Use user's browser locale or fallback
+      recog.lang = navigator.language || 'en-ZA';
+
+      recog.onstart = () => {
+        if (!state.active) return;
+        micBtn.classList.add('on');
+        micBtn.innerHTML = I.stop;
+      };
+
+      recog.onresult = e => {
+        if (!reflectionDictation || reflectionDictation.idx !== idx || !state.active) return;
+        let interim = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          let chunk = e.results[i][0].transcript;
+          if (e.results[i].isFinal) {
+            chunk = chunk
+              .replace(/\s+full stop\b/gi, '.')
+              .replace(/\s+period\b/gi, '.')
+              .replace(/\s+comma\b/gi, ',')
+              .replace(/\s+question mark\b/gi, '?')
+              .replace(/\s+exclamation mark\b/gi, '!')
+              .replace(/\s+new line\b/gi, '\n')
+              .replace(/\s+new paragraph\b/gi, '\n\n');
+            state.finalT += chunk + ' ';
+          } else {
+            interim += chunk;
+          }
+        }
+        const fullText = (state.base + state.finalT + interim).replace(/\s+/g, ' ').trim();
+        textarea.value = fullText;
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      };
+
+      recog.onerror = e => {
+        if (!state.active) return;
+        if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+          state.active = false;
+          micBtn.classList.remove('on');
+          micBtn.innerHTML = I.mic;
+          toast('Microphone permission is needed to dictate 🎤', 3000);
+          stopReflectionDictation();
+          return;
+        }
+        // For 'no-speech', 'audio-capture', or 'network', do NOT abort prematurely
+        if (e.error === 'no-speech') {
+          // Gentle silent recovery - let user pause while thinking
+        }
+      };
+
+      recog.onend = () => {
+        if (!state.active) {
+          micBtn.classList.remove('on');
+          micBtn.innerHTML = I.mic;
+          return;
+        }
+        // Auto-reconnect seamlessly if user is still in recording mode
+        clearTimeout(state.restartTimer);
+        state.restartTimer = setTimeout(() => {
+          if (state.active && reflectionDictation?.idx === idx) {
+            createAndStartRecog();
+          }
+        }, 120);
+      };
+
+      recog.start();
+      micBtn.classList.add('on');
+      micBtn.innerHTML = I.stop;
+      toast('Listening… Speak your reflection 🎙️', 1800);
+    } catch (err) {
+      if (state.active && state.retryCount < 3) {
+        state.retryCount++;
+        state.restartTimer = setTimeout(createAndStartRecog, 250);
+      }
     }
-    textarea.value = (reflectionDictation.base + reflectionDictation.finalT + interim).replace(/\s+/g, ' ');
-    textarea.dispatchEvent(new Event('input', { bubbles: true })); // saves + triggers the tiny AI note
-  };
-  recog.onerror = e => {
-    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') toast('Microphone access is needed to dictate 🎤');
-    endDictation();
-  };
-  recog.onend = () => {
-    const was = reflectionDictation?.idx === idx;
-    endDictation();
-    if (was) { scheduleReflectionNote(idx, textarea.value, true); toast('Got it — read it over and edit anything you like ✍️', 2200); }
-  };
+  }
 
-  try {
-    recog.start();
-    micBtn.classList.add('on'); micBtn.innerHTML = I.stop;
-    toast('Listening — speak your reflection 🎙', 1600);
-  } catch { /* already starting */ }
+  createAndStartRecog();
 }
 
 /* ── Tiny on-device encouragement ────────────────────────────
@@ -3138,7 +3360,7 @@ function scheduleReflectionNote(idx, text, immediate = false) {
 function artDetail(a, tab) {
   const st = actState(a.id);
   if (!st || st.option == null) return nav(`#/art/${a.id}`);
-  const locked = false; // NEVER auto-lock activities
+  const locked = !!st.submittedAt; // Submitted activities are locked
   const kind = MM.ART_OPTION_KINDS[st.option];
   const tabs = [['start', 'Start Here'], ['materials', 'Materials'], ['pictures', 'Pictures'], ['voice', 'Voice'], ['reflections', 'Reflections']];
   const uploadSrc = upload => typeof upload === 'string' ? upload : upload.src;
@@ -3165,7 +3387,7 @@ function artDetail(a, tab) {
           </div>
           <div style="display:flex;gap:8px;margin-top:10px">
             <button class="btn btn-outline btn-sm" onclick="nav('#/portfolio')">View Certificate 📜</button>
-            <button class="btn btn-ghost btn-sm" onclick="openDrawPad(MM.ACTIVITIES.find(x => x.id === ${a.id}))">Open Pad 🎨</button>
+            <button class="btn btn-ghost btn-sm" onclick="nav('#/art/${a.id}/detail/pictures')">View Artwork 🎨</button>
           </div>
         </div>
       ` : ''}
@@ -3337,15 +3559,15 @@ function artDetail(a, tab) {
             <div class="refl-q" data-ri="${i}">
               <label for="rq${i}"><span class="refl-num">${i + 1}</span>${esc(q)}</label>
               <div class="refl-input-wrap">
-                <textarea id="rq${i}" data-r="${i}" placeholder="Your reflection… (no right or wrong)">${esc(st.reflections[i] || '')}</textarea>
-                ${canDictate ? `<button class="refl-mic" data-dictate="${i}" aria-label="Speak this reflection instead of typing" title="Speak your answer">${I.mic}</button>` : ''}
+                <textarea id="rq${i}" data-r="${i}" ${locked ? 'readonly style="opacity:0.85"' : ''} placeholder="Your reflection… (no right or wrong)">${esc(st.reflections[i] || '')}</textarea>
+                ${canDictate && !locked ? `<button class="refl-mic" data-dictate="${i}" aria-label="Speak this reflection instead of typing" title="Speak your answer">${I.mic}</button>` : ''}
               </div>
               <div class="refl-note hidden" data-note="${i}" aria-live="polite"></div>
             </div>`).join('')}
         </div>
       </div>
       <div class="act-foot-btns" style="padding:0">
-        <button class="btn btn-primary" id="submit-refl" style="min-width:150px">${locked ? 'Update Reflections 💾' : 'Submit'}</button>
+        <button class="btn btn-primary" id="submit-refl" ${locked ? 'disabled style="opacity:0.6"' : ''} style="min-width:150px">${locked ? '✓ Completed & Locked' : 'Submit'}</button>
       </div>`;
   }
 
@@ -3355,9 +3577,8 @@ function artDetail(a, tab) {
       <div class="hero-card" style="padding:13px 16px">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
           <p class="lead" style="margin:0">Option ${st.option + 1} — ${kind.emoji} ${esc(kind.name)}</p>
-          ${locked ? `<button class="btn btn-ghost btn-sm" id="unlock-act-btn" style="font-size:11px;padding:3px 8px;border-color:#ffd166;color:#ffd166">🔓 Unlock</button>` : ''}
         </div>
-        ${locked ? `<p class="locked-strip">${I.lock} Submitted ${new Date(st.submittedAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })} — you can still add artwork or edit anytime.</p>` : ''}
+        ${locked ? `<p class="locked-strip">${I.lock} Completed &amp; Submitted ${new Date(st.submittedAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })} — responses are locked.</p>` : ''}
       </div>
       <div class="tabs-bar" role="tablist">
         ${tabs.map(([k, lbl]) => `<button class="tab-link ${tab === k ? 'active' : ''}" role="tab" aria-selected="${tab === k}" data-tab="${k}">${lbl}</button>`).join('')}
@@ -3368,13 +3589,6 @@ function artDetail(a, tab) {
 
   app.querySelectorAll('.tab-link').forEach(t => t.addEventListener('click', () => nav(`#/art/${a.id}/detail/${t.dataset.tab}`)));
   app.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => nav(`#/art/${a.id}/detail/${b.dataset.go}`)));
-
-  $('#unlock-act-btn')?.addEventListener('click', () => {
-    delete st.submittedAt;
-    save();
-    toast('Activity unlocked for editing 🎨✨');
-    artDetail(a, tab);
-  });
 
   if (tab === 'reflections') {
     a.reflections.forEach((_, i) => scheduleReflectionNote(i, st.reflections[i] || '', true));
@@ -3495,6 +3709,7 @@ function artDetail(a, tab) {
     m.querySelector('#sub-yes').onclick = () => {
       closeModal();
       st.submittedAt = Date.now(); save();
+      try { window.MMSync?.record('activity', { id: a.id, name: a.name, option: st.option, reflections: st.reflections, uploads: (st.uploads || []).length, voice: (st.voice || []).length }); } catch (_) {}
       confetti();
       const c = modal(`
         <div class="celebrate">
@@ -3509,7 +3724,8 @@ function artDetail(a, tab) {
 }
 
 /* ── Draw on your device ─────────────────────────────────── */
-function openDrawPad(a) {
+async function openDrawPad(a) {
+  await ensureModule('MMDraw', './js/draw.js?v=2.8.2');
   const st = actState(a.id);
   if (!st) return;
 
@@ -3555,22 +3771,122 @@ function openDrawPad(a) {
   });
 }
 
-/** Moja Vision's warm read of what was just made. */
+/** Moja Vision 3.0 — On-Device Neural Art Psychology & Vision Tensor Mirror. */
 function visionModal(vision) {
-  const words = vision.words?.length
-    ? `<div class="vision-words"><small>Words I could read in your art</small><p>${vision.words.slice(0, 6).map(w => `“${esc(w)}”`).join(' · ')}</p></div>`
+  const arch = vision.archetype || {
+    title: 'The Harmonious Creator',
+    badge: '🌟 INNER BALANCE',
+    icon: '🎨',
+    headline: 'Balanced Creative Expression & Grounded Alignment',
+  };
+
+  const words = (vision.words && vision.words.length)
+    ? `<div class="vision-words">
+        <small>🔤 Words &amp; Intentions in Your Art</small>
+        <p>${vision.words.slice(0, 6).map(w => `“${esc(w)}”`).join(' · ')}</p>
+      </div>`
     : '';
+
+  const symbols = (vision.symbols && vision.symbols.length)
+    ? `<div class="vision-words" style="margin-top:6px">
+        <small>✨ Resilience Touchstones</small>
+        <p style="font-size:20px">${vision.symbols.slice(0, 8).join('  ')}</p>
+      </div>`
+    : '';
+
+  const energies = vision.energies || { vitality: 45, serenity: 40, growth: 35, transcendence: 30 };
+  const prompts = vision.reflectionPrompts || [
+    'What emotion or memory felt most alive while choosing these colors?',
+    'Which part of this artwork gives you the strongest sense of strength?',
+  ];
+
   modal(`
-    <div class="vision-modal">
-      <span class="vision-mark">${I.sparkle}</span>
-      <h3>Moja Vision</h3>
-      <div class="colour-palette big">${(vision.palette || []).map(c => `<span style="--swatch:${c}"></span>`).join('')}</div>
-      <p class="vision-text">${esc(vision.feedback)}</p>
+    <div class="vision-modal-advanced">
+      <div class="vision-hero-banner">
+        <span class="vision-mark-icon">${arch.icon || '✨'}</span>
+        <div class="vision-hero-title">
+          <span class="vision-badge-pill">${esc(arch.badge || '🌟 RESILIENCE MIRROR')}</span>
+          <h3>${esc(arch.title || 'Moja Vision')}</h3>
+          <small>${esc(arch.headline || 'On-Device Neural Art Psychology')}</small>
+        </div>
+      </div>
+
+      <div class="vision-palette-bar">
+        <small class="vision-section-label">🎨 Extracted Chromatic Spectrum</small>
+        <div class="colour-palette big">
+          ${(vision.palette || []).map(c => `<span style="--swatch:${c}" title="${c}"></span>`).join('')}
+        </div>
+      </div>
+
+      <div class="vision-feedback-card">
+        <small class="vision-section-label">🧠 Psychological &amp; Emotional Mirror</small>
+        <div class="vision-text-body">
+          ${(vision.feedback || '').split('\n\n').map(p => `<p>${esc(p)}</p>`).join('')}
+        </div>
+      </div>
+
+      <!-- Neural Energy Meters -->
+      <div class="vision-energies-card">
+        <small class="vision-section-label">⚡ Emotional Frequency Dynamics</small>
+        <div class="vision-meter-grid">
+          <div class="vision-meter-row">
+            <span>☀️ Vitality &amp; Courage</span>
+            <div class="v-bar"><div class="v-fill" style="width:${energies.vitality}%;background:linear-gradient(90deg,#f58220,#ffd166)"></div></div>
+            <b>${energies.vitality}%</b>
+          </div>
+          <div class="vision-meter-row">
+            <span>🌊 Serenity &amp; Clarity</span>
+            <div class="v-bar"><div class="v-fill" style="width:${energies.serenity}%;background:linear-gradient(90deg,#3f6ad8,#00d2ff)"></div></div>
+            <b>${energies.serenity}%</b>
+          </div>
+          <div class="vision-meter-row">
+            <span>🌿 Growth &amp; Renewal</span>
+            <div class="v-bar"><div class="v-fill" style="width:${energies.growth}%;background:linear-gradient(90deg,#00a651,#34c759)"></div></div>
+            <b>${energies.growth}%</b>
+          </div>
+          <div class="vision-meter-row">
+            <span>💜 Transcendence &amp; Identity</span>
+            <div class="v-bar"><div class="v-fill" style="width:${energies.transcendence}%;background:linear-gradient(90deg,#8a2eae,#f3256b)"></div></div>
+            <b>${energies.transcendence}%</b>
+          </div>
+        </div>
+      </div>
+
       ${words}
-      <small class="vision-foot">Read on this device from colour, strokes${vision.capabilities?.text ? ' and text' : ''} · a friendly description, not a mental-health assessment</small>
-      <div class="modal-btns"><button class="btn btn-primary btn-block" onclick="closeModal()">Thank you</button></div>
+      ${symbols}
+
+      <!-- Socratic Reflection Prompts -->
+      <div class="vision-prompts-card">
+        <small class="vision-section-label">🌱 Guided Growth Questions</small>
+        <ul class="vision-prompts-list">
+          ${prompts.map(pr => `<li>${esc(pr)}</li>`).join('')}
+        </ul>
+      </div>
+
+      <small class="vision-foot">100% on-device local neural tensor analysis · Private &amp; confidential</small>
+
+      <div class="modal-btns vision-action-btns">
+        <button class="btn btn-secondary" id="vision-read-aloud-btn">🔊 Read Aloud</button>
+        <button class="btn btn-accent" id="vision-journal-btn" onclick="closeModal();nav('#/journal')">📖 Reflect in Journal</button>
+        <button class="btn btn-primary" onclick="closeModal()">Close ✨</button>
+      </div>
     </div>
   `);
+
+  // Wire up audio read aloud
+  document.getElementById('vision-read-aloud-btn')?.addEventListener('click', () => {
+    const speechText = `${arch.title}. ${arch.headline}. ${vision.feedback.replace(/\n\n/g, ' ')}`;
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(speechText);
+      u.rate = 0.95;
+      u.pitch = 1.0;
+      window.speechSynthesis.speak(u);
+      toast('Reading Moja Vision aloud 🔊', 2000);
+    } else {
+      toast('Speech synthesis is not supported on this browser', 2000);
+    }
+  });
 }
 
 function shrinkImage(file) {
@@ -3704,7 +4020,10 @@ function chatChannels(scope, isBack) {
       ${S.adminMode ? `
         <div class="admin-band">
           <span>🎓 <b>Facilitator mode</b>${pendingCount ? ` · ${pendingCount} handover${pendingCount > 1 ? 's' : ''} waiting` : ' · all caught up'}</span>
-          <button class="link" id="adm-exit">Exit</button>
+          <span style="display:flex;gap:10px">
+            <button class="link" id="adm-inbox">📥 All messages</button>
+            <button class="link" id="adm-exit">Exit</button>
+          </span>
         </div>` : ''}
       <div class="seg" role="tablist">
         <button class="${scope === 'group' ? 'active' : ''}" data-scope="group" role="tab">Group</button>
@@ -3712,7 +4031,7 @@ function chatChannels(scope, isBack) {
       </div>
       <p style="color:rgba(255,255,255,.85);font-size:12.4px;margin:0 2px;line-height:1.55">
         ${scope === 'group'
-          ? 'Share and celebrate together — one room per activity, with your group and facilitator.'
+          ? 'Announcements and encouragement from your facilitator — one room per activity. Only facilitators can post here; reply privately on the Individual tab.'
           : 'A private line between you and your facilitator for each activity.'}</p>
       ${MM.ACTIVITIES.map((a, i) => {
         const msgs = S.chat[scope][a.id] || [];
@@ -3733,8 +4052,61 @@ function chatChannels(scope, isBack) {
   app.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => chatChannels(b.dataset.scope, false)));
   app.querySelectorAll('.chan-card').forEach(c => c.addEventListener('click', () => nav(`#/chat/${scope}/${c.dataset.open}`)));
   $('#fac-access')?.addEventListener('click', adminLoginModal);
+  $('#adm-inbox')?.addEventListener('click', () => nav('#/inbox'));
   $('#adm-exit')?.addEventListener('click', () => { S.adminMode = false; save(); toast('Facilitator mode off'); route(); });
 }
+
+/* ── Admin Inbox — all participants' messages (facilitator only) ─
+   Reads from the cloud backend (MMSync). Shows a live, timestamped
+   stream grouped by participant so the facilitator can monitor and
+   reply. Requires MM.SYNC.enabled + a hosted API (see BACKEND_AZURE.md);
+   shows a clear setup notice when the backend is not configured. */
+routes.inbox = (_, isBack) => {
+  if (!S.adminMode) { toast('Facilitator access required 🎓'); return nav('#/chat'); }
+  const st = (window.MMSync && MMSync.status && MMSync.status()) || { enabled: false, pending: 0 };
+  render(`
+    ${header('All Messages 📥', { backTo: '#/chat' })}
+    <div class="body-pad">
+      <div class="admin-band"><span>🎓 <b>Facilitator inbox</b> · every participant</span><button class="link" id="inbox-refresh">↻ Refresh</button></div>
+      ${!st.enabled ? `
+        <div class="info-card">
+          <h3>Backend not connected yet</h3>
+          <p style="font-size:12.8px;line-height:1.6;color:rgba(255,255,255,.85)">
+            To see messages from every participant on one screen, connect the hosted study database:
+            set <code>MM.SYNC.enabled = true</code> and <code>MM.SYNC.base</code> in <code>js/data.js</code>
+            to your Azure API. Full steps are in <b>BACKEND_AZURE.md</b>. Until then, each device keeps its
+            own chat locally and this inbox stays empty.
+          </p>
+        </div>` : `<div id="inbox-list"><div class="info-card"><p class="empty-note">Loading messages…</p></div></div>`}
+    </div>
+  `, { theme: 'theme-purple', backAnim: isBack });
+
+  const renderList = (msgs) => {
+    const host = $('#inbox-list'); if (!host) return;
+    if (!msgs.length) { host.innerHTML = `<div class="info-card"><p class="empty-note">No messages yet.</p></div>`; return; }
+    // Group by participant, newest group first
+    const byP = {};
+    msgs.forEach(m => { const p = m.participant || m.payload?.participant || 'Unknown'; (byP[p] = byP[p] || []).push(m); });
+    host.innerHTML = Object.entries(byP).map(([pid, list]) => {
+      list.sort((a, b) => new Date(a.at) - new Date(b.at));
+      const rows = list.map(m => {
+        const pl = m.payload || m; const who = pl.who || m.who || 'participant';
+        const when = new Date(m.at || pl.at).toLocaleString('en-ZA', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+        return `<div class="bubble ${who === 'facilitator' ? 'me' : 'them'}"><p>${esc(pl.text || '')}</p><span class="meta"><b>${esc(who)}</b> · ${pl.scope || ''}${pl.actId ? ' · #' + pl.actId : ''} | ${when}</span></div>`;
+      }).join('');
+      return `<div class="info-card" style="margin-bottom:12px"><h3 style="font-size:13.5px">👤 ${esc(pid)} · Group ${esc(String(list[0].group ?? '—'))}</h3><div class="chat-scroll" style="max-height:none;padding:0">${rows}</div></div>`;
+    }).join('');
+  };
+
+  const load = async () => {
+    if (!st.enabled) return;
+    const res = await MMSync.pullMessages();
+    if (!res.ok) { const h = $('#inbox-list'); if (h) h.innerHTML = `<div class="info-card"><p class="empty-note">Could not reach the server${res.offline ? ' — you are offline' : ''}. Tap ↻ to retry.</p></div>`; return; }
+    renderList((res.messages || []).filter(m => (m.type === 'message') || m.text || m.payload?.text));
+  };
+  $('#inbox-refresh')?.addEventListener('click', load);
+  load();
+};
 
 /* ── Moja Guide — indexed, activity-aware, safe ─────────── */
 function fillAIContext(template, activity) {
@@ -3825,7 +4197,7 @@ function chatThread(scope, actId) {
     S.chat[scope][actId] = [{
       who: 'fac',
       text: scope === 'group'
-        ? `Welcome all to the ${a.name} group chat! Share your creations, thoughts and encouragement here. 🎨`
+        ? `Welcome all to the ${a.name} group room! Your facilitator will share announcements and encouragement here. To ask something, use the Individual tab. 🎨`
         : `Hi! This is your private space with me for ${a.name}. Ask me anything, any time. 💜`,
       at: Date.now(),
     }];
@@ -3864,19 +4236,23 @@ function chatThread(scope, actId) {
       ${msgs.map(bubbleHTML).join('')}
     </div>
     <div class="chat-input-row">
+      ${scope === 'group' && !S.adminMode ? '' : `
       <div class="chat-prompts-strip" role="toolbar" aria-label="Suggested quick questions">
         <button class="chat-prompt-pill" data-q="🌸 How do I get started with ${esc(a.name)}?">🌸 How do I start?</button>
         <button class="chat-prompt-pill" data-q="✨ Can you give me feedback on my artwork?">✨ Artwork feedback</button>
         <button class="chat-prompt-pill" data-q="🌱 What materials do I need for this?">🌱 What do I need?</button>
         <button class="chat-prompt-pill" data-q="💜 I am feeling a bit stuck on reflections.">💜 Need reflection tip</button>
         <button class="chat-prompt-pill" data-q="🌟 Feeling proud of completing this week!">🌟 Celebrate progress</button>
-      </div>
-      <div class="chat-input-bar">
-        <input id="chat-in" placeholder="${S.adminMode ? 'Reply as Facilitator…' : 'Ask on-device AI or tap a prompt…'}" autocomplete="off" maxlength="600" />
+      </div>`}
+      ${scope === 'group' && !S.adminMode
+        ? `<div class="chat-readonly-note">📣 This is a facilitator announcement room — only your facilitator can post here. To ask a question, use the <a href="#/chat/individual/${actId}">Individual</a> tab.</div>`
+        : `<div class="chat-input-bar">
+        <input id="chat-in" placeholder="${S.adminMode ? (scope === 'group' ? 'Broadcast to the group…' : 'Reply as Facilitator…') : 'Ask on-device AI or tap a prompt…'}" autocomplete="off" maxlength="600" />
         <button class="send ${S.adminMode ? 'adm' : ''}" id="chat-send" aria-label="Send">${I.send}</button>
-      </div>
+      </div>`}
     </div>
   `, { theme: 'theme-purple' });
+  const canPost = scope !== 'group' || S.adminMode;
 
   const scroll = $('#chat-scroll');
   const toBottom = () => { app.scrollTop = app.scrollHeight; };
@@ -3932,11 +4308,13 @@ function chatThread(scope, actId) {
     if (S.adminMode) {
       // Facilitator replies by hand — no AI in the loop.
       pushMsg({ who: 'fac', text, at: Date.now() });
+      try { window.MMSync?.sendMessage(scope, actId, text, 'facilitator'); } catch (_) {}
       inp.value = '';
       return;
     }
 
     pushMsg({ who: 'me', text, at: Date.now() });
+    try { window.MMSync?.sendMessage(scope, actId, text, 'participant'); } catch (_) {}
     inp.value = '';
 
     const q = pendingHandover(scope, actId);
@@ -4001,8 +4379,9 @@ function chatThread(scope, actId) {
       pushMsg({ who: 'guide', text: fallbackRes.text, at: Date.now() });
     }
   };
-  $('#chat-send').onclick = sendMsg;
-  $('#chat-in').addEventListener('keydown', e => { if (e.key === 'Enter') sendMsg(); });
+  const sendBtn = $('#chat-send');
+  if (sendBtn) sendBtn.onclick = sendMsg;
+  $('#chat-in')?.addEventListener('keydown', e => { if (e.key === 'Enter') sendMsg(); });
   app.querySelectorAll('.chat-prompt-pill').forEach(pill => {
     pill.addEventListener('click', () => {
       const q = pill.dataset.q;
@@ -4057,6 +4436,19 @@ function showGameHowToModal(gameKey) {
         { icon: '🎯', title: 'Laser Aim & Match 3+', desc: 'Aim with reflective laser guide to connect 3+ matching bubbles with 432Hz harmonic chimes.' },
         { icon: '💥', title: 'Mega Avalanches', desc: 'Disconnect floating clusters from the ceiling to trigger massive cascading avalanche bonuses!' },
       ]
+    },
+    merge: {
+      title: '🌌 How to Play: Moja Merge',
+      subtitle: 'Physics Drop & Merge Alchemy · 10 Evolution Tiers',
+      route: '#/gamemerge',
+      btnText: 'Drop & Merge 🌌',
+      items: [
+        { icon: '🌰', title: 'Aim & Drop', desc: 'Slide your finger or mouse across the top aim line and release to drop your element.' },
+        { icon: '🌸', title: 'Merge Identical Tiers', desc: 'When two matching elements collide, they merge into the next bigger tier (Seed → Dew → Sprout → Blossom → Sunflower → Crystal → Heart → Star → Sun → Cosmic Bloom!).' },
+        { icon: '🔥', title: 'Combo Multipliers', desc: 'Chain multiple merges within 1.8 seconds to trigger escalating combo score bonuses!' },
+        { icon: '🌬️', title: 'Wind Gust & ⚡ Spark Zap', desc: 'Use Wind Gust to shake stuck items or Spark Zap to vaporize any 1 piece.' },
+        { icon: '⚠️', title: 'Avoid Overflow', desc: 'Keep items below the top danger line. Crossing the line for 3.2 seconds ends the round.' },
+      ]
     }
   }[gameKey];
 
@@ -4094,6 +4486,14 @@ function showGameHowToModal(gameKey) {
   };
 }
 
+/* ── Moja Meadow Lazy Route Loader ─────────────────────────── */
+routes.game = async () => {
+  await ensureModule('MMGame', './js/game.js?v=2.8.2');
+  if (typeof MMGame !== 'undefined' && routes.game) {
+    routes.game();
+  }
+};
+
 routes.games = () => {
   render(`
     ${header('Games & Resilience Hub 🎮', { backTo: '#/home' })}
@@ -4101,23 +4501,44 @@ routes.games = () => {
       <div class="hero-card games-hero">
         <span class="spark-badge">RELAX &amp; PLAY</span>
         <h2 class="hdr-glare">Choose Your Resilience Game</h2>
-        <p class="lead">Take a mindful pause between study activities. Enjoy dynamic changing seasons in your meadow, soar in 3D as a cheerful bumblebee, or pop bubbles in harmonic serenity!</p>
+        <p class="lead">Take a mindful pause between study activities. Drop and merge cosmic blossoms, cultivate your meadow, soar in 3D as a cheerful bumblebee, or pop bubbles in harmonic serenity!</p>
       </div>
 
       <div class="game-hub-grid">
-        <!-- Game 1: Moja Meadow 2D -->
+        <!-- Game 1: Moja Merge Physics Alchemy (NEW TRENDING GAME) -->
+        <div class="game-card">
+          <div class="game-card-head">
+            <span class="game-badge" style="background:linear-gradient(135deg,#ec4899,#a855f7);color:#fff">TRENDING PHYSICS DROP</span>
+            <span class="game-icon">🌌</span>
+          </div>
+          <h3>Moja Merge: Cosmic Bloom</h3>
+          <p>Drop and merge seeds, blossoms, crystals, and stars with realistic 2D bounce physics. Conquer the 1-minute challenge across 5 cosmic dimensions!</p>
+          <div class="game-stats-row">
+            <span class="chip" style="background:rgba(236,72,153,0.2);border-color:rgba(236,72,153,0.4);color:#ffd700">🌌 <b>Dim ${S.gameMerge?.level || 1}/5</b></span>
+            <span class="chip">🏆 High: <b>${S.gameMerge?.highScore || 0}</b> pts</span>
+            <span class="chip">⏳ <b>1:00</b></span>
+            <span class="chip">🌸 <b>10 Tiers</b></span>
+            <span class="chip">🌬️ <b>Wind</b></span>
+          </div>
+          <div class="game-card-actions">
+            <button class="btn btn-how-to" onclick="showGameHowToModal('merge')">📖 How to Play</button>
+            <button class="btn btn-primary" style="background:linear-gradient(135deg,#ec4899,#3366ff);color:#fff" onclick="nav('#/gamemerge')">Play Moja Merge 🌌</button>
+          </div>
+        </div>
+
+        <!-- Game 2: Moja Meadow 2D -->
         <div class="game-card">
           <div class="game-card-head">
             <span class="game-badge">4 SEASONS BOTANICAL</span>
             <span class="game-icon">🌸</span>
           </div>
           <h3>Moja Meadow</h3>
-          <p>Nourish diverse flowers across 4 changing seasons, summon refreshing rain showers, and catch falling Rain Stars.</p>
+          <p>Nourish diverse flowers across 5 sanctuary levels and 4 changing seasons, summon refreshing rain showers, and catch falling Rain Stars.</p>
           <div class="game-stats-row">
+            <span class="chip" style="background:rgba(51,102,255,0.2);border-color:rgba(51,102,255,0.4);color:#6ec1ff">🌸 <b>Lvl ${S.game?.level || 1}/5</b></span>
             <span class="chip">🌸 <b>${S.game?.blooms || 0}</b> Blooms</span>
             <span class="chip">🌟 <b>${S.game?.megaBlooms || 0}</b> Sky Blooms</span>
             <span class="chip">⭐ <b>${S.game?.rainStars || 0}</b> Rain Stars</span>
-            <span class="chip">⏳ <b>2:00</b></span>
           </div>
           <div class="game-card-actions">
             <button class="btn btn-how-to" onclick="showGameHowToModal('meadow')">📖 How to Play</button>
@@ -4125,19 +4546,19 @@ routes.games = () => {
           </div>
         </div>
 
-        <!-- Game 2: Moja Bee 3D -->
+        <!-- Game 3: Moja Bee 3D -->
         <div class="game-card">
           <div class="game-card-head">
             <span class="game-badge" style="background:linear-gradient(135deg,#ffb703,#e02043);color:#fff">3D SUNRAY FLIGHT</span>
             <span class="game-icon">🐝</span>
           </div>
           <h3>Moja Bee 3D: Sunray Flight</h3>
-          <p>Fly your happy bumblebee through sunny 3D skies, sparkling rivers, and mountain valleys. Collect Sunrays &amp; Pollen for supersonic Honey Rush!</p>
+          <p>Fly your happy bumblebee across 5 altitude levels, sunny 3D skies, and mountain valleys. Collect Sunrays &amp; Pollen for supersonic Honey Rush!</p>
           <div class="game-stats-row">
+            <span class="chip" style="background:rgba(255,183,3,0.2);border-color:rgba(255,183,3,0.4);color:#ffd700">🐝 <b>Lvl ${S.game3d?.level || 1}/5</b></span>
             <span class="chip">🏆 High: <b>${S.game3d?.highScore || 0}</b> pts</span>
             <span class="chip">☀️ <b>${S.game3d?.sunrays || 0}</b> Sunrays</span>
             <span class="chip">🍯 <b>${S.game3d?.pollen || 0}</b> Pollen</span>
-            <span class="chip">⏳ <b>2:00</b></span>
           </div>
           <div class="game-card-actions">
             <button class="btn btn-how-to" onclick="showGameHowToModal('game3d')">📖 How to Play</button>
@@ -4145,19 +4566,19 @@ routes.games = () => {
           </div>
         </div>
 
-        <!-- Game 3: Moja Pop Bubble Odyssey -->
+        <!-- Game 4: Moja Pop Bubble Odyssey -->
         <div class="game-card">
           <div class="game-card-head">
             <span class="game-badge" style="background:linear-gradient(135deg,#8a2eae,#3366ff);color:#fff">BUBBLE SHOOTER</span>
             <span class="game-icon">🫧</span>
           </div>
           <h3>Moja Pop: Bubble Odyssey</h3>
-          <p>Aim with laser reflections in a 2-min or 3-lives challenge. Enjoy 1 emergency reset push back, 432Hz pop chimes, and mega avalanches!</p>
+          <p>Aim with laser reflections across 5 constellation levels. Enjoy 1 emergency reset push back, 432Hz pop chimes, and mega avalanches!</p>
           <div class="game-stats-row">
+            <span class="chip" style="background:rgba(138,46,174,0.2);border-color:rgba(138,46,174,0.4);color:#ec4899">🫧 <b>Lvl ${S.gameBubble?.level || 1}/5</b></span>
             <span class="chip">🏆 High: <b>${S.gameBubble?.highScore || 0}</b> pts</span>
             <span class="chip">🫧 <b>${S.gameBubble?.bubblesPopped || 0}</b> Popped</span>
             <span class="chip">❤️ <b>3 Lives</b></span>
-            <span class="chip">🛡️ <b>1 Push Back</b></span>
           </div>
           <div class="game-card-actions">
             <button class="btn btn-how-to" onclick="showGameHowToModal('bubble')">📖 How to Play</button>
@@ -4179,17 +4600,61 @@ routes.games = () => {
   `);
 };
 
+/* ── Moja Merge: Cosmic Bloom Screen ─────────────────────────── */
+routes.gamemerge = async () => {
+  await ensureModule('MMMerge', './js/merge.js?v=3.1.0');
+  render(`
+    ${header('Moja Merge: Cosmic Bloom 🌌🌸', { backTo: '#/games' })}
+    <div class="body-pad merge-pad">
+      <div class="meadow-hud merge-hud">
+        <span class="hud-chip" style="background:rgba(236,72,153,0.18);border-color:rgba(236,72,153,0.4)">🌌 <b>Dim ${S.gameMerge?.level || 1}/5</b></span>
+        <span class="hud-chip">🏆 Score: <b id="merge-score">0</b></span>
+        <span class="hud-chip">⭐ High: <b id="merge-high">${S.gameMerge?.highScore || 0}</b></span>
+        <span class="hud-chip timer-chip" title="1-Minute Challenge">⏳ <span id="merge-timer">1:00</span></span>
+        <span class="hud-chip next-chip" title="Next upcoming element">Next: <span id="merge-next-icon" style="font-size:16px;margin:0 4px">🌱</span> <b id="merge-next-name" style="font-size:11.5px">Sprout</b></span>
+      </div>
+
+      <div class="merge-frame">
+        <canvas id="merge-canvas" aria-label="Moja Merge Physics Drop Canvas"></canvas>
+        <div class="merge-controls-overlay">
+          <button class="merge-action-btn" id="merge-wind-btn" title="Shake / Nudge the board">🌬️ Wind Gust</button>
+          <button class="merge-action-btn" id="merge-zap-btn" title="Vaporize 1 item">⚡ Spark Zap</button>
+          <button class="merge-action-btn" id="merge-restart-btn" title="Restart Game">🔄 Reset</button>
+        </div>
+      </div>
+
+      <div class="merge-actions" style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn btn-outline btn-block" onclick="nav('#/games')">🎮 All Games Hub</button>
+        <button class="btn btn-secondary btn-block" onclick="showGameHowToModal('merge')">📖 How to Play</button>
+      </div>
+
+      <p class="meadow-hint" style="text-align:center">
+        <b>Touch &amp; drag across top</b> to aim · <b>Tap/release to drop</b> · Race the <b>1-Min Timer ⏳</b> to advance dimensions and forge the <b>🌌 Cosmic Bloom (1000 pts)</b>!
+      </p>
+    </div>
+  `);
+
+  $('#merge-wind-btn')?.addEventListener('click', () => MMMerge?.triggerWind?.());
+  $('#merge-zap-btn')?.addEventListener('click', () => MMMerge?.toggleZapMode?.());
+  $('#merge-restart-btn')?.addEventListener('click', () => MMMerge?.resetGame?.());
+
+  if (typeof MMMerge !== 'undefined') MMMerge.mount();
+};
+routes.merge = routes.gamemerge;
+
 /* ── Moja Bee 3D Screen ────────────────────────────────────── */
-routes.game3d = () => {
+routes.game3d = async () => {
+  await ensureModule('MMGame3D', './js/game3d.js?v=2.8.2');
   render(`
     ${header('Moja Bee 3D 🐝🌻', { backTo: '#/games' })}
     <div class="body-pad orbit-pad">
       <div class="meadow-hud orbit-hud">
+        <span class="hud-chip" style="background:rgba(255,183,3,0.18);border-color:rgba(255,183,3,0.4)">🐝 <b>Lvl ${S.game3d?.level || 1}/5</b></span>
         <span class="hud-chip">🏆 <b id="orbit-score">0</b></span>
         <span class="hud-chip">⭐ High: <b id="orbit-high">${S.game3d?.highScore || 0}</b></span>
         <span class="hud-chip">☀️ <b id="orbit-sunrays">0</b></span>
         <span class="hud-chip">🍯 <b id="orbit-pollen">0</b></span>
-        <span class="hud-chip timer-chip" title="30-Second Flight Challenge">⏳ <span id="orbit-timer">0:30</span></span>
+        <span class="hud-chip timer-chip" title="2-Minute Flight Challenge">⏳ <span id="orbit-timer">2:00</span></span>
         <span class="hud-chip">📏 <span id="orbit-dist">0m</span></span>
       </div>
       <div class="orbit-frame">
@@ -4216,30 +4681,28 @@ routes.game3d = () => {
     </div>
   `);
 
-  $('#orbit-boost')?.addEventListener('click', () => MMGame3D.triggerBoost());
-  $('#bee-up')?.addEventListener('click', () => MMGame3D.steer(0, -45));
-  $('#bee-down')?.addEventListener('click', () => MMGame3D.steer(0, 45));
-  $('#bee-left')?.addEventListener('click', () => MMGame3D.steer(-50, 0));
-  $('#bee-right')?.addEventListener('click', () => MMGame3D.steer(50, 0));
+  $('#orbit-boost')?.addEventListener('click', () => MMGame3D?.triggerBoost?.());
+  $('#bee-up')?.addEventListener('click', () => MMGame3D?.steer?.(0, -45));
+  $('#bee-down')?.addEventListener('click', () => MMGame3D?.steer?.(0, 45));
+  $('#bee-left')?.addEventListener('click', () => MMGame3D?.steer?.(-50, 0));
+  $('#bee-right')?.addEventListener('click', () => MMGame3D?.steer?.(50, 0));
 
-  MMGame3D.mount();
+  if (typeof MMGame3D !== 'undefined') MMGame3D.mount();
 };
 
-window.addEventListener('hashchange', () => {
-  if (!location.hash.startsWith('#/game3d')) MMGame3D.stop();
-});
-
 /* ── Moja Pop Bubble Odyssey Screen ────────────────────────── */
-routes.gamebubble = () => {
+routes.gamebubble = async () => {
+  await ensureModule('MMBubble', './js/bubble.js?v=2.8.2');
   render(`
     ${header('Moja Pop: Bubble Odyssey 🫧✨', { backTo: '#/games' })}
     <div class="body-pad bubble-pad">
       <div class="meadow-hud bubble-hud">
+        <span class="hud-chip" style="background:rgba(138,46,174,0.18);border-color:rgba(138,46,174,0.4)">🫧 <b>Lvl ${S.gameBubble?.level || 1}/5</b></span>
         <span class="hud-chip">🏆 <b id="bubble-score">0</b></span>
         <span class="hud-chip">⭐ High: <b id="bubble-high">${S.gameBubble?.highScore || 0}</b></span>
         <span class="hud-chip">❤️ <span id="bubble-lives">❤️❤️❤️</span></span>
         <span class="hud-chip" id="bubble-pushback" style="color:#6ec1ff">🛡️ Push Back Ready</span>
-        <span class="hud-chip timer-chip" title="30-Second Countdown Challenge">⏳ <span id="bubble-timer">0:30</span></span>
+        <span class="hud-chip timer-chip" title="2-Minute Countdown Challenge">⏳ <span id="bubble-timer">2:00</span></span>
         <button class="hud-chip hud-btn" id="bubble-swap" title="Swap loaded bubble">🔄 Swap</button>
       </div>
       <div class="bubble-frame">
@@ -4250,24 +4713,21 @@ routes.gamebubble = () => {
         <button class="btn btn-primary btn-block" style="background:linear-gradient(135deg,#ffb703,#f3256b);color:#fff" onclick="nav('#/game3d')">🐝 Play Moja Bee 3D</button>
       </div>
       <p class="meadow-hint" style="text-align:center">
-        <b>Touch &amp; drag to aim laser</b> · Match 3+ bubbles · <b>30-Sec or 3 Lives Challenge</b> · Touching danger line triggers <b>1 Reset Push Back 🛡️</b>, then life lost · Disconnect clusters for <b>💥 MEGA AVALANCHES</b>!
+        <b>Touch &amp; drag to aim laser</b> · Match 3+ bubbles · <b>2-Min or 3 Lives Challenge</b> · Touching danger line triggers <b>1 Reset Push Back 🛡️</b>, then life lost · Disconnect clusters for <b>💥 MEGA AVALANCHES</b>!
       </p>
     </div>
   `);
 
   $('#bubble-swap')?.addEventListener('click', () => {
-    MMBubble.swapBubbles();
+    MMBubble?.swapBubbles?.();
   });
 
-  MMBubble.mount();
+  if (typeof MMBubble !== 'undefined') MMBubble.mount();
 };
 
-window.addEventListener('hashchange', () => {
-  if (!location.hash.startsWith('#/gamebubble')) MMBubble.stop();
-});
-
 /* ── Writer / Note Space & Journal 📖✍️ ─────────────────────── */
-routes.journal = (args = []) => {
+routes.journal = async (args = []) => {
+  await ensureModule('MMJournal', './js/journal.js?v=2.8.2');
   const subview = args[0] || 'write'; // 'write' | 'entries' | 'edit'
   const editId = subview === 'edit' ? args[1] : null;
   const entries = MMJournal.getEntries();
@@ -4662,7 +5122,8 @@ routes.journal = (args = []) => {
     });
 
     // Draw / Paint Studio in Journal
-    $('#j-draw-btn')?.addEventListener('click', () => {
+    $('#j-draw-btn')?.addEventListener('click', async () => {
+      await ensureModule('MMDraw', './js/draw.js?v=2.8.2');
       const host = document.createElement('div');
       host.className = 'draw-overlay';
       document.body.appendChild(host);
@@ -4892,14 +5353,16 @@ routes.journal = (args = []) => {
 routes.writer = routes.journal;
 
 /* ── Portfolio & Certificate Route ─────────────────────────── */
-routes.portfolio = () => {
+routes.portfolio = async () => {
+  await ensureModule('MMPortfolio', './js/portfolio.js?v=2.8.2');
   if (typeof MMPortfolio !== 'undefined') {
     MMPortfolio.showPortfolioModal();
   }
 };
 
 /* ── Pixel Thoughts: Cosmic Thought Release Route ───────────── */
-routes.pixelthoughts = () => {
+routes.pixelthoughts = async () => {
+  await ensureModule('MMPixelThoughts', './js/pixelthoughts.js?v=2.8.2');
   if (typeof MMPixelThoughts !== 'undefined') {
     MMPixelThoughts.mount();
   }

@@ -61,7 +61,7 @@ const MMBubble = (() => {
   let bubblesPoppedThisSession = 0;
 
   const GB = () => {
-    if (!S.gameBubble) S.gameBubble = { highScore: 0, bubblesPopped: 0, combos: 0, totalGames: 0, sound: true };
+    if (!S.gameBubble) S.gameBubble = { highScore: 0, bubblesPopped: 0, combos: 0, totalGames: 0, sound: false };
     return S.gameBubble;
   };
 
@@ -82,43 +82,45 @@ const MMBubble = (() => {
     return ac;
   }
 
-  function pluck(freq, vol = .1, dur = .4, type = 'sine') {
+  function pluck(freq, vol = .06, dur = .35, type = 'sine') {
     const a = audio(); if (!a) return;
     try {
-      const o = a.createOscillator(), gn = a.createGain();
+      const o = a.createOscillator(), gn = a.createGain(), lp = a.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 1900;
       o.type = type; o.frequency.value = freq;
-      gn.gain.setValueAtTime(vol, a.currentTime);
+      gn.gain.setValueAtTime(Math.min(vol, 0.08), a.currentTime);
       gn.gain.exponentialRampToValueAtTime(.0001, a.currentTime + dur);
-      o.connect(gn); gn.connect(a.destination);
+      o.connect(lp); lp.connect(gn); gn.connect(a.destination);
       o.start(); o.stop(a.currentTime + dur + .05);
     } catch { /* audio safeguard */ }
   }
 
   function popSound(pitchIndex = 0) {
     const baseFreq = PENTA[Math.min(PENTA.length - 1, pitchIndex + 3)];
-    pluck(baseFreq, 0.12, 0.35, 'triangle');
-    setTimeout(() => pluck(baseFreq * 1.5, 0.08, 0.25, 'sine'), 40);
+    pluck(baseFreq, 0.07, 0.3, 'triangle');
+    setTimeout(() => pluck(baseFreq * 1.5, 0.04, 0.22, 'sine'), 40);
   }
 
   function launchSound() {
-    pluck(180, 0.08, 0.18, 'sawtooth');
+    pluck(180, 0.04, 0.14, 'sine');
   }
 
   function avalancheSound() {
     [523.25, 659.26, 783.99, 1046.5].forEach((f, i) => {
-      setTimeout(() => pluck(f, 0.15, 0.5, 'sine'), i * 65);
+      setTimeout(() => pluck(f, 0.08, 0.45, 'sine'), i * 65);
     });
   }
 
   function pushBackSound() {
     [392.0, 523.25, 659.26, 1046.5].forEach((f, i) => {
-      setTimeout(() => pluck(f, 0.18, 0.6, 'triangle'), i * 75);
+      setTimeout(() => pluck(f, 0.09, 0.5, 'triangle'), i * 75);
     });
   }
 
   function lifeLostSound() {
-    pluck(180, 0.2, 0.5, 'sawtooth');
-    setTimeout(() => pluck(120, 0.2, 0.6, 'sawtooth'), 120);
+    pluck(180, 0.1, 0.4, 'sine');
+    setTimeout(() => pluck(120, 0.1, 0.45, 'sine'), 120);
   }
 
   function buzz(ms) {
@@ -886,6 +888,14 @@ const MMBubble = (() => {
     toast('Swapped loaded bubble 🔄', 1200);
   }
 
+  const BUBBLE_LEVELS = [
+    { level: 1, name: 'Harmony Dawn', icon: '🫧', targetBubbles: 20, serenityBonus: 25, badge: '✨ Precision Popper', context: 'Clear mind, gentle focus. Aligning thoughts like glossy iridescent pearls in the morning sun.' },
+    { level: 2, name: 'Prism Cascades', icon: '💎', targetBubbles: 45, serenityBonus: 40, badge: '💎 Prism Master', context: 'Cascading colors refract in multifaceted brilliance. Finding unexpected rhythm and flow.' },
+    { level: 3, name: 'Resilience Nebula', icon: '💜', targetBubbles: 75, serenityBonus: 60, badge: '💜 Nebula Navigator', context: 'Navigating dense celestial bubble clusters with courage and calculated precision.' },
+    { level: 4, name: 'Supernova Surge', icon: '🌟', targetBubbles: 120, serenityBonus: 85, badge: '⚡ Avalanche Tactician', context: 'Massive avalanches ignite the cosmic skies. Transforming challenges into radiant momentum.' },
+    { level: 5, name: 'Celestial Harmony Dome', icon: '🌌', targetBubbles: 180, serenityBonus: 120, badge: '🌌 Cosmic Harmonizer', context: 'You have mastered the harmonic resonance! Complete calm, laser focus, and luminous victory.' },
+  ];
+
   function triggerGameOver(reason = 'time_up') {
     if (gameOver) return;
     gameOver = true;
@@ -893,37 +903,58 @@ const MMBubble = (() => {
     buzz([40, 100, 180]);
     recordScore();
 
+    GB().level = GB().level || 1;
+    const curLvlIdx = Math.min(BUBBLE_LEVELS.length - 1, GB().level - 1);
+    const curLvl = BUBBLE_LEVELS[curLvlIdx];
+    const leveledUp = reason === 'time_up' && GB().level < BUBBLE_LEVELS.length;
+    if (leveledUp) {
+      GB().level++;
+    }
+    const nextLvl = BUBBLE_LEVELS[Math.min(BUBBLE_LEVELS.length - 1, GB().level - 1)];
+
     const isNewHigh = score >= (GB().highScore || 0);
-    const serenityReward = Math.max(10, Math.floor(score / 40));
+    const serenityReward = curLvl.serenityBonus + Math.floor(score / 40);
     S.game.serenity = (S.game.serenity || 0) + serenityReward;
     save();
 
-    const title = reason === 'time_up' ? '2-Minute Challenge Complete! ⏳✨' : 'Game Over — Out of Lives! 💔';
+    const title = reason === 'time_up' ? `${curLvl.name} Complete! ⏳✨` : 'Stage Paused — Out of Lives! 💔';
     const subText = reason === 'time_up'
-      ? `Outstanding focus! You mastered the 2-minute bubble challenge!`
-      : `The bubbles reached the bottom. Reset push back was utilized and all 3 lives were tested.`;
+      ? `“${curLvl.context}”`
+      : `The bubbles reached the bottom. Reset push back was utilized and all 3 lives were tested with bravery.`;
 
     modal(`
       <div style="text-align:center;padding:14px 6px;color:#ffffff">
-        <div style="font-size:46px;margin-bottom:8px">${reason === 'time_up' ? '🫧🏆' : '🎯✨'}</div>
-        <h3 style="font-size:20px;font-weight:800;color:#ffffff;margin-bottom:6px">${title}</h3>
+        <div style="font-size:48px;margin-bottom:6px">${reason === 'time_up' ? curLvl.icon : '🎯'}✨</div>
+        <div style="display:inline-block;background:linear-gradient(135deg,#8a2eae,#3366ff);color:#fff;font-weight:800;font-size:11px;padding:3px 12px;border-radius:999px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">
+          ${curLvl.badge} · LEVEL ${curLvl.level} ${reason === 'time_up' ? 'COMPLETE!' : 'STANDBY'}
+        </div>
+        <h3 style="font-size:21px;font-weight:800;color:#ffd700;margin:0 0 6px">${title}</h3>
         ${isNewHigh && score > 0 ? `<div style="display:inline-block;background:linear-gradient(135deg,#ffd166,#f3256b);color:#fff;font-weight:800;font-size:11.5px;padding:4px 12px;border-radius:999px;margin-bottom:10px;box-shadow:0 2px 10px rgba(243,37,107,0.4)">🏆 NEW ALL-TIME HIGH SCORE!</div>` : ''}
-        <p style="font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.85);margin:6px 0 16px">
+        <p style="font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.9);margin:6px 0 14px;font-style:italic">
           ${subText}
         </p>
-        <div style="background:rgba(255,255,255,0.08);backdrop-filter:blur(16px);border:1.5px solid rgba(51,102,255,0.4);border-radius:18px;padding:14px;margin-bottom:18px;text-align:left">
-          <div style="display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;color:rgba(255,255,255,0.9)"><span>🏆 Session Score:</span><b style="color:#ffd700;font-size:15px">${score} pts</b></div>
-          <div style="display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;color:rgba(255,255,255,0.9)"><span>⭐ All-Time High:</span><b style="color:#6ec1ff">${GB().highScore || score} pts</b></div>
-          <div style="display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;color:rgba(255,255,255,0.9)"><span>🫧 Bubbles Popped:</span><b style="color:#ffffff">${bubblesPoppedThisSession}</b></div>
-          <div style="display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;color:rgba(255,255,255,0.9)"><span>🔥 Best Combo:</span><b style="color:#ffbe0b">x${GB().combos || 1}</b></div>
-          <div style="display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;color:#6ec1ff;border-top:1px dashed rgba(255,255,255,0.15);margin-top:6px;padding-top:8px"><span>💜 Serenity Earned:</span><b>+${serenityReward} Serenity</b></div>
+
+        <div style="background:rgba(255,255,255,0.08);backdrop-filter:blur(16px);border:1.5px solid rgba(51,102,255,0.4);border-radius:18px;padding:14px;margin-bottom:16px;text-align:left">
+          <div style="display:flex;justify-content:space-between;font-size:13.5px;padding:4px 0;color:rgba(255,255,255,0.9)"><span>🏆 Session Score:</span><b style="color:#ffd700;font-size:15px">${score} pts</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:13.5px;padding:4px 0;color:rgba(255,255,255,0.9)"><span>⭐ All-Time High:</span><b style="color:#6ec1ff">${GB().highScore || score} pts</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:13.5px;padding:4px 0;color:rgba(255,255,255,0.9)"><span>🫧 Bubbles Popped:</span><b style="color:#ffffff">${bubblesPoppedThisSession}</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:13.5px;padding:4px 0;color:rgba(255,255,255,0.9)"><span>🔥 Best Combo:</span><b style="color:#ffbe0b">x${GB().combos || 1}</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:13.5px;padding:4px 0;color:#6ec1ff;border-top:1px dashed rgba(255,255,255,0.15);margin-top:6px;padding-top:8px"><span>💜 Resilience Serenity Earned:</span><b>+${serenityReward} Serenity</b></div>
         </div>
+
         <div class="modal-btns" style="display:flex;flex-direction:column;gap:8px">
-          <button class="btn btn-primary btn-block" id="bubble-restart" style="background:linear-gradient(135deg,#3366FF,#8a2eae);color:#fff;font-weight:800;font-size:14px">Play Again 🫧</button>
+          ${leveledUp ? `<button class="btn btn-primary btn-block" id="bubble-advance" style="background:linear-gradient(135deg,#8a2eae,#3366ff);color:#fff;font-weight:800;font-size:14px">Play Level ${nextLvl.level}: ${nextLvl.name} 🚀</button>` : ''}
+          <button class="btn ${leveledUp ? 'btn-ghost' : 'btn-primary'} btn-block" id="bubble-restart">Play Again 🫧</button>
           <button class="btn btn-ghost btn-block" onclick="closeModal()">Back to Games Hub</button>
         </div>
       </div>
     `);
+
+    $('#bubble-advance')?.addEventListener('click', () => {
+      resetSession();
+      closeModal();
+      toast(`Level ${nextLvl.level}: ${nextLvl.name} Unlocked! 🫧`);
+    });
 
     $('#bubble-restart')?.addEventListener('click', () => {
       resetSession();

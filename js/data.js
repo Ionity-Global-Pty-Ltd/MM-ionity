@@ -26,6 +26,21 @@ MM.ENDPOINTS = {
 };
 MM.PORTFOLIO_URL = 'https://www.ionity.co.za';
 
+/* ── Cloud sync (OPT-IN) ─────────────────────────────────────
+   The app is 100% on-device by default. Flip `enabled` to true and
+   set `base` to your hosted study API (see BACKEND_AZURE.md) to
+   stream survey/activity/chat data to the DB and let the admin
+   inbox read all participants' messages. Leave disabled to stay
+   fully DataFree/offline. Never commit a secret admin key here —
+   `key` is a public *write* token only. */
+MM.SYNC = {
+  enabled: false,
+  base: '',            // e.g. 'https://mojamind-api.azurewebsites.net/api'
+  key: '',             // optional public write token / function key
+  studyId: 'creative-resilience-2026',
+  flushMs: 15000,      // queue flush interval (ms)
+};
+
 /* ── Partners (opening splash) ───────────────────────────── */
 MM.PARTNERS = {
   headline: 'Welcome',
@@ -76,7 +91,7 @@ MM.DEMOGRAPHICS = {
     { id: 'livewith',  text: 'Who do you live with?', options: ['Alone', 'Family', 'Spouse/Partner', 'Friends/Housemate', 'Other (please specify)'], other: 'Other (please specify)' },
     { id: 'water',     text: 'Do you have access to clean water?', options: ['Yes', 'No', 'Sometimes'] },
     { id: 'power',     text: 'Do you have reliable electricity at home?', options: ['Yes', 'No', 'Sometimes'] },
-    { id: 'grade',     text: 'What is the highest grade you passed?', options: ['No formal education', 'Grade R', 'Grade 1 – 11', 'Grade 12 / Matric', 'Some college/university', 'Completed college/university'] },
+    { id: 'grade',     text: 'What is the highest grade you passed?', options: ['No formal education', 'Grade R', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12 / Matric', 'Some college/university', 'Completed college/university'] },
     { id: 'work',      text: 'What is your employment status?', options: ['Unemployed', 'Part-time', 'Full-time', 'Student', 'Self-employed'] },
     { id: 'income',    text: 'What is your household income (per month)?', options: ['Less than R1 000', 'R1 000 – R4 999', 'R5 000 – R9 999', 'R10 000+', 'Prefer not to say'] },
     { id: 'relation',  text: 'What is your relationship status?', options: ['Single', 'In a relationship', 'Married', 'Separated/ Divorced'] },
@@ -283,12 +298,12 @@ MM.RISK = {
 /* ── Home / welcome copy ─────────────────────────────────── */
 MM.WELCOME = {
   fresh: {
-    title: 'Welcome to Creative Resilience!',
+    title: 'Welcome to Your Space',
     body: 'You’re ready to begin your 8-week journey. Explore the intervention instructions, helpful videos, and dive into the art activities at your own pace. If you need support or want to chat, we’re here for you anytime.',
     tail: 'Let’s get started!',
   },
   preDone: {
-    title: 'Welcome to Creative Resilience!',
+    title: 'Welcome to Your Space',
     body: 'Over the next 8 weeks, you will complete weekly activities and join virtual facilitated sessions to support your journey. Please check out the MojaMind instructions and available support services, and remember to complete your post-survey after 8 weeks.',
     tail: 'We’re excited to have you on this journey!',
   },
@@ -308,14 +323,14 @@ MM.TERMS = {
 };
 
 MM.ONBOARD = {
-  title: 'Welcome to Creative Resilience',
+  title: 'Welcome to Your Space',
   body: 'Feeling overwhelmed by stress, anxiety, or depression? You’re not alone. It is important to reflect on your personal growth and check in with yourself.',
   ready: 'Ready to start?',
 };
 
 /* ── Instructions screen ─────────────────────────────────── */
 MM.INSTRUCTIONS = {
-  heroTitle: 'Welcome to the Creative Resilience!',
+  heroTitle: 'Welcome to Your Space',
   heroBody: 'Welcome to your 8-week creative journey! Explore art, words, or sound to express yourself. No right or wrong—just a space for self-reflection and growth.',
   sections: [
     {

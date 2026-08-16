@@ -22,15 +22,15 @@
 
 const MMGame = (() => {
   const COLORS = ['#00a651', '#f58220', '#ed1c24', '#2e3192', '#f3256b', '#8a2eae', '#ffd166', '#3f6ad8', '#ffd700', '#06d6a0', '#ff758f'];
-  const SPECIES = ['daisy', 'tulip', 'sunflower', 'rose', 'lavender', 'pompom', 'orchid', 'hope'];
+  const SPECIES = ['daisy', 'tulip', 'sunflower', 'rose', 'lavender', 'pompom', 'orchid', 'lotus', 'hope', 'marigold'];
   const SEASONS = ['spring', 'summer', 'autumn', 'winter'];
   const SEASON_NAMES = { spring: '🌸 Spring', summer: '☀️ Summer', autumn: '🍂 Autumn', winter: '❄️ Winter' };
   const PENTA = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 587.33, 659.26, 783.99, 1046.5];
-  const MAX_FLOWERS = 22;
-  const GROW_MS = 30000;           // seed → bloom, unwatered
-  const SEASON_MS = 45000;         // auto-transition seasons every 45s
+  const MAX_FLOWERS = 24;
+  const GROW_MS = 24000;           // seed → bloom, unwatered
+  const SEASON_MS = 30000;         // auto-transition seasons every 30s
   const CHECKPOINT_MS = 15000;     // checkpoint interval
-  const MISSION_LIMIT_MS = 30000;  // 30-Second Session Countdown (30s)
+  const MISSION_LIMIT_MS = 120000; // 2-Minute Session Countdown (120s)
 
   let canvas = null, ctx = null, W = 0, H = 0, dpr = 1;
   let raf = 0, last = 0, t = 0, mounted = false;
@@ -46,7 +46,7 @@ const MMGame = (() => {
   let ac = null;
 
   const G = () => {
-    if (!S.game) S.game = { blooms: 0, serenity: 0, sound: true, flowers: [], totalPlayMs: 0, wormsHydrated: 0, antsHydrated: 0, megaBlooms: 0, rainStars: 0, season: 'spring' };
+    if (!S.game) S.game = { blooms: 0, serenity: 0, sound: false, flowers: [], totalPlayMs: 0, wormsHydrated: 0, antsHydrated: 0, megaBlooms: 0, rainStars: 0, season: 'spring' };
     return S.game;
   };
 
@@ -89,28 +89,30 @@ const MMGame = (() => {
     return ac;
   }
 
-  function pluck(freq, vol = .1, dur = .6, type = 'triangle') {
+  function pluck(freq, vol = .05, dur = .5, type = 'sine') {
     const a = audio(); if (!a) return;
     try {
-      const o = a.createOscillator(), gn = a.createGain();
+      const o = a.createOscillator(), gn = a.createGain(), lp = a.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 1900;
       o.type = type; o.frequency.value = freq;
-      gn.gain.setValueAtTime(vol, a.currentTime);
+      gn.gain.setValueAtTime(Math.min(vol, 0.06), a.currentTime);
       gn.gain.exponentialRampToValueAtTime(.0001, a.currentTime + dur);
-      o.connect(gn); gn.connect(a.destination);
+      o.connect(lp); lp.connect(gn); gn.connect(a.destination);
       o.start(); o.stop(a.currentTime + dur + .05);
     } catch { /* audio safeguard */ }
   }
 
-  const tapChime     = () => pluck(pick(PENTA.slice(4)), .06, .4);
-  const plantChime   = () => pluck(pick(PENTA.slice(0, 3)), .1, .5);
-  const waterChime   = () => pluck(880, .06, .22, 'sine');
-  const wormChime    = () => [440, 554.37, 659.26].forEach((f, i) => setTimeout(() => pluck(f, .07, .3, 'sine'), i * 65));
-  const bloomChime   = () => { pluck(392, .1); setTimeout(() => pluck(523.25, .1), 120); };
-  const megaChime    = () => [523.25, 659.26, 783.99, 1046.5].forEach((f, i) => setTimeout(() => pluck(f, .12, .6, 'sine'), i * 80));
-  const flyChime     = () => [523.25, 659.26, 783.99].forEach((f, i) => setTimeout(() => pluck(f, .09), i * 90));
-  const antChime     = () => pluck(1174.66, .08, .15, 'sine');
-  const starChime    = () => [783.99, 1046.5, 1318.5].forEach((f, i) => setTimeout(() => pluck(f, .1, .4, 'triangle'), i * 60));
-  const seasonChime  = () => [440, 659.26, 880, 1174.66].forEach((f, i) => setTimeout(() => pluck(f, .08, .5, 'sine'), i * 70));
+  const tapChime     = () => pluck(pick(PENTA.slice(4)), .035, .35);
+  const plantChime   = () => pluck(pick(PENTA.slice(0, 3)), .05, .45, 'triangle');
+  const waterChime   = () => pluck(880, .035, .18, 'sine');
+  const wormChime    = () => [440, 554.37, 659.26].forEach((f, i) => setTimeout(() => pluck(f, .04, .25, 'sine'), i * 65));
+  const bloomChime   = () => { pluck(392, .05); setTimeout(() => pluck(523.25, .05), 120); };
+  const megaChime    = () => [523.25, 659.26, 783.99, 1046.5].forEach((f, i) => setTimeout(() => pluck(f, .06, .5, 'sine'), i * 80));
+  const flyChime     = () => [523.25, 659.26, 783.99].forEach((f, i) => setTimeout(() => pluck(f, .045), i * 90));
+  const antChime     = () => pluck(1174.66, .04, .12, 'sine');
+  const starChime    = () => [783.99, 1046.5, 1318.5].forEach((f, i) => setTimeout(() => pluck(f, .05, .35, 'triangle'), i * 60));
+  const seasonChime  = () => [440, 659.26, 880, 1174.66].forEach((f, i) => setTimeout(() => pluck(f, .04, .45, 'sine'), i * 70));
   const buzz         = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch { /* no haptics */ } };
 
   function persist() {
@@ -703,34 +705,112 @@ const MMGame = (() => {
     ctx.beginPath(); ctx.arc(0, 0, R * 0.22, 0, Math.PI * 2); ctx.fill();
   }
 
-  /* ── 30-Second Session Challenge Celebration Modal ────────── */
+  function drawLotus(R, col) {
+    // 3 Tiers of Graceful Lotus Petals with glowing center
+    for (let ring = 2; ring >= 0; ring--) {
+      const petals = ring === 2 ? 10 : ring === 1 ? 8 : 6;
+      const rad = R * (0.5 + ring * 0.28);
+      ctx.fillStyle = ring === 2 ? darken(col, 15) : ring === 1 ? col : lighten(col, 25);
+      for (let k = 0; k < petals; k++) {
+        ctx.save();
+        ctx.rotate((k / petals) * Math.PI * 2 + ring * 0.25);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.quadraticCurveTo(-rad * 0.35, -rad * 0.5, 0, -rad * 1.05);
+        ctx.quadraticCurveTo(rad * 0.35, -rad * 0.5, 0, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+    // Radiant Golden Lotus Receptacle
+    ctx.fillStyle = '#ffd700';
+    ctx.beginPath(); ctx.arc(0, 0, R * 0.32, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#b45309';
+    for (let j = 0; j < 6; j++) {
+      const a = (j / 6) * Math.PI * 2;
+      ctx.beginPath(); ctx.arc(Math.cos(a) * R * 0.18, Math.sin(a) * R * 0.18, 1.6, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
+  function drawMarigold(R, col) {
+    // Dense Ruffled Golden-Orange Marigold
+    const baseCol = '#f97316';
+    const goldCol = '#facc15';
+    for (let layer = 0; layer < 4; layer++) {
+      const petals = 12 + layer * 4;
+      const rad = R * (0.4 + layer * 0.2);
+      ctx.fillStyle = layer % 2 === 0 ? baseCol : goldCol;
+      for (let k = 0; k < petals; k++) {
+        ctx.save();
+        ctx.rotate((k / petals) * Math.PI * 2 + layer * 0.3);
+        ctx.beginPath();
+        ctx.arc(0, -rad * 0.85, rad * 0.22, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+    ctx.fillStyle = '#7c2d12';
+    ctx.beginPath(); ctx.arc(0, 0, R * 0.25, 0, Math.PI * 2); ctx.fill();
+  }
+
+  const MEADOW_LEVELS = [
+    { level: 1, name: 'Spring Awakening', icon: '🌸', targetBlooms: 5, serenityBonus: 25, badge: '🌱 Meadow Seeder', context: 'The morning dew nourishes fresh sprouts. Mindful care roots your inner strength and creates a peaceful beginning.' },
+    { level: 2, name: 'Summer Sunfire', icon: '🌻', targetBlooms: 12, serenityBonus: 40, badge: '🌻 Solar Blossom', context: 'Warm sunlight expands your garden canopy. Generosity and joyful energy radiate to all creatures.' },
+    { level: 3, name: 'Autumn Harvest', icon: '🍂', targetBlooms: 20, serenityBonus: 60, badge: '🍂 Gratitude Harvester', context: 'Golden foliage drifts softly as rain stars fall. You reap courage and deep mindfulness from each experience.' },
+    { level: 4, name: 'Winter Frost Bloom', icon: '❄️', targetBlooms: 28, serenityBonus: 85, badge: '❄️ Frost Conqueror', context: 'Through external winter frost, steady inner warmth and resilience thrive unshakeable.' },
+    { level: 5, name: 'Cosmic Sanctuary', icon: '🌌', targetBlooms: 40, serenityBonus: 120, badge: '🌌 Master Botanist', context: 'You have achieved complete harmonic resilience! The eternal celestial meadow shines with infinite peace.' },
+  ];
+
+  /* ── 2-Minute Session Challenge & Level Progression Modal ── */
   function celebrate2MinSession() {
     confetti();
     buzz([30, 80, 120]);
-    G().serenity += 25;
+    G().level = G().level || 1;
+    const curLvlIdx = Math.min(MEADOW_LEVELS.length - 1, G().level - 1);
+    const curLvl = MEADOW_LEVELS[curLvlIdx];
+    const leveledUp = G().level < MEADOW_LEVELS.length;
+    if (leveledUp) {
+      G().level++;
+    }
+    const nextLvl = MEADOW_LEVELS[Math.min(MEADOW_LEVELS.length - 1, G().level - 1)];
+
+    G().serenity += curLvl.serenityBonus;
     persist(); hud();
 
     modal(`
       <div style="text-align:center;padding:14px 6px;color:#ffffff">
-        <div style="font-size:46px;margin-bottom:8px">🌸✨</div>
-        <h3 style="font-size:20px;font-weight:800;color:#ffffff;margin-bottom:6px">30-Second Meadow Challenge Complete!</h3>
-        <p style="font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.85);margin:6px 0 16px">
-          You spent 30 peaceful seconds nurturing botanical life, caring for garden creatures, and experiencing changing seasons.
+        <div style="font-size:48px;margin-bottom:6px">${curLvl.icon}✨</div>
+        <div style="display:inline-block;background:linear-gradient(135deg,#3366FF,#8a2eae);color:#fff;font-weight:800;font-size:11px;padding:3px 12px;border-radius:999px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">
+          ${curLvl.badge} · LEVEL ${curLvl.level} COMPLETE!
+        </div>
+        <h3 style="font-size:21px;font-weight:800;color:#ffd700;margin:0 0 6px">${curLvl.name} Mastered</h3>
+        <p style="font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.9);margin:6px 0 14px;font-style:italic">
+          “${curLvl.context}”
         </p>
-        <div style="background:rgba(255,255,255,0.08);backdrop-filter:blur(16px);border:1.5px solid rgba(51,102,255,0.4);border-radius:18px;padding:14px;margin-bottom:18px;text-align:left">
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:rgba(255,255,255,0.9)"><span>🌸 Blooms Nourished:</span><b>${G().blooms}</b></div>
+
+        <div style="background:rgba(255,255,255,0.08);backdrop-filter:blur(16px);border:1.5px solid rgba(51,102,255,0.4);border-radius:18px;padding:14px;margin-bottom:16px;text-align:left">
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:rgba(255,255,255,0.9)"><span>🌸 Total Blooms Nourished:</span><b>${G().blooms}</b></div>
           <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:rgba(255,255,255,0.9)"><span>🌟 Giant Sky Blooms:</span><b>${G().megaBlooms || 0}</b></div>
           <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:rgba(255,255,255,0.9)"><span>⭐ Rain Stars Caught:</span><b>${G().rainStars || 0}</b></div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:rgba(255,255,255,0.9)"><span>🐛 Worms Hydrated:</span><b>${G().wormsHydrated || 0}</b></div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:rgba(255,255,255,0.9)"><span>🐜 Ants Hydrated:</span><b>${G().antsHydrated || 0}</b></div>
-          <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:#6ec1ff;border-top:1px dashed rgba(255,255,255,0.15);margin-top:6px;padding-top:8px"><span>💜 Serenity Award:</span><b>+25 Serenity &amp; Hope</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:rgba(255,255,255,0.9)"><span>🐛 Creatures Hydrated:</span><b>${(G().wormsHydrated || 0) + (G().antsHydrated || 0)}</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:#6ec1ff;border-top:1px dashed rgba(255,255,255,0.15);margin-top:6px;padding-top:8px"><span>💜 Resilience Serenity Earned:</span><b>+${curLvl.serenityBonus} Serenity</b></div>
         </div>
+
         <div class="modal-btns" style="display:flex;flex-direction:column;gap:8px">
-          <button class="btn btn-primary btn-block" id="meadow-continue" style="background:linear-gradient(135deg,#3366FF,#8a2eae);color:#fff;font-weight:800;font-size:14px">Keep Gardening 🌸</button>
+          ${leveledUp ? `<button class="btn btn-primary btn-block" id="meadow-advance" style="background:linear-gradient(135deg,#3366FF,#8a2eae);color:#fff;font-weight:800;font-size:14px">Advance to Level ${nextLvl.level}: ${nextLvl.name} 🚀</button>` : ''}
+          <button class="btn ${leveledUp ? 'btn-ghost' : 'btn-primary'} btn-block" id="meadow-continue">Keep Gardening 🌸</button>
           <button class="btn btn-ghost btn-block" onclick="closeModal()">Back to Games Hub</button>
         </div>
       </div>
     `);
+
+    $('#meadow-advance')?.addEventListener('click', () => {
+      sessionStart = Date.now();
+      missionCompleteSeen = false;
+      closeModal();
+      toast(`Level ${nextLvl.level}: ${nextLvl.name} Unlocked! 🌸`);
+    });
 
     $('#meadow-continue')?.addEventListener('click', () => {
       sessionStart = Date.now();
@@ -962,14 +1042,14 @@ const MMGame = (() => {
 
       const col = COLORS[f.ci % COLORS.length];
       const sp = SPECIES[f.sp % SPECIES.length];
-      const crownR = Math.min(32, (12 + (f.growthTier || 1) * 3.8) * Math.min(1.5, gr) * hp.scale);
+      const crownR = Math.min(56, (18 + (f.growthTier || 1) * 5.5) * Math.min(1.65, gr) * hp.scale);
 
       if (gr < 0.45) {
         // Sprout Bud
         ctx.fillStyle = hp.isWilted ? '#a39045' : '#70e000';
-        ctx.beginPath(); ctx.ellipse(0, 0, 5 * hp.scale, 8 * hp.scale, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(0, 0, 7 * hp.scale, 11 * hp.scale, 0, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = col;
-        ctx.beginPath(); ctx.arc(0, -5 * hp.scale, 2.5 * hp.scale, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(0, -7 * hp.scale, 3.5 * hp.scale, 0, Math.PI * 2); ctx.fill();
       } else {
         if (sp === 'daisy') drawDaisy(crownR, col);
         else if (sp === 'tulip') drawTulip(crownR, col);
@@ -978,6 +1058,8 @@ const MMGame = (() => {
         else if (sp === 'lavender') drawLavender(crownR, col);
         else if (sp === 'pompom') drawPompom(crownR, col);
         else if (sp === 'orchid') drawOrchid(crownR, col);
+        else if (sp === 'lotus') drawLotus(crownR, col);
+        else if (sp === 'marigold') drawMarigold(crownR, col);
         else if (sp === 'hope') drawHopeFlower(crownR, col);
         else drawDaisy(crownR, col);
       }
@@ -1254,10 +1336,11 @@ routes.game = () => {
     ${header('Moja Meadow 🌸🌱', { backTo: '#/games' })}
     <div class="body-pad meadow-pad">
       <div class="meadow-hud">
+        <span class="hud-chip" style="background:rgba(51,102,255,0.18);border-color:rgba(51,102,255,0.4)">🌸 <b>Lvl ${S.game?.level || 1}/5</b></span>
         <span class="hud-chip" title="Flowers bloomed">🌸 <b id="m-blooms">${S.game?.blooms || 0}</b></span>
         <span class="hud-chip" title="Serenity Points">💜 <b id="m-ser">${S.game?.serenity || 0}</b></span>
         <button class="hud-chip hud-btn" id="m-season-btn" title="Cycle Season (Spring, Summer, Autumn, Winter)">🍂 <span id="m-season">🌸 Spring</span></button>
-        <span class="hud-chip timer-chip" title="30-Second Countdown Challenge">⏳ <span id="m-timer">0:30</span></span>
+        <span class="hud-chip timer-chip" title="2-Minute Countdown Challenge">⏳ <span id="m-timer">2:00</span></span>
         <button class="hud-chip hud-btn" id="m-rain" title="Summon Rain Shower & Catch Falling Stars">🌧️ Rain</button>
         <button class="hud-chip hud-btn" id="m-sound" aria-pressed="${S.game?.sound}">${S.game?.sound ? '🔔 Sound' : '🔕 Mute'}</button>
         <button class="hud-chip hud-btn" id="m-clear">🌱 New</button>

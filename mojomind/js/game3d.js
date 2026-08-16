@@ -61,7 +61,7 @@ const MMGame3D = (() => {
   let pointer = { active: false, startX: 0, startY: 0, curX: 0, curY: 0 };
 
   const G3 = () => {
-    if (!S.game3d) S.game3d = { highScore: 0, pollen: 0, sunrays: 0, sound: true, bestDistance: 0, crashes: 0, totalFlights: 0 };
+    if (!S.game3d) S.game3d = { highScore: 0, pollen: 0, sunrays: 0, sound: false, bestDistance: 0, crashes: 0, totalFlights: 0 };
     return S.game3d;
   };
 
@@ -82,33 +82,35 @@ const MMGame3D = (() => {
     return ac;
   }
 
-  function playTone(freq, dur = 0.25, type = 'sine', vol = 0.08) {
+  function playTone(freq, dur = 0.25, type = 'sine', vol = 0.05) {
     const a = audio(); if (!a) return;
     try {
-      const o = a.createOscillator(), g = a.createGain();
+      const o = a.createOscillator(), g = a.createGain(), lp = a.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 1900;
       o.type = type; o.frequency.setValueAtTime(freq, a.currentTime);
-      g.gain.setValueAtTime(vol, a.currentTime);
+      g.gain.setValueAtTime(Math.min(vol, 0.06), a.currentTime);
       g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + dur);
-      o.connect(g); g.connect(a.destination);
+      o.connect(lp); lp.connect(g); g.connect(a.destination);
       o.start(); o.stop(a.currentTime + dur + 0.05);
     } catch { /* audio safeguard */ }
   }
 
   function sunraySound() {
     [523.25, 659.26, 783.99, 1046.5].forEach((f, i) => {
-      setTimeout(() => playTone(f, 0.4, 'triangle', 0.09), i * 55);
+      setTimeout(() => playTone(f, 0.35, 'triangle', 0.05), i * 55);
     });
   }
 
   function pollenSound() {
     [440.0, 554.37, 659.26, 880.0].forEach((f, i) => {
-      setTimeout(() => playTone(f, 0.55, 'sine', 0.11), i * 70);
+      setTimeout(() => playTone(f, 0.45, 'sine', 0.06), i * 70);
     });
   }
 
   function butterflyJoySound() {
     [659.26, 880.0, 1174.66, 1318.5].forEach((f, i) => {
-      setTimeout(() => playTone(f, 0.35, 'sine', 0.07), i * 45);
+      setTimeout(() => playTone(f, 0.3, 'sine', 0.04), i * 45);
     });
   }
 
@@ -116,13 +118,13 @@ const MMGame3D = (() => {
     const a = audio(); if (!a) return;
     try {
       const o = a.createOscillator(), g = a.createGain();
-      o.type = 'sawtooth';
-      o.frequency.setValueAtTime(260, a.currentTime);
-      o.frequency.exponentialRampToValueAtTime(90, a.currentTime + 0.45);
-      g.gain.setValueAtTime(0.12, a.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + 0.45);
+      o.type = 'sine';
+      o.frequency.setValueAtTime(200, a.currentTime);
+      o.frequency.exponentialRampToValueAtTime(80, a.currentTime + 0.3);
+      g.gain.setValueAtTime(0.06, a.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + 0.3);
       o.connect(g); g.connect(a.destination);
-      o.start(); o.stop(a.currentTime + 0.5);
+      o.start(); o.stop(a.currentTime + 0.35);
     } catch { /* ignore */ }
   }
 
@@ -1366,37 +1368,72 @@ const MMGame3D = (() => {
     ctx.restore();
   }
 
-  /* ── 2-Minute Flight Celebration Modal ───────────────────── */
+  const BEE_LEVELS = [
+    { level: 1, name: 'Sunlit Valley', icon: '🐝', targetScore: 100, serenityBonus: 25, badge: '☀️ Sunray Scout', context: 'Gliding peacefully above gentle rolling hills. Your focus takes flight with calm buoyancy.' },
+    { level: 2, name: 'Sparkling River Canyon', icon: '🌊', targetScore: 250, serenityBonus: 40, badge: '🌊 Canyon Navigator', context: 'Navigating winding rivers and canyon updrafts. Agility and steady control guide every turn.' },
+    { level: 3, name: 'Lavender Mist Peaks', icon: '🏔️', targetScore: 450, serenityBonus: 60, badge: '🏔️ Mountain Soarer', context: 'Soaring past mountain crags through blooming alpine flora. High perspective brings clarity.' },
+    { level: 4, name: 'Sunset Horizon', icon: '🌅', targetScore: 700, serenityBonus: 85, badge: '⚡ Honey Rush Ace', context: 'Rushing through golden dusk skies with radiant warp lines. Speed and grace in perfect harmony.' },
+    { level: 5, name: 'Starlight Aurora Flight', icon: '🌌', targetScore: 1000, serenityBonus: 120, badge: '🌌 Cosmic Aviator', context: 'You have conquered the skies! Fluttering among glowing cosmic auroras and eternal starlight.' },
+  ];
+
+  /* ── 2-Minute Flight Celebration & Level Progression Modal ─ */
   function celebrate2MinComplete() {
     confetti();
     buzz([40, 100, 180]);
     if (player.score > (G3().highScore || 0)) {
       G3().highScore = player.score;
     }
-    const serenityReward = Math.max(15, Math.floor(player.score / 25));
+    G3().level = G3().level || 1;
+    const curLvlIdx = Math.min(BEE_LEVELS.length - 1, G3().level - 1);
+    const curLvl = BEE_LEVELS[curLvlIdx];
+    const leveledUp = G3().level < BEE_LEVELS.length;
+    if (leveledUp) {
+      G3().level++;
+    }
+    const nextLvl = BEE_LEVELS[Math.min(BEE_LEVELS.length - 1, G3().level - 1)];
+
+    const serenityReward = curLvl.serenityBonus + Math.floor(player.score / 35);
     S.game.serenity = (S.game.serenity || 0) + serenityReward;
     save();
 
     modal(`
       <div style="text-align:center;padding:14px 6px;color:#ffffff">
-        <div style="font-size:48px;margin-bottom:8px">🐝✨</div>
-        <h3 style="font-size:22px;font-weight:800;color:#ffffff;margin-bottom:6px">2-Minute Flight Complete!</h3>
-        <p style="font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.88);margin:6px 0 16px">
-          Your happy bumblebee gathered <b>${player.sunrays} Sunrays</b> and <b>${player.pollen} Pollen Nectar pods</b> over <b>${player.distanceMeters}m</b>!
-        </p>
-        <div style="background:rgba(255,255,255,0.08);backdrop-filter:blur(16px);border:1.5px solid rgba(51,102,255,0.45);border-radius:18px;padding:16px;margin-bottom:18px;text-align:left">
-          <div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:rgba(255,255,255,0.92)"><span>🏆 Flight Score:</span><b style="color:#ffd700;font-size:16px">${player.score} pts</b></div>
-          <div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:rgba(255,255,255,0.92)"><span>⭐ High Score:</span><b style="color:#6ec1ff">${G3().highScore} pts</b></div>
-          <div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:rgba(255,255,255,0.92)"><span>☀️ Sunrays:</span><b style="color:#ffffff">${player.sunrays}</b></div>
-          <div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:rgba(255,255,255,0.92)"><span>🍯 Pollen Harvest:</span><b style="color:#ffffff">${player.pollen}</b></div>
-          <div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:#6ec1ff;border-top:1px dashed rgba(255,255,255,0.18);margin-top:6px;padding-top:8px"><span>💜 Serenity Earned:</span><b>+${serenityReward} Serenity</b></div>
+        <div style="font-size:48px;margin-bottom:6px">${curLvl.icon}✨</div>
+        <div style="display:inline-block;background:linear-gradient(135deg,#ffb703,#f3256b);color:#fff;font-weight:800;font-size:11px;padding:3px 12px;border-radius:999px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">
+          ${curLvl.badge} · LEVEL ${curLvl.level} COMPLETE!
         </div>
+        <h3 style="font-size:21px;font-weight:800;color:#ffd700;margin:0 0 6px">${curLvl.name} Mastered</h3>
+        <p style="font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.9);margin:6px 0 14px;font-style:italic">
+          “${curLvl.context}”
+        </p>
+
+        <div style="background:rgba(255,255,255,0.08);backdrop-filter:blur(16px);border:1.5px solid rgba(51,102,255,0.45);border-radius:18px;padding:16px;margin-bottom:16px;text-align:left">
+          <div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:rgba(255,255,255,0.92)"><span>🏆 Flight Score:</span><b style="color:#ffd700;font-size:16px">${player.score} pts</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:rgba(255,255,255,0.92)"><span>⭐ All-Time High:</span><b style="color:#6ec1ff">${G3().highScore} pts</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:rgba(255,255,255,0.92)"><span>☀️ Sunrays Harvested:</span><b style="color:#ffffff">${player.sunrays}</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:rgba(255,255,255,0.92)"><span>🍯 Pollen Nectar Pods:</span><b style="color:#ffffff">${player.pollen}</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:#6ec1ff;border-top:1px dashed rgba(255,255,255,0.18);margin-top:6px;padding-top:8px"><span>💜 Resilience Serenity Earned:</span><b>+${serenityReward} Serenity</b></div>
+        </div>
+
         <div class="modal-btns" style="display:flex;flex-direction:column;gap:8px">
-          <button class="btn btn-primary btn-block" id="orbit-continue" style="background:linear-gradient(135deg,#3366FF,#8a2eae);color:#fff;font-weight:800;font-size:14px">Fly Again 🐝</button>
+          ${leveledUp ? `<button class="btn btn-primary btn-block" id="orbit-advance" style="background:linear-gradient(135deg,#ffb703,#f3256b);color:#fff;font-weight:800;font-size:14px">Fly Level ${nextLvl.level}: ${nextLvl.name} 🚀</button>` : ''}
+          <button class="btn ${leveledUp ? 'btn-ghost' : 'btn-primary'} btn-block" id="orbit-continue">Fly Again 🐝</button>
           <button class="btn btn-ghost btn-block" onclick="closeModal()">Back to Games Hub</button>
         </div>
       </div>
     `);
+
+    $('#orbit-advance')?.addEventListener('click', () => {
+      sessionStart = Date.now();
+      missionCompleted = false;
+      player.sunrays = 0;
+      player.pollen = 0;
+      player.score = 0;
+      player.distanceMeters = 0;
+      player.z = 0;
+      closeModal();
+      toast(`Level ${nextLvl.level}: ${nextLvl.name} Unlocked! 🐝`);
+    });
 
     $('#orbit-continue')?.addEventListener('click', () => {
       sessionStart = Date.now();

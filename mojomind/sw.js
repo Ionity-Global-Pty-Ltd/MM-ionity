@@ -10,11 +10,18 @@
    ============================================================ */
 'use strict';
 
-const CACHE_VERSION = 'mojamind-v2.9.4';
+const CACHE_VERSION = 'mojamind-v3.3.0';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
-const MAX_RUNTIME_ITEMS = 50;
+const MAX_RUNTIME_ITEMS = 60;
 
+/* ── App SHELL only ────────────────────────────────────────
+   Precache the minimum needed for first paint + onboarding.
+   Heavy feature modules (draw, game, game3d, bubble, merge,
+   video, soundscape, journal, portfolio, pixelthoughts) are
+   loaded on demand via ensureModule() and cached lazily by the
+   runtime handler below. This prevents the "download the whole
+   app in one shot" install lag on low-end devices.            */
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -22,18 +29,10 @@ const CORE_ASSETS = [
   './css/app.css',
   './js/data.js',
   './js/vault.js',
+  './js/sync.js',
   './js/nlp.js',
   './js/llm.js',
   './js/voice.js',
-  './js/soundscape.js',
-  './js/draw.js',
-  './js/journal.js',
-  './js/portfolio.js',
-  './js/pixelthoughts.js',
-  './js/video.js',
-  './js/game.js',
-  './js/game3d.js',
-  './js/bubble.js',
   './js/app.js',
   './icons/favicon.svg',
   './icons/icon-192.png',
@@ -41,6 +40,7 @@ const CORE_ASSETS = [
   './icons/maskable-512.png',
   './icons/apple-touch-icon.png',
   './assets/branding/ionity-logo.svg',
+  './assets/branding/mojomind-flower.svg',
   './assets/branding/ionity-global.png',
   './assets/branding/ionity-global-white.png',
   './assets/branding/shout-colour-cloud.png',
@@ -119,23 +119,19 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // App Shell & Code (HTML, CSS, JS): Stale-While-Revalidate Strategy
+  // App Shell & Code (HTML, CSS, JS): Network-First (with offline cache fallback)
   if (url.origin === location.origin) {
     e.respondWith(
-      caches.match(req, { ignoreSearch: true }).then(cached => {
-        const fetchPromise = fetch(req).then(networkRes => {
-          if (networkRes && networkRes.status === 200) {
-            const copy = networkRes.clone();
-            caches.open(RUNTIME_CACHE).then(cache => {
-              cache.put(req, copy);
-              limitCacheSize(RUNTIME_CACHE, MAX_RUNTIME_ITEMS);
-            });
-          }
-          return networkRes;
-        }).catch(() => cached || caches.match('./index.html'));
-
-        return cached || fetchPromise;
-      })
+      fetch(req).then(networkRes => {
+        if (networkRes && networkRes.status === 200) {
+          const copy = networkRes.clone();
+          caches.open(RUNTIME_CACHE).then(cache => {
+            cache.put(req, copy);
+            limitCacheSize(RUNTIME_CACHE, MAX_RUNTIME_ITEMS);
+          });
+        }
+        return networkRes;
+      }).catch(() => caches.match(req).then(cached => cached || caches.match('./index.html')))
     );
     return;
   }

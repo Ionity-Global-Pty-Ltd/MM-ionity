@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <defs>
+    <linearGradient id="mm-red" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FF453A"/><stop offset="100%" stop-color="#D70015"/></linearGradient>
+    <linearGradient id="mm-green" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#30D158"/><stop offset="100%" stop-color="#1B8738"/></linearGradient>
+    <linearGradient id="mm-cyan" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00D2FF"/><stop offset="100%" stop-color="#007AFF"/></linearGradient>
+    <linearGradient id="mm-blue" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3366FF"/><stop offset="100%" stop-color="#1D4ED8"/></linearGradient>
+    <linearGradient id="mm-purple" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#BF5AF2"/><stop offset="100%" stop-color="#7B21A8"/></linearGradient>
+    <linearGradient id="mm-orange" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFB340"/><stop offset="100%" stop-color="#FF5E3A"/></linearGradient>
+    <radialGradient id="mm-core" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="25%" stop-color="#FFE066"/>
+      <stop offset="70%" stop-color="#FFB703"/>
+      <stop offset="100%" stop-color="#FB8500"/>
+    </radialGradient>
+    <filter id="mm-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#3366FF" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+  <g filter="url(#mm-shadow)">
+    <!-- 6 Petals -->
+    <g transform="rotate(0 50 50)">
+      <path d="M 50 6 C 61 6, 65 24, 58 39 C 54 45, 46 45, 42 39 C 35 24, 39 6, 50 6 Z" fill="url(#mm-red)"/>
+      <path d="M 50 11 C 56 11, 59 23, 55 33 C 52 37, 48 37, 45 33 C 41 23, 44 11, 50 11 Z" fill="rgba(255,255,255,0.28)"/>
+    </g>
+    <g transform="rotate(60 50 50)">
+      <path d="M 50 6 C 61 6, 65 24, 58 39 C 54 45, 46 45, 42 39 C 35 24, 39 6, 50 6 Z" fill="url(#mm-green)"/>
+      <path d="M 50 11 C 56 11, 59 23, 55 33 C 52 37, 48 37, 45 33 C 41 23, 44 11, 50 11 Z" fill="rgba(255,255,255,0.28)"/>
+    </g>
+    <g transform="rotate(120 50 50)">
+      <path d="M 50 6 C 61 6, 65 24, 58 39 C 54 45, 46 45, 42 39 C 35 24, 39 6, 50 6 Z" fill="url(#mm-cyan)"/>
+      <path d="M 50 11 C 56 11, 59 23, 55 33 C 52 37, 48 37, 45 33 C 41 23, 44 11, 50 11 Z" fill="rgba(255,255,255,0.28)"/>
+    </g>
+    <g transform="rotate(180 50 50)">
+      <path d="M 50 6 C 61 6, 65 24, 58 39 C 54 45, 46 45, 42 39 C 35 24, 39 6, 50 6 Z" fill="url(#mm-blue)"/>
+      <path d="M 50 11 C 56 11, 59 23, 55 33 C 52 37, 48 37, 45 33 C 41 23, 44 11, 50 11 Z" fill="rgba(255,255,255,0.28)"/>
+    </g>
+    <g transform="rotate(240 50 50)">
+      <path d="M 50 6 C 61 6, 65 24, 58 39 C 54 45, 46 45, 42 39 C 35 24, 39 6, 50 6 Z" fill="url(#mm-purple)"/>
+      <path d="M 50 11 C 56 11, 59 23, 55 33 C 52 37, 48 37, 45 33 C 41 23, 44 11, 50 11 Z" fill="rgba(255,255,255,0.28)"/>
+    </g>
+    <g transform="rotate(300 50 50)">
+      <path d="M 50 6 C 61 6, 65 24, 58 39 C 54 45, 46 45, 42 39 C 35 24, 39 6, 50 6 Z" fill="url(#mm-orange)"/>
+      <path d="M 50 11 C 56 11, 59 23, 55 33 C 52 37, 48 37, 45 33 C 41 23, 44 11, 50 11 Z" fill="rgba(255,255,255,0.28)"/>
+    </g>
+    <!-- Core Outer Shadow Ring -->
+    <circle cx="50" cy="50" r="16.5" fill="rgba(42,10,68,0.55)"/>
+    <!-- Center Glowing Amber Bead -->
+    <circle cx="50" cy="50" r="14.5" fill="url(#mm-core)"/>
+    <!-- Specular Gloss Highlight -->
+    <ellipse cx="45.5" cy="44.5" rx="4.8" ry="3.2" transform="rotate(-30 45.5 44.5)" fill="rgba(255,255,255,0.92)"/>
+  </g>
+</svg>

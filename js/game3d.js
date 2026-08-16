@@ -29,7 +29,7 @@ const MMGame3D = (() => {
   let ac = null;
 
   // 3D Flight Session State
-  const MISSION_MS = 30000; // 30-Second Flight Challenge (30s)
+  const MISSION_MS = 120000; // 2-Minute Flight Challenge (120s)
   let sessionStart = 0;
   let missionCompleted = false;
 
@@ -61,7 +61,7 @@ const MMGame3D = (() => {
   let pointer = { active: false, startX: 0, startY: 0, curX: 0, curY: 0 };
 
   const G3 = () => {
-    if (!S.game3d) S.game3d = { highScore: 0, pollen: 0, sunrays: 0, sound: true, bestDistance: 0, crashes: 0, totalFlights: 0 };
+    if (!S.game3d) S.game3d = { highScore: 0, pollen: 0, sunrays: 0, sound: false, bestDistance: 0, crashes: 0, totalFlights: 0 };
     return S.game3d;
   };
 
@@ -82,33 +82,35 @@ const MMGame3D = (() => {
     return ac;
   }
 
-  function playTone(freq, dur = 0.25, type = 'sine', vol = 0.08) {
+  function playTone(freq, dur = 0.25, type = 'sine', vol = 0.05) {
     const a = audio(); if (!a) return;
     try {
-      const o = a.createOscillator(), g = a.createGain();
+      const o = a.createOscillator(), g = a.createGain(), lp = a.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 1900;
       o.type = type; o.frequency.setValueAtTime(freq, a.currentTime);
-      g.gain.setValueAtTime(vol, a.currentTime);
+      g.gain.setValueAtTime(Math.min(vol, 0.06), a.currentTime);
       g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + dur);
-      o.connect(g); g.connect(a.destination);
+      o.connect(lp); lp.connect(g); g.connect(a.destination);
       o.start(); o.stop(a.currentTime + dur + 0.05);
     } catch { /* audio safeguard */ }
   }
 
   function sunraySound() {
     [523.25, 659.26, 783.99, 1046.5].forEach((f, i) => {
-      setTimeout(() => playTone(f, 0.4, 'triangle', 0.09), i * 55);
+      setTimeout(() => playTone(f, 0.35, 'triangle', 0.05), i * 55);
     });
   }
 
   function pollenSound() {
     [440.0, 554.37, 659.26, 880.0].forEach((f, i) => {
-      setTimeout(() => playTone(f, 0.55, 'sine', 0.11), i * 70);
+      setTimeout(() => playTone(f, 0.45, 'sine', 0.06), i * 70);
     });
   }
 
   function butterflyJoySound() {
     [659.26, 880.0, 1174.66, 1318.5].forEach((f, i) => {
-      setTimeout(() => playTone(f, 0.35, 'sine', 0.07), i * 45);
+      setTimeout(() => playTone(f, 0.3, 'sine', 0.04), i * 45);
     });
   }
 
@@ -116,13 +118,13 @@ const MMGame3D = (() => {
     const a = audio(); if (!a) return;
     try {
       const o = a.createOscillator(), g = a.createGain();
-      o.type = 'sawtooth';
-      o.frequency.setValueAtTime(260, a.currentTime);
-      o.frequency.exponentialRampToValueAtTime(90, a.currentTime + 0.45);
-      g.gain.setValueAtTime(0.12, a.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + 0.45);
+      o.type = 'sine';
+      o.frequency.setValueAtTime(200, a.currentTime);
+      o.frequency.exponentialRampToValueAtTime(80, a.currentTime + 0.3);
+      g.gain.setValueAtTime(0.06, a.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + 0.3);
       o.connect(g); g.connect(a.destination);
-      o.start(); o.stop(a.currentTime + 0.5);
+      o.start(); o.stop(a.currentTime + 0.35);
     } catch { /* ignore */ }
   }
 
@@ -945,36 +947,58 @@ const MMGame3D = (() => {
 
   /* ── 8) 3D Sunray Crystal Prism ─────────────────────────── */
   function draw3DSunrayPrism(obj, scale) {
-    const sz = obj.size * scale * 0.14;
+    const sz = obj.size * scale * 0.16;
     ctx.rotate(obj.rot);
 
-    // Radiant Gold Shading
+    // Radiant Gold Corona Glow
     ctx.shadowColor = '#ffd700';
-    ctx.shadowBlur = 24;
+    ctx.shadowBlur = 28;
 
-    // Outer Gyro Energy Ring
+    // Outer Gyro Energy Ring 1
     ctx.strokeStyle = 'rgba(255, 235, 120, 0.85)';
-    ctx.lineWidth = Math.max(1.5, sz * 0.1);
+    ctx.lineWidth = Math.max(1.6, sz * 0.08);
     ctx.beginPath();
-    ctx.arc(0, 0, sz * 1.15, 0, Math.PI * 2);
+    ctx.arc(0, 0, sz * 1.2, 0, Math.PI * 2);
     ctx.stroke();
 
-    // 8-Pointed Star Crystal
-    ctx.fillStyle = '#fde047';
+    // Inner Counter-Rotating Gyro Ring 2
+    ctx.save();
+    ctx.rotate(-obj.rot * 2);
+    ctx.strokeStyle = 'rgba(254, 240, 138, 0.65)';
+    ctx.lineWidth = Math.max(1.2, sz * 0.06);
     ctx.beginPath();
+    ctx.ellipse(0, 0, sz * 0.95, sz * 0.55, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+
+    // 8-Pointed Faceted Crystal Star
     for (let k = 0; k < 8; k++) {
       const a1 = (k / 8) * Math.PI * 2;
       const a2 = ((k + 0.5) / 8) * Math.PI * 2;
+      const a3 = ((k + 1) / 8) * Math.PI * 2;
       const rOut = sz;
       const rIn = sz * 0.45;
-      if (k === 0) ctx.moveTo(Math.cos(a1) * rOut, Math.sin(a1) * rOut);
-      else ctx.lineTo(Math.cos(a1) * rOut, Math.sin(a1) * rOut);
-      ctx.lineTo(Math.cos(a2) * rIn, Math.sin(a2) * rIn);
-    }
-    ctx.closePath();
-    ctx.fill();
 
-    // Pure White Brilliant Core
+      // Facet 1 (Left slope)
+      ctx.fillStyle = k % 2 === 0 ? '#fde047' : '#f59e0b';
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(Math.cos(a1) * rOut, Math.sin(a1) * rOut);
+      ctx.lineTo(Math.cos(a2) * rIn, Math.sin(a2) * rIn);
+      ctx.closePath();
+      ctx.fill();
+
+      // Facet 2 (Right slope)
+      ctx.fillStyle = k % 2 === 0 ? '#fef08a' : '#d97706';
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(Math.cos(a2) * rIn, Math.sin(a2) * rIn);
+      ctx.lineTo(Math.cos(a3) * rOut, Math.sin(a3) * rOut);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Pure White Brilliant Radiant Core
     ctx.fillStyle = '#ffffff';
     ctx.beginPath();
     ctx.arc(0, 0, sz * 0.35, 0, Math.PI * 2);
@@ -984,14 +1008,22 @@ const MMGame3D = (() => {
 
   /* ── 9) 3D Pollen Honeycomb Blossom Pod ─────────────────── */
   function draw3DPollenPod(obj, scale) {
-    const sz = obj.size * scale * 0.14;
-    ctx.rotate(Math.sin(obj.pulse) * 0.15);
+    const sz = obj.size * scale * 0.16;
+    ctx.rotate(Math.sin(obj.pulse) * 0.18);
 
     ctx.shadowColor = '#f59e0b';
-    ctx.shadowBlur = 26;
+    ctx.shadowBlur = 28;
 
-    // Glowing Amber Hexagon
-    ctx.fillStyle = '#fbbf24';
+    // Glowing Amber Extruded Hexagon Base
+    const hexGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, sz);
+    hexGrad.addColorStop(0, '#fef08a');
+    hexGrad.addColorStop(0.4, '#f59e0b');
+    hexGrad.addColorStop(0.85, '#d97706');
+    hexGrad.addColorStop(1, '#78350f');
+    ctx.fillStyle = hexGrad;
+    ctx.strokeStyle = '#fef08a';
+    ctx.lineWidth = 1.8;
+
     ctx.beginPath();
     for (let i = 0; i < 6; i++) {
       const a = (i / 6) * Math.PI * 2;
@@ -1002,11 +1034,23 @@ const MMGame3D = (() => {
     }
     ctx.closePath();
     ctx.fill();
+    ctx.stroke();
+
+    // Inner Honeycomb Cell Lines
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+    ctx.lineWidth = 1.2;
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(Math.cos(a) * (sz * 0.85), Math.sin(a) * (sz * 0.85));
+      ctx.stroke();
+    }
 
     // Inner Honey Nectar Core
     ctx.fillStyle = '#ea580c';
     ctx.beginPath();
-    ctx.arc(0, 0, sz * 0.45, 0, Math.PI * 2);
+    ctx.arc(0, 0, sz * 0.42, 0, Math.PI * 2);
     ctx.fill();
 
     // Specular Light Glint
@@ -1019,36 +1063,47 @@ const MMGame3D = (() => {
 
   /* ── 10) 3D Volumetric Storm Thundercloud ────────────────── */
   function draw3DStormCloud(obj, scale) {
-    const sz = obj.size * scale * 0.15;
+    const sz = obj.size * scale * 0.16;
     ctx.shadowColor = '#4c1d95';
-    ctx.shadowBlur = 22;
+    ctx.shadowBlur = 26;
 
-    // Multi-Layered Billowy Cloud
-    ctx.fillStyle = '#312e81';
-    ctx.strokeStyle = '#1e1b4b';
+    // Multi-Layered Billowy Volumetric Storm Cloud Lobes
+    const cloudGrad = ctx.createRadialGradient(0, -sz * 0.2, 4, 0, 0, sz * 1.1);
+    cloudGrad.addColorStop(0, '#475569');
+    cloudGrad.addColorStop(0.4, '#312e81');
+    cloudGrad.addColorStop(0.85, '#1e1b4b');
+    cloudGrad.addColorStop(1, '#0f172a');
+    ctx.fillStyle = cloudGrad;
+    ctx.strokeStyle = 'rgba(148, 163, 184, 0.4)';
     ctx.lineWidth = Math.max(1.8, sz * 0.08);
 
     ctx.beginPath();
-    ctx.arc(-sz * 0.55, 0, sz * 0.48, 0, Math.PI * 2);
-    ctx.arc(0, -sz * 0.38, sz * 0.62, 0, Math.PI * 2);
-    ctx.arc(sz * 0.55, 0, sz * 0.48, 0, Math.PI * 2);
-    ctx.arc(0, sz * 0.28, sz * 0.5, 0, Math.PI * 2);
+    ctx.arc(-sz * 0.58, 0, sz * 0.52, 0, Math.PI * 2);
+    ctx.arc(0, -sz * 0.42, sz * 0.65, 0, Math.PI * 2);
+    ctx.arc(sz * 0.58, 0, sz * 0.52, 0, Math.PI * 2);
+    ctx.arc(-sz * 0.28, sz * 0.32, sz * 0.48, 0, Math.PI * 2);
+    ctx.arc(sz * 0.28, sz * 0.32, sz * 0.48, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
-    // Internal Lightning Discharge
-    if (Math.sin(t * 0.015 + obj.pulse) > 0.45) {
+    // Internal Crackling Electric Lightning Discharge
+    if (Math.sin(t * 0.015 + obj.pulse) > 0.35) {
       ctx.fillStyle = '#38bdf8';
+      ctx.strokeStyle = '#e0f2fe';
+      ctx.lineWidth = 2.4;
       ctx.shadowColor = '#38bdf8';
-      ctx.shadowBlur = 16;
+      ctx.shadowBlur = 20;
+
       ctx.beginPath();
-      ctx.moveTo(-sz * 0.12, -sz * 0.25);
-      ctx.lineTo(sz * 0.14, 0);
-      ctx.lineTo(-sz * 0.05, 0.06);
-      ctx.lineTo(sz * 0.12, sz * 0.36);
-      ctx.lineTo(-sz * 0.12, sz * 0.12);
+      ctx.moveTo(-sz * 0.14, -sz * 0.35);
+      ctx.lineTo(sz * 0.18, -sz * 0.05);
+      ctx.lineTo(-sz * 0.06, 0.04);
+      ctx.lineTo(sz * 0.14, sz * 0.45);
+      ctx.lineTo(-sz * 0.02, sz * 0.18);
+      ctx.lineTo(-sz * 0.16, sz * 0.22);
       ctx.closePath();
       ctx.fill();
+      ctx.stroke();
     }
     ctx.shadowBlur = 0;
   }
@@ -1084,164 +1139,301 @@ const MMGame3D = (() => {
     ctx.rotate(totalRoll);
     ctx.translate(0, totalPitch * 22);
 
-    // 1) Iridescent Fluttering Wings
-    const wingFlap = Math.sin(player.wingPhase * 18) * 0.92;
+    // 0) Golden Honey Aura when boosting or normal flight
+    if (player.boosting) {
+      ctx.save();
+      const auraPulse = Math.sin(t * 0.02) * 6;
+      ctx.shadowColor = '#ffd700';
+      ctx.shadowBlur = 32 + auraPulse;
+      ctx.fillStyle = 'rgba(255, 215, 0, 0.28)';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 36 + auraPulse, 42 + auraPulse, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // 1) Iridescent High-Fidelity Double Wings (Forewing & Hindwing)
+    const wingFlap = Math.sin(player.wingPhase * 18) * 0.94;
     ctx.save();
 
-    // Left Upper Wing
-    ctx.save();
-    ctx.translate(-12, -10);
-    ctx.scale(wingFlap, 1);
-    ctx.fillStyle = 'rgba(224, 242, 254, 0.8)';
-    ctx.strokeStyle = 'rgba(125, 211, 252, 0.95)';
-    ctx.lineWidth = 1.6;
+    // Wing Shadows on Body
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
     ctx.beginPath();
-    ctx.ellipse(-18, -16, 20, 10, -0.4, 0, Math.PI * 2);
-    ctx.fill(); ctx.stroke();
-    // Wing Vein Filigree
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.75)';
-    ctx.beginPath(); ctx.moveTo(-2, -2); ctx.lineTo(-28, -20); ctx.stroke();
-    ctx.restore();
+    ctx.ellipse(-10 * Math.abs(wingFlap), 2, 14 * Math.abs(wingFlap), 8, 0, 0, Math.PI * 2);
+    ctx.ellipse(10 * Math.abs(wingFlap), 2, 14 * Math.abs(wingFlap), 8, 0, 0, Math.PI * 2);
+    ctx.fill();
 
-    // Right Upper Wing
+    // Left Wings
     ctx.save();
-    ctx.translate(12, -10);
+    ctx.translate(-14, -8);
     ctx.scale(wingFlap, 1);
-    ctx.fillStyle = 'rgba(224, 242, 254, 0.8)';
-    ctx.strokeStyle = 'rgba(125, 211, 252, 0.95)';
-    ctx.lineWidth = 1.6;
+    // Left Forewing
+    const wingGradL = ctx.createLinearGradient(0, 0, -28, -24);
+    wingGradL.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+    wingGradL.addColorStop(0.35, 'rgba(186, 230, 253, 0.85)');
+    wingGradL.addColorStop(0.7, 'rgba(199, 210, 254, 0.7)');
+    wingGradL.addColorStop(1, 'rgba(254, 240, 138, 0.55)');
+    ctx.fillStyle = wingGradL;
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.95)';
+    ctx.lineWidth = 1.8;
     ctx.beginPath();
-    ctx.ellipse(18, -16, 20, 10, 0.4, 0, Math.PI * 2);
+    ctx.ellipse(-20, -18, 22, 11, -0.42, 0, Math.PI * 2);
     ctx.fill(); ctx.stroke();
-    // Wing Vein Filigree
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.75)';
-    ctx.beginPath(); ctx.moveTo(2, -2); ctx.lineTo(28, -20); ctx.stroke();
-    ctx.restore();
+    // Left Forewing Vein Filigree
+    ctx.strokeStyle = 'rgba(14, 165, 233, 0.8)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(0, 0); ctx.quadraticCurveTo(-14, -12, -32, -22);
+    ctx.moveTo(-12, -10); ctx.lineTo(-24, -8);
+    ctx.moveTo(-18, -14); ctx.lineTo(-26, -26);
+    ctx.stroke();
+
+    // Left Hindwing (Smaller)
+    ctx.fillStyle = 'rgba(224, 242, 254, 0.75)';
+    ctx.strokeStyle = 'rgba(125, 211, 252, 0.85)';
+    ctx.beginPath();
+    ctx.ellipse(-14, -4, 15, 8, 0.2, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
     ctx.restore();
 
-    // 2) Plump Fuzzy Bumblebee Body
-    ctx.shadowColor = player.boosting ? '#f59e0b' : 'rgba(0, 0, 0, 0.38)';
-    ctx.shadowBlur = player.boosting ? 28 : 12;
+    // Right Wings
+    ctx.save();
+    ctx.translate(14, -8);
+    ctx.scale(wingFlap, 1);
+    // Right Forewing
+    const wingGradR = ctx.createLinearGradient(0, 0, 28, -24);
+    wingGradR.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+    wingGradR.addColorStop(0.35, 'rgba(186, 230, 253, 0.85)');
+    wingGradR.addColorStop(0.7, 'rgba(199, 210, 254, 0.7)');
+    wingGradR.addColorStop(1, 'rgba(254, 240, 138, 0.55)');
+    ctx.fillStyle = wingGradR;
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.95)';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.ellipse(20, -18, 22, 11, 0.42, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+    // Right Forewing Vein Filigree
+    ctx.strokeStyle = 'rgba(14, 165, 233, 0.8)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(0, 0); ctx.quadraticCurveTo(14, -12, 32, -22);
+    ctx.moveTo(12, -10); ctx.lineTo(24, -8);
+    ctx.moveTo(18, -14); ctx.lineTo(26, -26);
+    ctx.stroke();
 
-    // Golden Amber Base Body Gradient
-    const bodyGrad = ctx.createRadialGradient(-5, -8, 3, 0, 0, 26);
-    bodyGrad.addColorStop(0, '#fef08a');
-    bodyGrad.addColorStop(0.35, '#facc15');
-    bodyGrad.addColorStop(0.75, '#ea580c');
-    bodyGrad.addColorStop(1, '#78350f');
+    // Right Hindwing (Smaller)
+    ctx.fillStyle = 'rgba(224, 242, 254, 0.75)';
+    ctx.strokeStyle = 'rgba(125, 211, 252, 0.85)';
+    ctx.beginPath();
+    ctx.ellipse(14, -4, 15, 8, -0.2, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+    ctx.restore();
+
+    ctx.restore();
+
+    // 2) Plump Fuzzy 3D Bumblebee Body (Abdomen & Thorax)
+    ctx.shadowColor = player.boosting ? '#f59e0b' : 'rgba(0, 0, 0, 0.45)';
+    ctx.shadowBlur = player.boosting ? 28 : 14;
+
+    // Golden Amber Base Body Spherical Shading
+    const bodyGrad = ctx.createRadialGradient(-6, -10, 4, 0, 2, 30);
+    bodyGrad.addColorStop(0, '#fef9c3');  // Specular top highlight
+    bodyGrad.addColorStop(0.25, '#fde047');
+    bodyGrad.addColorStop(0.55, '#eab308');
+    bodyGrad.addColorStop(0.82, '#b45309');
+    bodyGrad.addColorStop(1, '#451a03');    // Deep underside shadow
     ctx.fillStyle = bodyGrad;
     ctx.beginPath();
-    ctx.ellipse(0, 0, 21, 28, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 2, 23, 30, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Velvet Black Fur Stripes with Edge Softness
+    // Velvet Obsidian Fur Stripes with 3D Spherical Curvature
+    ctx.fillStyle = '#0f172a';
+    // Stripe 1 (Upper)
+    ctx.beginPath();
+    ctx.ellipse(0, -6, 22.4, 5.8, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // Stripe 2 (Lower)
+    ctx.beginPath();
+    ctx.ellipse(0, 10, 21.6, 5.8, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Velvet Fur Texture Stippling
+    ctx.fillStyle = 'rgba(254, 240, 138, 0.45)';
+    for (let s = 0; s < 12; s++) {
+      const a = (s / 12) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.arc(Math.cos(a) * 20.5, 2 + Math.sin(a) * 26, 1.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Cute Stinger with Metallic Glint
     ctx.fillStyle = '#0f172a';
     ctx.beginPath();
-    ctx.ellipse(0, -7, 20.5, 5.2, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.ellipse(0, 7, 20.5, 5.2, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Tiny Cute Stinger
-    ctx.fillStyle = '#0f172a';
-    ctx.beginPath();
-    ctx.moveTo(-3.5, 27);
-    ctx.lineTo(0, 33);
-    ctx.lineTo(3.5, 27);
+    ctx.moveTo(-4, 30); ctx.lineTo(0, 37); ctx.lineTo(4, 30);
     ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.arc(0.8, 33, 0.8, 0, Math.PI * 2); ctx.fill();
+
+    // Plush Fuzzy Thorax (Golden collar)
+    const thoraxGrad = ctx.createRadialGradient(-3, -16, 2, 0, -14, 18);
+    thoraxGrad.addColorStop(0, '#fef08a');
+    thoraxGrad.addColorStop(0.6, '#ca8a04');
+    thoraxGrad.addColorStop(1, '#78350f');
+    ctx.fillStyle = thoraxGrad;
+    ctx.beginPath();
+    ctx.ellipse(0, -14, 18, 12, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // 3) Cute Bee Head & Face
-    ctx.fillStyle = '#0f172a';
+    const headGrad = ctx.createRadialGradient(-4, -26, 2, 0, -24, 16);
+    headGrad.addColorStop(0, '#1e293b');
+    headGrad.addColorStop(0.6, '#0f172a');
+    headGrad.addColorStop(1, '#020617');
+    ctx.fillStyle = headGrad;
     ctx.beginPath();
-    ctx.arc(0, -20, 14.5, 0, Math.PI * 2);
+    ctx.arc(0, -24, 15.5, 0, Math.PI * 2);
     ctx.fill();
 
     // Flexible Antennae with Golden Bobs
+    const antWave = Math.sin(t * 0.008) * 2;
     ctx.strokeStyle = '#0f172a';
-    ctx.lineWidth = 2.4;
+    ctx.lineWidth = 2.6;
     ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.moveTo(-6, -30); ctx.quadraticCurveTo(-14, -42, -16, -39);
-    ctx.moveTo(6, -30); ctx.quadraticCurveTo(14, -42, 16, -39);
+    ctx.moveTo(-6, -34); ctx.quadraticCurveTo(-14 + antWave, -47, -18, -44);
+    ctx.moveTo(6, -34); ctx.quadraticCurveTo(14 + antWave, -47, 18, -44);
     ctx.stroke();
 
-    ctx.fillStyle = '#facc15';
-    ctx.beginPath(); ctx.arc(-16, -39, 3, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.arc(16, -39, 3, 0, Math.PI * 2); ctx.fill();
+    // Glowing Golden Antenna Bulbs
+    ctx.shadowColor = '#ffd700';
+    ctx.shadowBlur = 12;
+    ctx.fillStyle = '#fde047';
+    ctx.beginPath(); ctx.arc(-18, -44, 3.6, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(18, -44, 3.6, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.arc(-19, -45, 1.2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(17, -45, 1.2, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
 
     // Eyes
     if (!player.crashed) {
-      // Big Glossy Anime Eyes
+      // Big Glossy Anime Eyes with Depth
       ctx.fillStyle = '#ffffff';
-      ctx.beginPath(); ctx.ellipse(-6, -22, 4.5, 6.2, -0.1, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(6, -22, 4.5, 6.2, 0.1, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(-6.5, -25, 5, 7, -0.1, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(6.5, -25, 5, 7, 0.1, 0, Math.PI * 2); ctx.fill();
 
-      // Deep Pupil
-      ctx.fillStyle = '#020617';
-      ctx.beginPath(); ctx.arc(-5.5, -22, 2.8, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(5.5, -22, 2.8, 0, Math.PI * 2); ctx.fill();
+      // Deep Iris Gradient (Navy to Obsidian)
+      const irisGrad = ctx.createLinearGradient(0, -30, 0, -20);
+      irisGrad.addColorStop(0, '#1e3a8a');
+      irisGrad.addColorStop(1, '#020617');
+      ctx.fillStyle = irisGrad;
+      ctx.beginPath(); ctx.ellipse(-6, -25, 3.4, 4.8, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(6, -25, 3.4, 4.8, 0, 0, Math.PI * 2); ctx.fill();
 
-      // Dual Specular Catchlights
+      // Primary Specular Catchlights (Large)
       ctx.fillStyle = '#ffffff';
-      ctx.beginPath(); ctx.arc(-6.8, -23.8, 1.3, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(4.2, -23.8, 1.3, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(-4.5, -20.5, 0.7, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(6.5, -20.5, 0.7, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(-7.4, -27.2, 1.6, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(4.6, -27.2, 1.6, 0, Math.PI * 2); ctx.fill();
+
+      // Secondary Specular Catchlights (Tiny sparkle)
+      ctx.beginPath(); ctx.arc(-4.8, -23.2, 0.9, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(7.2, -23.2, 0.9, 0, Math.PI * 2); ctx.fill();
 
       // Cute Rosy Blushing Cheeks
-      ctx.fillStyle = '#fb7185';
-      ctx.beginPath(); ctx.arc(-10, -17, 2.8, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(10, -17, 2.8, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(251, 113, 133, 0.75)';
+      ctx.beginPath(); ctx.ellipse(-10.5, -19, 3.2, 2.2, 0.2, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(10.5, -19, 3.2, 2.2, -0.2, 0, Math.PI * 2); ctx.fill();
+
+      // Cute Smile
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.arc(0, -20, 3, 0.2, Math.PI - 0.2);
+      ctx.stroke();
 
     } else {
       // Dizzy X Eyes
       ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 2.4;
+      ctx.lineWidth = 2.6;
       ctx.beginPath();
-      ctx.moveTo(-9, -24); ctx.lineTo(-3, -18);
-      ctx.moveTo(-3, -24); ctx.lineTo(-9, -18);
-      ctx.moveTo(3, -24); ctx.lineTo(9, -18);
-      ctx.moveTo(9, -24); ctx.lineTo(3, -18);
+      ctx.moveTo(-10, -28); ctx.lineTo(-3, -21);
+      ctx.moveTo(-3, -28); ctx.lineTo(-10, -21);
+      ctx.moveTo(3, -28); ctx.lineTo(10, -21);
+      ctx.moveTo(10, -28); ctx.lineTo(3, -21);
       ctx.stroke();
     }
 
     ctx.restore();
   }
 
-  /* ── 30-Second Flight Celebration Modal ───────────────────── */
+  const BEE_LEVELS = [
+    { level: 1, name: 'Sunlit Valley', icon: '🐝', targetScore: 100, serenityBonus: 25, badge: '☀️ Sunray Scout', context: 'Gliding peacefully above gentle rolling hills. Your focus takes flight with calm buoyancy.' },
+    { level: 2, name: 'Sparkling River Canyon', icon: '🌊', targetScore: 250, serenityBonus: 40, badge: '🌊 Canyon Navigator', context: 'Navigating winding rivers and canyon updrafts. Agility and steady control guide every turn.' },
+    { level: 3, name: 'Lavender Mist Peaks', icon: '🏔️', targetScore: 450, serenityBonus: 60, badge: '🏔️ Mountain Soarer', context: 'Soaring past mountain crags through blooming alpine flora. High perspective brings clarity.' },
+    { level: 4, name: 'Sunset Horizon', icon: '🌅', targetScore: 700, serenityBonus: 85, badge: '⚡ Honey Rush Ace', context: 'Rushing through golden dusk skies with radiant warp lines. Speed and grace in perfect harmony.' },
+    { level: 5, name: 'Starlight Aurora Flight', icon: '🌌', targetScore: 1000, serenityBonus: 120, badge: '🌌 Cosmic Aviator', context: 'You have conquered the skies! Fluttering among glowing cosmic auroras and eternal starlight.' },
+  ];
+
+  /* ── 2-Minute Flight Celebration & Level Progression Modal ─ */
   function celebrate2MinComplete() {
     confetti();
     buzz([40, 100, 180]);
     if (player.score > (G3().highScore || 0)) {
       G3().highScore = player.score;
     }
-    const serenityReward = Math.max(15, Math.floor(player.score / 25));
+    G3().level = G3().level || 1;
+    const curLvlIdx = Math.min(BEE_LEVELS.length - 1, G3().level - 1);
+    const curLvl = BEE_LEVELS[curLvlIdx];
+    const leveledUp = G3().level < BEE_LEVELS.length;
+    if (leveledUp) {
+      G3().level++;
+    }
+    const nextLvl = BEE_LEVELS[Math.min(BEE_LEVELS.length - 1, G3().level - 1)];
+
+    const serenityReward = curLvl.serenityBonus + Math.floor(player.score / 35);
     S.game.serenity = (S.game.serenity || 0) + serenityReward;
     save();
 
     modal(`
       <div style="text-align:center;padding:14px 6px;color:#ffffff">
-        <div style="font-size:48px;margin-bottom:8px">🐝✨</div>
-        <h3 style="font-size:22px;font-weight:800;color:#ffffff;margin-bottom:6px">30-Second Flight Complete!</h3>
-        <p style="font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.88);margin:6px 0 16px">
-          Your happy bumblebee gathered <b>${player.sunrays} Sunrays</b> and <b>${player.pollen} Pollen Nectar pods</b> over <b>${player.distanceMeters}m</b>!
-        </p>
-        <div style="background:rgba(255,255,255,0.08);backdrop-filter:blur(16px);border:1.5px solid rgba(51,102,255,0.45);border-radius:18px;padding:16px;margin-bottom:18px;text-align:left">
-          <div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:rgba(255,255,255,0.92)"><span>🏆 Flight Score:</span><b style="color:#ffd700;font-size:16px">${player.score} pts</b></div>
-          <div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:rgba(255,255,255,0.92)"><span>⭐ High Score:</span><b style="color:#6ec1ff">${G3().highScore} pts</b></div>
-          <div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:rgba(255,255,255,0.92)"><span>☀️ Sunrays:</span><b style="color:#ffffff">${player.sunrays}</b></div>
-          <div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:rgba(255,255,255,0.92)"><span>🍯 Pollen Harvest:</span><b style="color:#ffffff">${player.pollen}</b></div>
-          <div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:#6ec1ff;border-top:1px dashed rgba(255,255,255,0.18);margin-top:6px;padding-top:8px"><span>💜 Serenity Earned:</span><b>+${serenityReward} Serenity</b></div>
+        <div style="font-size:48px;margin-bottom:6px">${curLvl.icon}✨</div>
+        <div style="display:inline-block;background:linear-gradient(135deg,#ffb703,#f3256b);color:#fff;font-weight:800;font-size:11px;padding:3px 12px;border-radius:999px;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">
+          ${curLvl.badge} · LEVEL ${curLvl.level} COMPLETE!
         </div>
+        <h3 style="font-size:21px;font-weight:800;color:#ffd700;margin:0 0 6px">${curLvl.name} Mastered</h3>
+        <p style="font-size:13.5px;line-height:1.6;color:rgba(255,255,255,0.9);margin:6px 0 14px;font-style:italic">
+          “${curLvl.context}”
+        </p>
+
+        <div style="background:rgba(255,255,255,0.08);backdrop-filter:blur(16px);border:1.5px solid rgba(51,102,255,0.45);border-radius:18px;padding:16px;margin-bottom:16px;text-align:left">
+          <div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:rgba(255,255,255,0.92)"><span>🏆 Flight Score:</span><b style="color:#ffd700;font-size:16px">${player.score} pts</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:rgba(255,255,255,0.92)"><span>⭐ All-Time High:</span><b style="color:#6ec1ff">${G3().highScore} pts</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:rgba(255,255,255,0.92)"><span>☀️ Sunrays Harvested:</span><b style="color:#ffffff">${player.sunrays}</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:rgba(255,255,255,0.92)"><span>🍯 Pollen Nectar Pods:</span><b style="color:#ffffff">${player.pollen}</b></div>
+          <div style="display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:#6ec1ff;border-top:1px dashed rgba(255,255,255,0.18);margin-top:6px;padding-top:8px"><span>💜 Resilience Serenity Earned:</span><b>+${serenityReward} Serenity</b></div>
+        </div>
+
         <div class="modal-btns" style="display:flex;flex-direction:column;gap:8px">
-          <button class="btn btn-primary btn-block" id="orbit-continue" style="background:linear-gradient(135deg,#3366FF,#8a2eae);color:#fff;font-weight:800;font-size:14px">Fly Again 🐝</button>
+          ${leveledUp ? `<button class="btn btn-primary btn-block" id="orbit-advance" style="background:linear-gradient(135deg,#ffb703,#f3256b);color:#fff;font-weight:800;font-size:14px">Fly Level ${nextLvl.level}: ${nextLvl.name} 🚀</button>` : ''}
+          <button class="btn ${leveledUp ? 'btn-ghost' : 'btn-primary'} btn-block" id="orbit-continue">Fly Again 🐝</button>
           <button class="btn btn-ghost btn-block" onclick="closeModal()">Back to Games Hub</button>
         </div>
       </div>
     `);
+
+    $('#orbit-advance')?.addEventListener('click', () => {
+      sessionStart = Date.now();
+      missionCompleted = false;
+      player.sunrays = 0;
+      player.pollen = 0;
+      player.score = 0;
+      player.distanceMeters = 0;
+      player.z = 0;
+      closeModal();
+      toast(`Level ${nextLvl.level}: ${nextLvl.name} Unlocked! 🐝`);
+    });
 
     $('#orbit-continue')?.addEventListener('click', () => {
       sessionStart = Date.now();

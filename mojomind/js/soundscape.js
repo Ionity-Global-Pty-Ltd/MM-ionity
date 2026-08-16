@@ -54,8 +54,17 @@ const MMSoundscape = (() => {
     if (!ac) {
       ac = new AC();
       masterGain = ac.createGain();
-      masterGain.gain.setValueAtTime(0.35, ac.currentTime);
-      masterGain.connect(ac.destination);
+      // Softer, gentle master volume
+      masterGain.gain.setValueAtTime(0.20, ac.currentTime);
+
+      // Acoustic Lowpass Filter for soft, vibrant, warm natural harmonics
+      const masterFilter = ac.createBiquadFilter();
+      masterFilter.type = 'lowpass';
+      masterFilter.frequency.setValueAtTime(1900, ac.currentTime);
+      masterFilter.Q.setValueAtTime(0.7, ac.currentTime);
+
+      masterGain.connect(masterFilter);
+      masterFilter.connect(ac.destination);
     }
     if (ac.state === 'suspended') ac.resume();
     return ac;
@@ -112,7 +121,7 @@ const MMSoundscape = (() => {
 
         const noiseGain = ctx.createGain();
         noiseGain.gain.setValueAtTime(0.001, ctx.currentTime);
-        noiseGain.gain.exponentialRampToValueAtTime(presetKey === 'stream' ? 0.28 : 0.22, ctx.currentTime + 2.5);
+        noiseGain.gain.exponentialRampToValueAtTime(presetKey === 'stream' ? 0.16 : 0.12, ctx.currentTime + 2.5);
 
         noiseSource.connect(filter);
         filter.connect(noiseGain);
@@ -148,7 +157,8 @@ const MMSoundscape = (() => {
             osc.frequency.setValueAtTime(f + 0.5, ctx.currentTime);
           }
 
-          const vol = idx === 0 ? 0.12 : 0.08;
+          // Softer, lush harmonic chord levels
+          const vol = idx === 0 ? 0.07 : 0.045;
           gain.gain.setValueAtTime(0.0001, ctx.currentTime);
           gain.gain.exponentialRampToValueAtTime(vol, ctx.currentTime + 3.5);
           gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 9.5);

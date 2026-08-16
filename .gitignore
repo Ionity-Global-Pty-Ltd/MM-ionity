@@ -9,3 +9,7 @@ design-source/
 metadata/
 *.pptx
 *.code-workspace
+
+# Oversized local artifacts (never push to GitHub — >100MB limit)
+New Devlopment- Mojamind_Aug 2026-001.zip
+*.zip
