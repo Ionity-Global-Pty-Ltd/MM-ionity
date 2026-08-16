@@ -13,3 +13,9 @@ metadata/
 # Oversized local artifacts (never push to GitHub — >100MB limit)
 New Devlopment- Mojamind_Aug 2026-001.zip
 *.zip
+
+# Heavy raw logo sources (optimised versions live in assets/branding)
+assets/mojoi.png
+assets/mojotrans.png
+mojomind/app.css
+assets/*.jpeg
