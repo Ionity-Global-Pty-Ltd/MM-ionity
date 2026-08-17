@@ -59,15 +59,59 @@
   <div id="stars" aria-hidden="true"></div>
   <div id="phone">
     <main id="app" aria-live="polite"></main>
-    <nav id="tabbar" class="hidden" aria-label="Main navigation"></nav>
-    <button class="floating-spark-tab hidden" id="floating-spark-tab" onclick="nav('#/spark')" title="Daily Spark &amp; Creative Exploration" aria-label="Open Creative Exploration Daily Spark">
-      <span class="fst-star">✨</span>
-      <span class="fst-label">Daily Spark</span>
-    </button>
-    <button class="floating-exercise-tab hidden" id="floating-exercise-tab" onclick="nav('#/pixelthoughts')" title="Cosmic Thought Release &amp; Mindfulness Exercises" aria-label="Open Cosmic Thought Release Exercise">
-      <span class="fet-icon">🧘</span>
-      <span class="fet-label">Cosmic Release</span>
-    </button>
+    <!-- Unified Vertical Right-Side Sidebar: Topline Settings & Quick Creative Tabs -->
+    <aside id="vertical-sidebar" class="vertical-sidebar hidden" aria-label="Quick Settings and Exploration Sidebar">
+      <button class="vs-toggle" id="vs-toggle" aria-label="Toggle Sidebar" title="Collapse / Expand Sidebar">
+        <span class="vs-toggle-arrow">›</span>
+      </button>
+
+      <div class="vs-inner">
+        <!-- Topline Settings Section -->
+        <div class="vs-group vs-settings-group">
+          <button class="vs-btn" data-vs="soundscape" title="432Hz Ambient Soundscapes" aria-label="Soundscapes">
+            <span class="vs-icon">🎧</span>
+            <span class="vs-tooltip">432Hz Audio</span>
+            <span class="vs-dot sound-dot" id="vs-sound-dot"></span>
+          </button>
+
+          <button class="vs-btn" data-vs="voice" title="Voice Studio &amp; Dictation" aria-label="Voice Navigation">
+            <span class="vs-icon">🎙️</span>
+            <span class="vs-tooltip">Voice Studio</span>
+            <span class="vs-dot voice-dot" id="vs-voice-dot"></span>
+          </button>
+
+          <button class="vs-btn" data-vs="a11y" title="Accessibility &amp; Font Size" aria-label="Accessibility">
+            <span class="vs-icon">♿</span>
+            <span class="vs-tooltip">Accessibility</span>
+          </button>
+
+          <button class="vs-btn" data-vs="care" title="Ithemba Hope Sanctuary" aria-label="Hope Sanctuary">
+            <span class="vs-icon">🌸</span>
+            <span class="vs-tooltip">Hope Sanctuary</span>
+          </button>
+
+          <button class="vs-btn" data-vs="help" title="Help &amp; Study Guide" aria-label="Help and Guide">
+            <span class="vs-icon">❓</span>
+            <span class="vs-tooltip">Help &amp; FAQ</span>
+          </button>
+        </div>
+
+        <div class="vs-divider"></div>
+
+        <!-- Exploration Section -->
+        <div class="vs-group vs-explore-group">
+          <button class="vs-btn vs-spark-btn" data-vs="spark" title="Daily Spark &amp; Creative Exploration" aria-label="Daily Spark">
+            <span class="vs-icon vs-spark-icon">✨</span>
+            <span class="vs-tooltip">Daily Spark</span>
+          </button>
+
+          <button class="vs-btn vs-release-btn" data-vs="pixelthoughts" title="Cosmic Thought Release" aria-label="Cosmic Release">
+            <span class="vs-icon">🧘</span>
+            <span class="vs-tooltip">Cosmic Release</span>
+          </button>
+        </div>
+      </div>
+    </aside>
   </div>
   <div id="modal-root"></div>
   <div id="toast-root" aria-live="assertive"></div>

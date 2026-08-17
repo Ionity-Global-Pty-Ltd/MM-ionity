@@ -975,11 +975,76 @@ const MMVideo = (() => {
     ctx.textAlign = 'center';
     ctx.fillText(currentNarration, W / 2, H - 19);
 
+    // Ionity AI Watermark on bottom right
+    drawIonityWatermark(ctx, W - 88, H - 76);
+
     // Smooth Progress Bar
     ctx.fillStyle = 'rgba(255,255,255,0.15)';
     ctx.fillRect(0, H - 5, W, 5);
     ctx.fillStyle = script.themeColor || '#3366FF';
     ctx.fillRect(0, H - 5, W * progress, 5);
+  }
+
+  /* ── Stylized Antwerp Designs / Ionity AI Watermark ────────── */
+  function drawIonityWatermark(ctx, x, y) {
+    ctx.save();
+    // Glass pill background
+    ctx.fillStyle = 'rgba(10, 10, 20, 0.78)';
+    ctx.strokeStyle = 'rgba(51, 102, 255, 0.55)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.roundRect(x, y, 78, 22, 6);
+    ctx.fill();
+    ctx.stroke();
+
+    // Stylized "AI" Glyph
+    ctx.save();
+    ctx.translate(x + 7, y + 3);
+    const s = 0.55;
+    ctx.scale(s, s);
+
+    ctx.strokeStyle = '#3366FF';
+    ctx.fillStyle = '#3366FF';
+    ctx.lineWidth = 2.4;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    // "A" outer
+    ctx.beginPath();
+    ctx.moveTo(3, 26);
+    ctx.lineTo(13, 3);
+    ctx.lineTo(23, 26);
+    ctx.stroke();
+
+    // "A" inner triangle
+    ctx.beginPath();
+    ctx.moveTo(8, 20);
+    ctx.lineTo(13, 9);
+    ctx.lineTo(18, 20);
+    ctx.closePath();
+    ctx.stroke();
+
+    // "A" crossbar
+    ctx.beginPath();
+    ctx.moveTo(4, 20);
+    ctx.lineTo(22, 20);
+    ctx.stroke();
+
+    // "I" double bars
+    ctx.beginPath();
+    ctx.moveTo(27, 3);
+    ctx.lineTo(27, 26);
+    ctx.moveTo(32, 3);
+    ctx.lineTo(32, 26);
+    ctx.stroke();
+    ctx.restore();
+
+    // Wordmark
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '800 9.5px Poppins, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('IONITY', x + 31, y + 14.5);
+    ctx.restore();
   }
 
   /* ── Interactive Video Modal Player ────────────────────────── */
@@ -993,53 +1058,6 @@ const MMVideo = (() => {
 
     removeFloatingWidget();
     try { cancelAnimationFrame(animRaf); } catch (_) {}
-
-    /* ── SAFE LIGHTWEIGHT GUIDE (no canvas / no animation loop) ──────────
-       The 60fps "motion studio" canvas stalled & crashed budget phones, so
-       this path renders a calm static guide instead — written narration, or
-       a plain-controls clip that falls back gracefully if it isn't there.
-       Zero requestAnimationFrame: it cannot stall the device. Returns before
-       any of the heavy motion-studio code below can run. */
-    {
-      const narr = Array.isArray(script.narrations) ? script.narrations : [];
-      const guideText = narr.map(n => `<p style="margin:0 0 10px">${esc(n)}</p>`).join('');
-      const realVideo = !!script.videoSrc;
-      const m = modal(`
-        <div class="video-modal-wrap" style="color:#fff;text-align:left">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px">
-            <span style="font-weight:800;font-size:15px">${esc(script.title || 'Guide')}</span>
-            <span style="font-size:11px;font-weight:700;background:linear-gradient(135deg,#3366FF,#8a2eae);color:#fff;padding:3px 8px;border-radius:6px">🎬 Guide</span>
-          </div>
-          ${realVideo ? `
-            <video src="${script.videoSrc}" playsinline controls preload="none"
-              onerror="var f=this.nextElementSibling; if(f)f.style.display='block'; this.style.display='none';"
-              style="width:100%;height:auto;aspect-ratio:16/9;border-radius:14px;background:#000;display:block"></video>
-            <div style="display:none;padding:16px;border-radius:14px;background:rgba(255,255,255,.06);font-size:13px;line-height:1.6;margin-top:2px">
-              <div style="font-size:28px;text-align:center">🎬</div>
-              <p style="margin:6px 0 0;text-align:center">This guide video isn't available offline yet — you can start the activity right away below. 💜</p>
-            </div>
-          ` : `
-            <div style="max-height:46dvh;overflow:auto;padding:16px;border-radius:14px;background:rgba(255,255,255,.06);font-size:13.5px;line-height:1.65">
-              ${guideText || '<p>Take a slow breath, and begin when you feel ready. 💜</p>'}
-            </div>
-          `}
-          <p style="font-size:12px;color:rgba(255,255,255,.72);margin:10px 0 12px">${esc(script.subtitle || '')}</p>
-          <div class="modal-btns" style="display:flex;gap:8px">
-            <button class="btn btn-primary" id="vid-start-btn" style="flex:1;font-weight:800">Start Creating 🎨</button>
-            <button class="btn btn-ghost" id="vid-close-btn" style="flex:0 0 96px">Close</button>
-          </div>
-        </div>
-      `);
-      try {
-        if (typeof MMVoice !== 'undefined' && MMVoice.supported() && narr[0]) {
-          MMVoice.speak(narr[0], { persona: 'warmth', force: true });
-        }
-      } catch (_) { /* narration optional */ }
-      const closeSafe = () => { try { stopVideo(); } catch (_) {} closeModal(); };
-      m.querySelector('#vid-start-btn')?.addEventListener('click', () => { closeSafe(); try { opts.onStart && opts.onStart(); } catch (_) {} });
-      m.querySelector('#vid-close-btn')?.addEventListener('click', closeSafe);
-      return; // never fall through to the heavy motion-studio path
-    }
 
     const hasRealVideo = !!script.videoSrc;
     // Default to the rich Cinematic Motion Studio with full animations
@@ -1072,6 +1090,18 @@ const MMVideo = (() => {
           <div id="vid-container" style="width:100%;height:auto;aspect-ratio:16/9;position:relative">
             <canvas id="motion-video-canvas" width="640" height="360" style="width:100%;height:auto;aspect-ratio:16/9;display:block"></canvas>
             <video id="hd-video-player" src="${script.videoSrc || ''}" playsinline controls preload="none" onerror="var c=document.getElementById('motion-video-canvas'); if(c)c.style.display='block'; this.style.display='none'; var t=document.getElementById('vid-mode-toggle'); if(t)t.textContent='🔄 Switch to Clip';" style="width:100%;height:auto;aspect-ratio:16/9;display:none;background:#000"></video>
+            
+            <!-- Bottom Right Ionity Watermark Overlay -->
+            <div style="position:absolute;bottom:36px;right:10px;display:flex;align-items:center;gap:5px;background:rgba(10,10,20,0.85);padding:3px 8px;border-radius:6px;border:1px solid rgba(51,102,255,0.45);pointer-events:none;z-index:9">
+              <svg viewBox="0 0 36 28" fill="none" width="15" height="12" style="display:block">
+                <path d="M2 26 L12 2 L22 26" stroke="#3366FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M7 19 L12 8 L17 19 Z" stroke="#3366FF" stroke-width="2" stroke-linejoin="round"/>
+                <line x1="3" y1="19" x2="21" y2="19" stroke="#3366FF" stroke-width="2.5"/>
+                <line x1="27" y1="2" x2="27" y2="26" stroke="#3366FF" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="33" y1="2" x2="33" y2="26" stroke="#3366FF" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+              <span style="font-family:'Poppins',sans-serif;font-weight:800;font-size:9.5px;letter-spacing:1px;color:#ffffff">IONITY</span>
+            </div>
           </div>
 
           <div class="video-overlay-controls" style="position:absolute;bottom:0;left:0;right:0;padding:8px 14px;background:linear-gradient(0deg,rgba(0,0,0,0.92),transparent);display:flex;align-items:center;gap:10px;z-index:10">
