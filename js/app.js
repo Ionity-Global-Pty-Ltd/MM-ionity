@@ -276,13 +276,10 @@ const chatOpen = () => (hasChat() && preDone()) || S.adminMode;
 const actState = id => S.activities[id] || null;
 const actsDone = () => MM.ACTIVITIES.filter(a => actState(a.id)?.submittedAt).length;
 const allActsDone = () => actsDone() === MM.ACTIVITIES.length;
-/* Sequential gating — an activity stays locked until the previous one
-   is submitted (Week 1 → 2 → 3 …). The first activity is always open. */
-const actLocked = a => {
-  const idx = MM.ACTIVITIES.findIndex(x => x.id === a.id);
-  if (idx <= 0) return false;
-  return !actState(MM.ACTIVITIES[idx - 1].id)?.submittedAt;
-};
+/* Activities are all open once the Pre-Survey is done (no per-activity
+   sequential lock — participants may work at their own pace). The
+   post-survey still stays locked until all activities are complete. */
+const actLocked = () => false;
 /* Post-survey opens only once pre-surveys AND (for art groups) all
    art activities are complete. Group 1 has no art, so pre-done unlocks. */
 const postOpen = () => preDone() && (!hasArt() || allActsDone()) || S.adminMode;

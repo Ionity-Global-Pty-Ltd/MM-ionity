@@ -441,10 +441,8 @@ body::after {
 .done-row {
   position: sticky; bottom: calc(var(--nav-h) + 8px + env(safe-area-inset-bottom));
   display: flex; flex-direction: column; align-items: stretch; gap: 8px;
-  padding: 18px 16px 10px; margin-top: 6px; z-index: 20;
+  padding: 10px 16px 4px; margin-top: 6px; z-index: 20;
   pointer-events: none;
-  /* fade so options scroll cleanly under the footer button */
-  background: linear-gradient(0deg, var(--bg, #1a0a2e) 42%, rgba(26,10,46,0.82) 74%, rgba(26,10,46,0));
 }
 .no-nav .done-row { bottom: calc(8px + env(safe-area-inset-bottom)); }
 .done-row .form-err {
