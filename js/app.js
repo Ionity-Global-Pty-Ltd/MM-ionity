@@ -995,7 +995,7 @@ document.addEventListener('click', e => {
   const vsToggle = e.target.closest('#vs-toggle');
   if (vsToggle) {
     e.preventDefault();
-    $('#vertical-sidebar')?.classList.toggle('collapsed');
+    $('#vertical-sidebar')?.classList.toggle('pinned');
     return;
   }
   const vsBtn = e.target.closest('[data-vs]');
@@ -1852,10 +1852,6 @@ routes.home = () => {
         <div>
           <b>${greet}!</b>
           <small>${esc(groupOf().name)} · Week ${currentWeek()} of 8</small>
-        </div>
-        <div class="greet-actions">
-          <button class="chip chip-cta chip-hope" id="go-hope">🌟<span>Hope</span></button>
-          <button class="chip chip-cta chip-spark" id="go-spark" onclick="nav('#/spark')">${I.sparkle}<span>Daily Spark${(S.sparks || []).some(s => s.day === dayKey()) ? ' ✨' : ''}</span></button>
         </div>
       </div>
       ${journeyDots()}
@@ -4922,7 +4918,15 @@ routes.gamebubble = async () => {
 
 /* ── Writer / Note Space & Journal 📖✍️ ─────────────────────── */
 routes.journal = async (args = []) => {
-  await ensureModule('MMJournal', './js/journal.js?v=2.8.2');
+  try {
+    await ensureModule('MMJournal', './js/journal.js?v=2.8.2');
+  } catch (e) {
+    console.warn('[MojaMind] journal module failed to load:', e);
+    return render(`${header('Writer & Journal', { backTo: '#/home' })}<div class="body-pad"><div class="info-card"><p class="empty-note">Couldn’t open the journal just now. Please check your connection and try again. 💜</p><button class="btn btn-primary btn-block" onclick="nav('#/home')" style="margin-top:10px">Back to Home</button></div></div>`, { theme: 'theme-purple' });
+  }
+  if (typeof MMJournal === 'undefined' || !MMJournal.getEntries) {
+    return render(`${header('Writer & Journal', { backTo: '#/home' })}<div class="body-pad"><div class="info-card"><p class="empty-note">The journal is still loading — tap Back and open it again in a moment. 💜</p></div></div>`, { theme: 'theme-purple' });
+  }
   const subview = args[0] || 'write'; // 'write' | 'entries' | 'edit'
   const editId = subview === 'edit' ? args[1] : null;
   const entries = MMJournal.getEntries();

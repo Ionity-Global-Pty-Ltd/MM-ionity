@@ -174,6 +174,33 @@ const MMDraw = (() => {
     const placementPreview = host.querySelector('#placement-preview');
     const photoInput = host.querySelector('#draw-photo-input');
 
+    /* ── Lively brush cursor (glow that trails the pointer) ──── */
+    const brushCursor = document.createElement('div');
+    brushCursor.className = 'draw-brush-cursor';
+    stage.appendChild(brushCursor);
+    function moveBrushCursor(e, pressing) {
+      const r = cv.getBoundingClientRect();
+      const s = Math.max(12, size + 8);
+      brushCursor.style.width = s + 'px';
+      brushCursor.style.height = s + 'px';
+      brushCursor.style.transform = `translate(${e.clientX - r.left}px, ${e.clientY - r.top}px) translate(-50%,-50%)${pressing ? ' scale(0.82)' : ''}`;
+      brushCursor.style.background = isEraser ? 'rgba(255,255,255,0.35)' : hexA(colour, 0.55);
+      brushCursor.style.boxShadow = isEraser ? 'none' : `0 0 16px ${colour}, 0 0 6px ${colour}`;
+      brushCursor.style.opacity = '1';
+      brushCursor.classList.toggle('pressing', !!pressing);
+    }
+    function hexA(hex, a) {
+      const h = String(hex).replace('#', '');
+      if (h.length < 6) return hex;
+      const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+      return `rgba(${r},${g},${b},${a})`;
+    }
+    cv.addEventListener('pointermove', e => moveBrushCursor(e, isDrawing), { passive: true });
+    cv.addEventListener('pointerdown', e => moveBrushCursor(e, true), { passive: true });
+    cv.addEventListener('pointerup', e => moveBrushCursor(e, false), { passive: true });
+    cv.addEventListener('pointerenter', e => moveBrushCursor(e, false), { passive: true });
+    cv.addEventListener('pointerleave', () => { brushCursor.style.opacity = '0'; });
+
     function fit() {
       const box = cv.getBoundingClientRect();
       const dpr = Math.min(3, globalThis.devicePixelRatio || 1);
