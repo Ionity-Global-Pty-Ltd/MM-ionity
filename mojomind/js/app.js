@@ -2153,6 +2153,11 @@ function moodStreak() {
 
 function maybeMoodModal(force = false) {
   if (!force) return; // Automatic mood check-in popup disabled on login
+  // One check-in per day — resets at local midnight.
+  const todayStr = new Date().toDateString();
+  if ((S.moods || []).some(mm => new Date(mm.at).toDateString() === todayStr)) {
+    return toast('You’ve already checked in today 🌸 Come back tomorrow for a new flower.', 3200);
+  }
   let sel = null;
   const m = modal(`
     <h3 class="mood-title">How are you feeling today?</h3>
@@ -3120,6 +3125,9 @@ function artOptions(a) {
     if (kind === 'draw') {
       nav(`#/art/${a.id}/detail/pictures`);
       setTimeout(() => openDrawPad(a), 350);
+    } else if (kind === 'music') {
+      nav(`#/art/${a.id}/detail/pictures`);
+      setTimeout(() => openBeatStudio(a), 350);
     } else if (kind === 'speak') {
       nav(`#/art/${a.id}/detail/voice`);
     } else {

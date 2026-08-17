@@ -399,6 +399,7 @@ MM.ART_OPTION_KINDS = [
   { key: 'speak',   emoji: '🎤', name: 'Speak Up (Voice Note)' },
   { key: 'nature',  emoji: '🌿', name: 'Use Nature' },
   { key: 'digital', emoji: '📱', name: 'Get Digital (Photo & Collage)' },
+  { key: 'music',   emoji: '🥁', name: 'Make Music (Beat Studio)' },
 ];
 
 /* Activities with published inspiration videos (id → options with video files
@@ -648,6 +649,14 @@ MM.ACTIVITIES = [
     ],
   },
 ];
+
+/* Add a 7th "Make Music" option (Beat Studio) to every activity, uniformly.
+   Index 6 maps to MM.ART_OPTION_KINDS[6] (key: 'music'). */
+MM.ACTIVITIES.forEach(a => {
+  if (a.options.length < 7) {
+    a.options.push('Make Music: Tap out a rhythm or beat on the drum studio that expresses your feelings.');
+  }
+});
 
 MM.ACT_COLORS = [
   ['#f4a63c', '#e8891d'], ['#f75b88', '#ee2b63'], ['#7f84d9', '#5a5fbf'],
