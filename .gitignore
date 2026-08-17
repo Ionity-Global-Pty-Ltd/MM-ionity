@@ -19,3 +19,8 @@ assets/mojoi.png
 assets/mojotrans.png
 mojomind/app.css
 assets/*.jpeg
+
+assets/branding/thumb_*
+assets/branding/test_*
+assets/branding/*clean*
+**/assets/branding/*clean*

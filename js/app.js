@@ -3547,8 +3547,18 @@ function artDetail(a, tab) {
         </div>
         <button class="video-btn" id="play-video"><span class="play">${I.play}</span>${videoOpts ? `Watch: Option ${st.option + 1} inspiration video` : 'Play Video'}</button>
       </div>
+      ${kind && kind.key === 'write' ? `
+      <div class="info-card">
+        <h3 style="margin:0 0 6px;font-size:15px;color:#fff"><span class="ic">${I.pencil}</span> Write it out ✍️</h3>
+        <p style="font-size:12px;color:rgba(255,255,255,.8);margin:0 0 10px">Write your letter, poem, song or words here — there is no right or wrong. It saves automatically as you type.</p>
+        <textarea id="art-writing" placeholder="Start writing here…" style="width:100%;min-height:190px;box-sizing:border-box;border-radius:14px;padding:14px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.2);color:#fff;font:500 14px/1.65 var(--font);resize:vertical;outline:none" ${st.submittedAt ? 'readonly' : ''}>${esc(st.writing || '')}</textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+          <small id="art-writing-count" style="color:rgba(255,255,255,.6);font-size:11px">${(st.writing || '').trim().split(/\s+/).filter(Boolean).length} words</small>
+          ${st.submittedAt ? '' : `<button class="btn btn-secondary btn-sm" id="art-writing-save">Save writing 💾</button>`}
+        </div>
+      </div>` : ''}
       <div class="act-foot-btns" style="padding:0">
-        <button class="btn btn-primary" data-go="${st.option === 1 ? 'pictures' : 'materials'}" style="min-width:150px">Start</button>
+        <button class="btn btn-primary" data-go="${st.option === 1 ? 'pictures' : 'reflections'}" style="min-width:150px">${kind && kind.key === 'write' ? 'Continue to reflections' : 'Start'}</button>
       </div>`;
   } else if (tab === 'materials') {
     body = `
@@ -3730,6 +3740,17 @@ function artDetail(a, tab) {
   $('#draw-btn')?.addEventListener('click', () => openDrawPad(a));
   $('#quick-draw-btn')?.addEventListener('click', () => openDrawPad(a));
   $('#beat-btn')?.addEventListener('click', () => openBeatStudio(a));
+  const writeTa = $('#art-writing');
+  if (writeTa) {
+    let wsaveT;
+    const wc = $('#art-writing-count');
+    writeTa.addEventListener('input', () => {
+      st.writing = writeTa.value;
+      if (wc) wc.textContent = `${writeTa.value.trim().split(/\s+/).filter(Boolean).length} words`;
+      clearTimeout(wsaveT); wsaveT = setTimeout(save, 600);
+    });
+    $('#art-writing-save')?.addEventListener('click', () => { st.writing = writeTa.value; save(); toast('Your writing is saved ✍️'); });
+  }
   $('#upload-btn')?.addEventListener('click', () => $('#file-in').click());
   $('#file-in')?.addEventListener('change', async e => {
     const files = [...e.target.files].slice(0, 6);
@@ -3860,7 +3881,7 @@ function artDetail(a, tab) {
     const uploads = (st.uploads || []).length, voice = (st.voice || []).length;
     let hasWork, need;
     if (kind === 'speak') { hasWork = voice > 0; need = 'record a voice note'; }
-    else if (kind === 'write') { hasWork = filled > 0; need = 'write your words in the reflections'; }
+    else if (kind === 'write') { hasWork = (st.writing || '').trim().length > 0; need = 'write your words in the notepad'; }
     else { hasWork = uploads > 0; need = 'add your artwork or a photo'; }
     if (!hasWork) return toast(`Please ${need} before submitting 💜`, 3200);
     if (!filled) return toast('Share at least one reflection before submitting 💭');
