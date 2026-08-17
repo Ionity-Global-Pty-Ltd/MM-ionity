@@ -148,10 +148,11 @@ const MMDraw = (() => {
               </div>
 
               <div class="draw-actions-group">
-                <button class="draw-tool" data-d="erase" aria-pressed="false" title="Eraser">🩹 Eraser</button>
-                <button class="draw-tool" data-d="undo" title="Undo (Ctrl+Z)">↩</button>
-                <button class="draw-tool" data-d="redo" title="Redo (Ctrl+Y)">↪</button>
-                <button class="draw-tool" data-d="clear" title="Clear Canvas">🗑</button>
+                <button class="draw-tool" data-d="erase" aria-pressed="false" title="Toggle Eraser">🩹 Eraser</button>
+                <button class="draw-tool" data-d="undo" title="Undo 1 Step (Ctrl+Z)" aria-label="Undo 1 Step">↩</button>
+                <button class="draw-tool" data-d="undo5" title="Undo 5 Steps Back" aria-label="Undo 5 Steps" style="font-size:11px;font-weight:700">↩x5</button>
+                <button class="draw-tool" data-d="redo" title="Redo 1 Step (Ctrl+Y)" aria-label="Redo 1 Step">↪</button>
+                <button class="draw-tool draw-clear-tool" data-d="clear" title="Clear Canvas (Confirmation Prompt)" aria-label="Clear Canvas">🗑</button>
               </div>
             </div>
           </div>
@@ -200,13 +201,20 @@ const MMDraw = (() => {
     function paintItem(item) {
       if (item.type === 'text') {
         ctx.save();
-        ctx.font = `${item.bold ? 'bold ' : ''}${item.fontSize || 28}px ${item.font || "'Poppins', sans-serif"}`;
+        const fSize = item.fontSize || 28;
+        ctx.font = `${item.bold ? 'bold ' : ''}${fSize}px ${item.font || "'Poppins', sans-serif"}`;
         ctx.fillStyle = item.colour || '#2b2140';
         ctx.textAlign = item.align || 'center';
         ctx.textBaseline = 'middle';
-        ctx.shadowColor = 'rgba(0,0,0,0.18)';
+        ctx.shadowColor = 'rgba(0,0,0,0.2)';
         ctx.shadowBlur = 4;
-        ctx.fillText(item.text, item.x, item.y);
+
+        const lines = String(item.text).split('\n');
+        const lineHeight = fSize * 1.25;
+        const startY = item.y - ((lines.length - 1) * lineHeight) / 2;
+        lines.forEach((line, idx) => {
+          ctx.fillText(line, item.x, startY + idx * lineHeight);
+        });
         ctx.restore();
         return;
       }
@@ -575,6 +583,10 @@ const MMDraw = (() => {
     });
 
     const endStroke = () => {
+      if (isDrawing) {
+        redoStack = [];
+        updateHistoryUI();
+      }
       isDrawing = false;
       currentStroke = null;
       lastPoint = null;
@@ -631,39 +643,117 @@ const MMDraw = (() => {
     host.querySelector('[data-d="erase"]')?.addEventListener('click', e => {
       isEraser = !isEraser;
       e.currentTarget.classList.toggle('on', isEraser);
-      if (isEraser) host.querySelectorAll('.draw-tool-tab').forEach(x => x.classList.remove('on'));
+      if (isEraser) {
+        host.querySelectorAll('.draw-tool-tab').forEach(x => x.classList.remove('on'));
+        host.querySelectorAll('[data-stamp]').forEach(x => x.classList.remove('on'));
+      }
       safeToast(isEraser ? 'Eraser active 🩹' : 'Brush active', 1000);
     });
 
-    /* ── Undo / Redo / Clear ─────────────────────────────────── */
-    const undoAction = () => {
-      if (strokes.length) {
-        redoStack.push(strokes.pop());
-        repaint();
-      }
-    };
-    const redoAction = () => {
-      if (redoStack.length) {
-        strokes.push(redoStack.pop());
-        repaint();
-      }
-    };
-    host.querySelector('[data-d="undo"]')?.addEventListener('click', undoAction);
-    host.querySelector('[data-d="redo"]')?.addEventListener('click', redoAction);
+    /* ── Multi-Step Undo / Redo / Clear ──────────────────────── */
+    function updateHistoryUI() {
+      const undoBtn = host.querySelector('[data-d="undo"]');
+      const undo5Btn = host.querySelector('[data-d="undo5"]');
+      const redoBtn = host.querySelector('[data-d="redo"]');
+      const clearBtn = host.querySelector('[data-d="clear"]');
 
-    host.querySelector('[data-d="clear"]')?.addEventListener('click', () => {
-      if (strokes.length) {
-        redoStack = [...strokes];
-        strokes = [];
-        repaint();
-        safeToast('Canvas cleared');
+      if (undoBtn) {
+        undoBtn.classList.toggle('disabled', strokes.length === 0);
+        undoBtn.title = strokes.length ? `Undo 1 Step (Ctrl+Z) · ${strokes.length} action(s) in history` : 'Undo (No history)';
       }
-    });
+      if (undo5Btn) {
+        undo5Btn.classList.toggle('disabled', strokes.length === 0);
+        undo5Btn.title = strokes.length ? `Undo 5 Steps Back · ${strokes.length} available` : 'Undo 5 Steps (No history)';
+      }
+      if (redoBtn) {
+        redoBtn.classList.toggle('disabled', redoStack.length === 0);
+        redoBtn.title = redoStack.length ? `Redo 1 Step (Ctrl+Y) · ${redoStack.length} in redo stack` : 'Redo (Empty)';
+      }
+      if (clearBtn) {
+        clearBtn.classList.toggle('disabled', strokes.length === 0);
+      }
+    }
 
-    // Keyboard Shortcuts (Ctrl+Z, Ctrl+Y)
+    function undoAction(count = 1) {
+      if (!strokes.length) {
+        safeToast('Canvas history is empty 🎨', 1200);
+        return;
+      }
+      const steps = Math.min(count, strokes.length);
+      for (let i = 0; i < steps; i++) {
+        const item = strokes.pop();
+        if (item) redoStack.push(item);
+      }
+      repaint();
+      updateHistoryUI();
+      safeToast(steps === 1 ? 'Undid 1 step ↩' : `Undid ${steps} steps backward ↩`, 1200);
+    }
+
+    function redoAction(count = 1) {
+      if (!redoStack.length) {
+        safeToast('Nothing to redo ↪', 1200);
+        return;
+      }
+      const steps = Math.min(count, redoStack.length);
+      for (let i = 0; i < steps; i++) {
+        const item = redoStack.pop();
+        if (item) strokes.push(item);
+      }
+      repaint();
+      updateHistoryUI();
+      safeToast(steps === 1 ? 'Redid 1 step ↪' : `Redid ${steps} steps forward ↪`, 1200);
+    }
+
+    host.querySelector('[data-d="undo"]')?.addEventListener('click', () => undoAction(1));
+    host.querySelector('[data-d="undo5"]')?.addEventListener('click', () => undoAction(5));
+    host.querySelector('[data-d="redo"]')?.addEventListener('click', () => redoAction(1));
+
+    /* ── Clear Canvas with Confirmation Prompt ───────────────── */
+    function promptClearCanvas() {
+      if (!strokes.length) {
+        safeToast('Canvas is already blank ✨', 1500);
+        return;
+      }
+
+      const modalWrap = document.createElement('div');
+      modalWrap.className = 'draw-submodal-wrap';
+      modalWrap.innerHTML = `
+        <div class="draw-submodal-card" style="max-width:380px;text-align:center;animation:splash-in .2s ease both">
+          <div style="font-size:44px;margin-bottom:8px">🗑️</div>
+          <h3 style="font-size:18px;font-weight:800;color:#ffffff;margin:0 0 8px">Clear Entire Canvas?</h3>
+          <p style="font-size:13px;color:rgba(255,255,255,0.8);line-height:1.55;margin:0 0 18px">
+            Are you sure you want to erase all <b>${strokes.length}</b> stroke(s) and start fresh? You can restore them anytime using <b>Undo (↩)</b>.
+          </p>
+          <div style="display:flex;gap:10px;justify-content:center">
+            <button class="btn btn-ghost" id="confirm-keep-btn" style="flex:1">Keep Artwork</button>
+            <button class="btn btn-primary" id="confirm-clear-btn" style="flex:1.2;background:#ed1c24;border-color:#ff4d4f">Yes, Clear 🗑️</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modalWrap);
+
+      modalWrap.querySelector('#confirm-keep-btn')?.addEventListener('click', () => {
+        modalWrap.remove();
+      });
+
+      modalWrap.querySelector('#confirm-clear-btn')?.addEventListener('click', () => {
+        modalWrap.remove();
+        // Save all current strokes to redo stack so user can undo if they made a mistake!
+        while (strokes.length) {
+          redoStack.push(strokes.pop());
+        }
+        repaint();
+        updateHistoryUI();
+        safeToast('Canvas cleared · Tap Undo (↩) to restore anytime 🌟', 3000);
+      });
+    }
+
+    host.querySelector('[data-d="clear"]')?.addEventListener('click', promptClearCanvas);
+
+    // Keyboard Shortcuts (Ctrl+Z, Ctrl+Y, Ctrl+Shift+Z)
     const onKey = e => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undoAction(); }
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'Z'))) { e.preventDefault(); redoAction(); }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undoAction(e.shiftKey ? 5 : 1); }
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'Z'))) { e.preventDefault(); redoAction(1); }
     };
     window.addEventListener('keydown', onKey);
 
@@ -886,12 +976,16 @@ const MMDraw = (() => {
     let dragOffset = { x: 0, y: 0 };
 
     placementBox.addEventListener('pointerdown', e => {
+      // Never capture or drag if tapping the action buttons
+      if (e.target.closest('#placement-apply') || e.target.closest('#placement-cancel')) {
+        return;
+      }
       e.stopPropagation();
       isDraggingPlacement = true;
       const rect = placementBox.getBoundingClientRect();
       dragOffset.x = e.clientX - rect.left - rect.width / 2;
       dragOffset.y = e.clientY - rect.top - rect.height / 2;
-      placementBox.setPointerCapture(e.pointerId);
+      try { placementBox.setPointerCapture(e.pointerId); } catch (_) {}
     });
 
     placementBox.addEventListener('pointermove', e => {
@@ -907,21 +1001,44 @@ const MMDraw = (() => {
     placementBox.addEventListener('pointercancel', stopPlacementDrag);
 
     // Apply / Stamp item permanently into history
-    host.querySelector('#placement-apply')?.addEventListener('click', e => {
-      e.stopPropagation();
+    function applyPlacement() {
       if (!placementItem) return;
-      strokes.push(placementItem);
+      const itemToStamp = { ...placementItem };
+      strokes.push(itemToStamp);
       redoStack = [];
       placementBox.classList.add('hidden');
       placementItem = null;
+      isDraggingPlacement = false;
       repaint();
+      updateHistoryUI();
       safeToast('Stamped onto your artwork! 🌟', 1500);
-    });
+    }
 
-    host.querySelector('#placement-cancel')?.addEventListener('click', e => {
-      e.stopPropagation();
+    function cancelPlacement() {
       placementBox.classList.add('hidden');
       placementItem = null;
+      isDraggingPlacement = false;
+    }
+
+    const applyBtn = host.querySelector('#placement-apply');
+    const cancelBtn = host.querySelector('#placement-cancel');
+
+    applyBtn?.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      applyPlacement();
+    });
+    applyBtn?.addEventListener('pointerdown', e => {
+      e.stopPropagation();
+    });
+
+    cancelBtn?.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      cancelPlacement();
+    });
+    cancelBtn?.addEventListener('pointerdown', e => {
+      e.stopPropagation();
     });
 
     /* ── Soundscape Toggle ───────────────────────────────────── */
@@ -998,6 +1115,7 @@ const MMDraw = (() => {
     const ro = new ResizeObserver(fit);
     ro.observe(cv);
     requestAnimationFrame(fit);
+    updateHistoryUI();
 
     function cleanup() {
       ro.disconnect();

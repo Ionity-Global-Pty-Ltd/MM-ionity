@@ -975,76 +975,11 @@ const MMVideo = (() => {
     ctx.textAlign = 'center';
     ctx.fillText(currentNarration, W / 2, H - 19);
 
-    // Ionity AI Watermark on bottom right
-    drawIonityWatermark(ctx, W - 88, H - 76);
-
     // Smooth Progress Bar
     ctx.fillStyle = 'rgba(255,255,255,0.15)';
     ctx.fillRect(0, H - 5, W, 5);
     ctx.fillStyle = script.themeColor || '#3366FF';
     ctx.fillRect(0, H - 5, W * progress, 5);
-  }
-
-  /* ── Stylized Antwerp Designs / Ionity AI Watermark ────────── */
-  function drawIonityWatermark(ctx, x, y) {
-    ctx.save();
-    // Glass pill background
-    ctx.fillStyle = 'rgba(10, 10, 20, 0.78)';
-    ctx.strokeStyle = 'rgba(51, 102, 255, 0.55)';
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.roundRect(x, y, 78, 22, 6);
-    ctx.fill();
-    ctx.stroke();
-
-    // Stylized "AI" Glyph
-    ctx.save();
-    ctx.translate(x + 7, y + 3);
-    const s = 0.55;
-    ctx.scale(s, s);
-
-    ctx.strokeStyle = '#3366FF';
-    ctx.fillStyle = '#3366FF';
-    ctx.lineWidth = 2.4;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    // "A" outer
-    ctx.beginPath();
-    ctx.moveTo(3, 26);
-    ctx.lineTo(13, 3);
-    ctx.lineTo(23, 26);
-    ctx.stroke();
-
-    // "A" inner triangle
-    ctx.beginPath();
-    ctx.moveTo(8, 20);
-    ctx.lineTo(13, 9);
-    ctx.lineTo(18, 20);
-    ctx.closePath();
-    ctx.stroke();
-
-    // "A" crossbar
-    ctx.beginPath();
-    ctx.moveTo(4, 20);
-    ctx.lineTo(22, 20);
-    ctx.stroke();
-
-    // "I" double bars
-    ctx.beginPath();
-    ctx.moveTo(27, 3);
-    ctx.lineTo(27, 26);
-    ctx.moveTo(32, 3);
-    ctx.lineTo(32, 26);
-    ctx.stroke();
-    ctx.restore();
-
-    // Wordmark
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '800 9.5px Poppins, sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText('IONITY', x + 31, y + 14.5);
-    ctx.restore();
   }
 
   /* ── Interactive Video Modal Player ────────────────────────── */
@@ -1090,18 +1025,6 @@ const MMVideo = (() => {
           <div id="vid-container" style="width:100%;height:auto;aspect-ratio:16/9;position:relative">
             <canvas id="motion-video-canvas" width="640" height="360" style="width:100%;height:auto;aspect-ratio:16/9;display:block"></canvas>
             <video id="hd-video-player" src="${script.videoSrc || ''}" playsinline controls preload="none" onerror="var c=document.getElementById('motion-video-canvas'); if(c)c.style.display='block'; this.style.display='none'; var t=document.getElementById('vid-mode-toggle'); if(t)t.textContent='🔄 Switch to Clip';" style="width:100%;height:auto;aspect-ratio:16/9;display:none;background:#000"></video>
-            
-            <!-- Bottom Right Ionity Watermark Overlay -->
-            <div style="position:absolute;bottom:36px;right:10px;display:flex;align-items:center;gap:5px;background:rgba(10,10,20,0.85);padding:3px 8px;border-radius:6px;border:1px solid rgba(51,102,255,0.45);pointer-events:none;z-index:9">
-              <svg viewBox="0 0 36 28" fill="none" width="15" height="12" style="display:block">
-                <path d="M2 26 L12 2 L22 26" stroke="#3366FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M7 19 L12 8 L17 19 Z" stroke="#3366FF" stroke-width="2" stroke-linejoin="round"/>
-                <line x1="3" y1="19" x2="21" y2="19" stroke="#3366FF" stroke-width="2.5"/>
-                <line x1="27" y1="2" x2="27" y2="26" stroke="#3366FF" stroke-width="2.5" stroke-linecap="round"/>
-                <line x1="33" y1="2" x2="33" y2="26" stroke="#3366FF" stroke-width="2.5" stroke-linecap="round"/>
-              </svg>
-              <span style="font-family:'Poppins',sans-serif;font-weight:800;font-size:9.5px;letter-spacing:1px;color:#ffffff">IONITY</span>
-            </div>
           </div>
 
           <div class="video-overlay-controls" style="position:absolute;bottom:0;left:0;right:0;padding:8px 14px;background:linear-gradient(0deg,rgba(0,0,0,0.92),transparent);display:flex;align-items:center;gap:10px;z-index:10">

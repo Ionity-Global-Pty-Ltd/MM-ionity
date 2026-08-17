@@ -800,61 +800,7 @@ function route() {
 }
 window.addEventListener('hashchange', route);
 
-/* ── Modern Glassmorphic Bottom Navigation Bar ───────────── */
-function updateTabbar(activeScreen = 'home') {
-  const bar = $('#tabbar');
-  const sparkTab = $('#floating-spark-tab');
-  const exTab = $('#floating-exercise-tab');
-  const hideScreens = ['signin', 'terms', 'demographics', 'welcome'];
 
-  if (sparkTab) {
-    if (!S.auth || !S.onboarded || hideScreens.includes(activeScreen) || activeScreen === 'spark') {
-      sparkTab.classList.add('hidden');
-    } else {
-      sparkTab.classList.remove('hidden');
-    }
-  }
-
-  if (exTab) {
-    if (!S.auth || !S.onboarded || hideScreens.includes(activeScreen) || activeScreen === 'pixelthoughts' || activeScreen === 'exercises') {
-      exTab.classList.add('hidden');
-    } else {
-      exTab.classList.remove('hidden');
-    }
-  }
-
-  if (!bar) return;
-  if (!S.auth || !S.onboarded || hideScreens.includes(activeScreen)) {
-    bar.classList.add('hidden');
-    app.classList.add('no-nav');
-    return;
-  }
-  bar.classList.remove('hidden');
-  app.classList.remove('no-nav');
-
-  const tabs = [
-    { id: 'home', label: 'Home', icon: I.home, route: '#/home' },
-    { id: 'games', label: 'Games', icon: I.gamepad, route: '#/games' },
-    { id: 'journal', label: 'Journal', icon: I.journal, route: '#/journal' },
-    { id: 'support', label: 'Support', icon: I.headset, route: '#/support' },
-    ...(hasArt() ? [{ id: 'art', label: 'Art', icon: I.palette, route: '#/art', locked: !artOpen() }] : []),
-    ...(hasChat() ? [{ id: 'chat', label: 'Chat', icon: I.chat, route: '#/chat', locked: !chatOpen() }] : []),
-  ];
-
-  bar.innerHTML = tabs.map(t => `
-    <button class="nav-tab ${activeScreen === t.id ? 'active' : ''} ${t.locked ? 'is-locked' : ''}" data-nav="${t.route}" aria-label="${t.label}" title="${t.label}">
-      <span class="nav-icon">${t.icon}</span>
-      <span class="nav-lbl">${t.label}</span>
-      ${t.locked ? '<span class="nav-lock">🔒</span>' : ''}
-    </button>
-  `).join('');
-
-  bar.querySelectorAll('[data-nav]').forEach(btn => {
-    btn.onclick = () => {
-      nav(btn.dataset.nav);
-    };
-  });
-}
 
 /* ── Shared chrome ───────────────────────────────────────── */
 function header(title, { home = false, backTo = null } = {}) {
@@ -987,30 +933,47 @@ function buildTabs() {
   if (hasChat() || S.adminMode) tabs.push({ id: 'chat', label: 'Chat', icon: I.chat, route: '#/chat', gated: true });
   return tabs;
 }
-const NAVLESS = ['signin', 'terms', 'welcome', 'demographics', 'survey', 'help'];
+const NAVLESS = ['signin', 'terms', 'welcome', 'demographics'];
 function updateTabbar(name) {
   const bar = $('#tabbar');
-  if (NAVLESS.includes(name)) {
-    bar.classList.add('hidden'); app.classList.add('no-nav'); return;
+  const vSidebar = $('#vertical-sidebar');
+
+  if (vSidebar) {
+    if (NAVLESS.includes(name) || !S.auth || !S.onboarded) {
+      vSidebar.classList.add('hidden');
+    } else {
+      vSidebar.classList.remove('hidden');
+      const soundDot = $('#vs-sound-dot');
+      if (soundDot) soundDot.classList.toggle('on', typeof MMSoundscape !== 'undefined' && MMSoundscape.isPlaying());
+      const voiceDot = $('#vs-voice-dot');
+      if (voiceDot) voiceDot.classList.toggle('on', typeof MMVoice !== 'undefined' && MMVoice.isOn());
+    }
+  }
+
+  if (NAVLESS.includes(name) || name === 'survey' || name === 'help') {
+    if (bar) { bar.classList.add('hidden'); app.classList.add('no-nav'); }
+    if (NAVLESS.includes(name)) return;
   }
   app.classList.remove('no-nav');
-  bar.classList.remove('hidden');
+  if (bar) bar.classList.remove('hidden');
   const activeMap = { pre: 'home', post: 'home', instructions: 'home', spark: 'home', journey: 'home', writer: 'journal', game: 'games', game3d: 'games', gamebubble: 'games' };
   const active = activeMap[name] || name;
   const tabs = buildTabs();
-  bar.innerHTML = tabs.map(t => {
-    const locked = t.gated && !(t.id === 'chat' ? chatOpen() : artOpen());
-    return `<button class="tab ${active === t.id ? 'active' : ''} ${locked ? 'locked' : ''}" data-tab="${t.id}" aria-label="${t.label}">
-      ${t.icon}${locked ? `<svg class="mini-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>` : ''}
-      <span>${t.label}</span>
-    </button>`;
-  }).join('');
-  bar.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => {
-    const t = tabs.find(x => x.id === b.dataset.tab);
-    const open = t.id === 'chat' ? chatOpen() : t.id === 'art' ? artOpen() : true;
-    if (t.gated && !open) return toast('Complete your Pre-Survey to unlock this ✨');
-    nav(t.route);
-  }));
+  if (bar) {
+    bar.innerHTML = tabs.map(t => {
+      const locked = t.gated && !(t.id === 'chat' ? chatOpen() : artOpen());
+      return `<button class="tab ${active === t.id ? 'active' : ''} ${locked ? 'locked' : ''}" data-tab="${t.id}" aria-label="${t.label}">
+        ${t.icon}${locked ? `<svg class="mini-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>` : ''}
+        <span>${t.label}</span>
+      </button>`;
+    }).join('');
+    bar.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => {
+      const t = tabs.find(x => x.id === b.dataset.tab);
+      const open = t.id === 'chat' ? chatOpen() : t.id === 'art' ? artOpen() : true;
+      if (t.gated && !open) return toast('Complete your Pre-Survey to unlock this ✨');
+      nav(t.route);
+    }));
+  }
 }
 
 /* Global delegated actions */
@@ -1025,6 +988,40 @@ app.addEventListener('click', e => {
   if (act === 'voice') toggleVoiceNav();
   if (act === 'soundscape') MMSoundscape.showModal();
   if (act === 'flower-care') beaconOfHopeModal();
+});
+
+/* Unified Vertical Right-Side Sidebar Actions */
+document.addEventListener('click', e => {
+  const vsToggle = e.target.closest('#vs-toggle');
+  if (vsToggle) {
+    e.preventDefault();
+    $('#vertical-sidebar')?.classList.toggle('collapsed');
+    return;
+  }
+  const vsBtn = e.target.closest('[data-vs]');
+  if (!vsBtn) return;
+  e.preventDefault();
+  const act = vsBtn.dataset.vs;
+  if (act === 'soundscape') {
+    if (typeof MMSoundscape !== 'undefined' && MMSoundscape.showModal) MMSoundscape.showModal();
+  } else if (act === 'voice') {
+    if (typeof toggleVoiceNav === 'function') toggleVoiceNav();
+    else if (typeof voiceHelpModal === 'function') voiceHelpModal();
+  } else if (act === 'a11y') {
+    if (typeof a11yModal === 'function') a11yModal();
+  } else if (act === 'care') {
+    if (typeof beaconOfHopeModal === 'function') beaconOfHopeModal();
+  } else if (act === 'help') {
+    nav('#/help');
+  } else if (act === 'spark') {
+    nav('#/spark');
+  } else if (act === 'pixelthoughts') {
+    nav('#/pixelthoughts');
+  }
+  const sDot = $('#vs-sound-dot');
+  if (sDot) sDot.classList.toggle('on', typeof MMSoundscape !== 'undefined' && MMSoundscape.isPlaying());
+  const vDot = $('#vs-voice-dot');
+  if (vDot) vDot.classList.toggle('on', typeof MMVoice !== 'undefined' && MMVoice.isOn());
 });
 
 /* ── Voice navigation ────────────────────────────────────── */
@@ -3683,7 +3680,7 @@ function artDetail(a, tab) {
     ${header(a.name, { backTo: '#/art' })}
     <div class="body-pad" style="gap:12px">
       <div class="hero-card" style="padding:13px 16px">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:gap:6px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
           <p class="lead" style="margin:0">Option ${st.option + 1} — ${kind.emoji} ${esc(kind.name)}</p>
         </div>
         ${locked ? `<p class="locked-strip">${I.lock} Completed &amp; Submitted ${new Date(st.submittedAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', year: 'numeric' })} — responses are locked.</p>` : ''}
