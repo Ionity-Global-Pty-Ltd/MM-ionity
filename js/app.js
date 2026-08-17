@@ -809,11 +809,7 @@ function header(title, { home = false, backTo = null } = {}) {
       ? `<button class="brand-flower-btn" data-act="flower-care" aria-label="Open Ithemba Care Sanctuary" title="Ithemba Hope & Grounding Sanctuary" style="background:transparent;border:0;padding:0;cursor:pointer;display:grid;place-items:center">${flowerSVG(34)}</button>`
       : `<button class="back" data-act="back" data-to="${backTo || ''}" aria-label="Back">${I.back}</button>`}
     <h1>${esc(title)}</h1>
-    <button class="hdr-sound ${MMSoundscape.isPlaying() ? 'on' : ''}" data-act="soundscape" aria-label="Ambient 432Hz Soundscapes" title="Ambient 432Hz Soundscapes">🎧</button>
     ${home ? `<button class="hdr-reset" data-act="reset" aria-label="Reset demo" title="Reset demo">${I.reset}</button>` : ''}
-    ${MMVoice.supported() ? `<button class="hdr-voice ${MMVoice.isOn() ? 'on' : ''}" data-act="voice" aria-label="Voice navigation" aria-pressed="${MMVoice.isOn()}" title="Voice navigation">${I.mic}</button>` : ''}
-    <button class="hdr-a11y" data-act="a11y" aria-label="Accessibility options" title="Accessibility">${I.a11y}</button>
-    <button class="help-pill" data-act="help"><span class="q">?</span>Help</button>
   </header>`;
 }
 
