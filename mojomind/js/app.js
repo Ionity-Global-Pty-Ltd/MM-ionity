@@ -297,8 +297,17 @@ const hexA = (hex, a) => {
   return `rgba(${r},${g},${b},${a})`;
 };
 
+let _toastLast = { msg: '', at: 0 };
 function toast(msg, ms = 2600) {
+  const now = Date.now();
+  /* 3s internal cooldown — ignore repeat/rapid notifications so the app
+     never spams the user with stacked toasts. */
+  if (msg === _toastLast.msg && (now - _toastLast.at) < 3000) return;
+  _toastLast = { msg, at: now };
   const root = $('#toast-root');
+  if (!root) return;
+  /* only ever show one toast at a time */
+  root.querySelectorAll('.toast').forEach(el => el.remove());
   const t = document.createElement('div');
   t.className = 'toast'; t.textContent = msg;
   root.appendChild(t);
