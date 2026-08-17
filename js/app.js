@@ -3523,7 +3523,7 @@ function artDetail(a, tab) {
   const kind = MM.ART_OPTION_KINDS[st.option];
   const isMusic = !!(kind && kind.key === 'music');
   const hasBeat = st.uploads.some(u => u && typeof u === 'object' && u.kind === 'beat');
-  const tabs = [['start', 'Start Here'], ['materials', 'Materials'], ['pictures', 'Pictures'], ['voice', 'Voice'], ['reflections', 'Reflections']];
+  const tabs = [['start', 'Start Here'], ['materials', 'Materials'], ['pictures', isMusic ? 'Beat' : 'Pictures'], ['voice', 'Voice'], ['reflections', 'Reflections']];
   const uploadSrc = upload => typeof upload === 'string' ? upload : upload.src;
   const uploadAnalysis = upload => typeof upload === 'object' ? upload.analysis : null;
   const analysedUploads = st.uploads.map(uploadAnalysis).filter(Boolean);
@@ -3650,7 +3650,9 @@ function artDetail(a, tab) {
         ? `<div class="upload-grid">${st.uploads.map((upload, i) => `
             <div class="shot ${upload.kind === 'drawing' ? 'is-drawing' : ''}"><img src="${uploadSrc(upload)}" alt="${upload.kind === 'drawing' ? 'Drawing' : 'Upload'} ${i + 1}" />${upload.kind === 'drawing' ? '<span class="shot-tag">🖍 drawn here</span>' : ''}${uploadAnalysis(upload) ? `<span class="shot-read" data-vision="${i}" title="What Moja Vision saw">${I.sparkle}</span>` : ''}<button class="del" data-del="${i}" aria-label="Delete">${I.x}</button></div>`).join('')}
           </div>`
-        : `<div class="info-card"><p class="empty-note">Nothing here yet — launch the drawing studio below or upload a photo of your work. 🎨📸</p></div>`}
+        : isMusic
+          ? `<div class="info-card"><p class="empty-note">Nothing here yet — tap <b>Open Beat Studio</b> below to make your rhythm 🥁</p></div>`
+          : `<div class="info-card"><p class="empty-note">Nothing here yet — launch the drawing studio below or upload a photo of your work. 🎨📸</p></div>`}
       ${latestAnalysis ? `
         <div class="colour-insight">
           <span class="colour-insight-mark">${I.sparkle}</span>
