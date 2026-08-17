@@ -1780,7 +1780,11 @@ body::after {
 .beat-title b { font-size:15px; } .beat-title small { display:block; font-size:11px; color:rgba(255,255,255,.7); }
 .beat-grid { display:flex; flex-direction:column; gap:8px; }
 .beat-row { display:flex; align-items:center; gap:8px; }
-.beat-lbl { width:60px; flex:0 0 60px; font-size:12px; font-weight:700; color:var(--c); }
+.beat-side { flex:0 0 74px; width:74px; display:flex; flex-direction:column; gap:2px; }
+.beat-side .beat-lbl { display:flex; align-items:center; gap:5px; }
+.beat-num { display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:5px; font-size:10px; font-weight:800; color:#160427; background:var(--c); flex:0 0 16px; }
+.beat-vol { width:100%; height:14px; margin:1px 0 0; accent-color:var(--c); cursor:pointer; }
+.beat-lbl { font-size:11.5px; font-weight:700; color:var(--c); line-height:1.15; }
 .beat-cells { display:grid; grid-template-columns:repeat(16,1fr); gap:3px; flex:1; }
 .beat-cell { aspect-ratio:1; border-radius:6px; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.05); cursor:pointer; transition:transform .08s, background .12s, box-shadow .12s; padding:0; }
 .beat-cell.beat-accent { border-color:rgba(255,255,255,.28); }

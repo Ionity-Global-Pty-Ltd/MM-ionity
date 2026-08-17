@@ -3474,6 +3474,8 @@ function artDetail(a, tab) {
   st.reflections = st.reflections && typeof st.reflections === 'object' ? st.reflections : {};
   const locked = !!st.submittedAt; // Submitted activities are locked
   const kind = MM.ART_OPTION_KINDS[st.option];
+  const isMusic = !!(kind && kind.key === 'music');
+  const hasBeat = st.uploads.some(u => u && typeof u === 'object' && u.kind === 'beat');
   const tabs = [['start', 'Start Here'], ['materials', 'Materials'], ['pictures', 'Pictures'], ['voice', 'Voice'], ['reflections', 'Reflections']];
   const uploadSrc = upload => typeof upload === 'string' ? upload : upload.src;
   const uploadAnalysis = upload => typeof upload === 'object' ? upload.analysis : null;
@@ -3601,6 +3603,37 @@ function artDetail(a, tab) {
         : st.uploads.length ? `<button class="btn btn-ghost read-colours" id="read-colours">${I.sparkle} Read colours</button>` : ''}
       <input type="file" id="file-in" accept="image/*" multiple class="hidden" />
       
+      <!-- Art Creator Hub (kind-aware) -->
+      ${isMusic ? `
+      <div class="art-creator-hub" style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+        <div class="art-choice-card beat-choice" id="beat-btn" role="button" tabindex="0" style="cursor:pointer">
+          <div class="acc-head" style="display:flex;justify-content:space-between;align-items:center">
+            <span class="acc-badge" style="background:linear-gradient(135deg,#43b0a8,#8a2eae);color:#fff;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700">🥁 BEAT &amp; RHYTHM STUDIO</span>
+            <span class="acc-icon" style="font-size:20px">🎶</span>
+          </div>
+          <b style="display:block;margin:6px 0 2px;font-size:14px;color:#fff">Make a Beat — Your Song of Strength</b>
+          <p style="font-size:12px;color:rgba(255,255,255,0.85);margin:0 0 8px">Tap out a rhythm on the 9-track drum &amp; sound sequencer — set each line's loudness, play it back, and get gentle on-device rhythm insight. 100% offline.</p>
+          <button class="btn btn-primary btn-block" style="pointer-events:none;background:linear-gradient(135deg,#43b0a8,#8a2eae)">Open Beat Studio 🥁</button>
+        </div>
+        ${hasBeat ? `
+        <div class="art-choice-card draw-choice" id="draw-btn" role="button" tabindex="0" style="cursor:pointer">
+          <div class="acc-head" style="display:flex;justify-content:space-between;align-items:center">
+            <span class="acc-badge" style="background:linear-gradient(135deg,#f3256b,#8a2eae);color:#fff;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700">🎨 DRAW YOUR FEELING</span>
+            <span class="acc-icon" style="font-size:20px">🖌️</span>
+          </div>
+          <b style="display:block;margin:6px 0 2px;font-size:14px;color:#fff">Draw how this beat makes you feel</b>
+          <p style="font-size:12px;color:rgba(255,255,255,0.85);margin:0 0 8px">Sketch the feeling your rhythm gives you — its colours, shapes and energy.</p>
+          <button class="btn btn-primary btn-block" style="pointer-events:none">Draw the Feeling 🎨</button>
+        </div>` : `
+        <div class="art-choice-card" style="opacity:.7">
+          <div class="acc-head" style="display:flex;justify-content:space-between;align-items:center">
+            <span class="acc-badge" style="background:rgba(255,255,255,.12);color:#fff;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700">🎨 NEXT STEP</span>
+            <span class="acc-icon" style="font-size:20px">🖌️</span>
+          </div>
+          <b style="display:block;margin:6px 0 2px;font-size:14px;color:#fff">Then — draw how it makes you feel</b>
+          <p style="font-size:12px;color:rgba(255,255,255,0.85);margin:0">Make and save your beat above first. Right after, you'll be invited to draw the feeling it gives you. 💜</p>
+        </div>`}
+      </div>` : `
       <!-- Always Active Art Creator Hub -->
       <div class="art-creator-hub" style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
         <div class="art-choice-card draw-choice" id="draw-btn" role="button" tabindex="0" style="cursor:pointer">
@@ -3632,7 +3665,7 @@ function artDetail(a, tab) {
           <p style="font-size:12px;color:rgba(255,255,255,0.85);margin:0 0 8px">Take a picture of paintings, crafts, nature collages, or drawings made with physical materials.</p>
           <button class="btn btn-outline btn-block" style="pointer-events:none">Upload / Snap Photo 📷</button>
         </div>
-      </div>
+      </div>`}
 
       <div class="act-foot-btns" style="padding:0;justify-content:flex-end">
         <button class="btn btn-primary" data-go="reflections">Reflect</button>
@@ -3923,7 +3956,7 @@ function artDetail(a, tab) {
 
 /* ── Draw on your device ─────────────────────────────────── */
 async function openBeatStudio(a) {
-  try { await ensureModule('MMBeat', './js/beat.js?v=3.4.0'); } catch (e) { return toast('Beat studio could not open — check your connection 💜'); }
+  try { await ensureModule('MMBeat', './js/beat.js?v=3.5.0'); } catch (e) { return toast('Beat studio could not open — check your connection 💜'); }
   const st = actState(a.id);
   if (!st || typeof MMBeat === 'undefined') return;
   if (typeof MMVoice !== 'undefined' && MMVoice.pause) MMVoice.pause();
@@ -3949,6 +3982,7 @@ async function openBeatStudio(a) {
       confetti();
       artDetail(a, 'pictures');
       setTimeout(() => toast('🥁 ' + meta.feedback, 5200), 300);
+      setTimeout(() => toast('Now — draw how this beat makes you feel 🎨', 4200), 5700);
     },
   });
 }
