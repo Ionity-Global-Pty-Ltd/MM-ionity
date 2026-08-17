@@ -681,19 +681,33 @@ const Predict = (() => {
 
 /* ── Dynamic On-Demand Subsystem Module Loader ───────────── */
 const _loadedModules = new Set();
+const _loadingPromises = new Map();
 async function ensureModule(name, src) {
-  if (_loadedModules.has(name) || (typeof window[name] !== 'undefined')) {
+  if (_loadedModules.has(name) || (typeof window[name] !== 'undefined' && !window[name].__isProxy)) {
     _loadedModules.add(name);
     return true;
   }
-  return new Promise((resolve, reject) => {
+  if (_loadingPromises.has(name)) {
+    return _loadingPromises.get(name);
+  }
+  const p = new Promise((resolve) => {
     const s = document.createElement('script');
     s.src = src;
     s.async = true;
-    s.onload = () => { _loadedModules.add(name); resolve(true); };
-    s.onerror = err => { console.warn('Dynamic module load fallback:', src, err); resolve(false); };
+    s.onload = () => {
+      _loadedModules.add(name);
+      _loadingPromises.delete(name);
+      resolve(true);
+    };
+    s.onerror = (err) => {
+      console.warn('Dynamic module load fallback:', src, err);
+      _loadingPromises.delete(name);
+      resolve(false);
+    };
     document.head.appendChild(s);
   });
+  _loadingPromises.set(name, p);
+  return p;
 }
 
 /* ── Stop inactive background animation loops & engines ──── */
@@ -706,26 +720,31 @@ function teardownActiveEngines() {
 }
 
 /* ── Lazy Module Proxy Bridges ───────────────────────────── */
-if (typeof window.MMVideo === 'undefined') {
+if (typeof window.MMVideo === 'undefined' || window.MMVideo.__isProxy) {
   window.MMVideo = {
+    __isProxy: true,
     playVideoModal: async (key, opts = {}) => {
       try {
-        await ensureModule('MMVideo', './js/video.js?v=3.4.0');
-        if (typeof window.MMVideo !== 'undefined' && window.MMVideo.playVideoModal) {
+        const ok = await ensureModule('MMVideo', './js/video.js?v=3.4.0');
+        if (ok && typeof window.MMVideo !== 'undefined' && !window.MMVideo.__isProxy && window.MMVideo.playVideoModal) {
           window.MMVideo.playVideoModal(key, opts);
+        } else {
+          console.warn('[MojaMind] MMVideo module could not be initialized');
         }
       } catch (e) {
         console.warn('[MojaMind] video failed to open:', e);
         try { toast('The guide video could not open — you can start the activity directly 💜'); } catch (_) {}
       }
-    }
+    },
+    stop: () => {}
   };
 }
-if (typeof window.MMSoundscape === 'undefined') {
+if (typeof window.MMSoundscape === 'undefined' || window.MMSoundscape.__isProxy) {
   window.MMSoundscape = {
+    __isProxy: true,
     toggle: async () => {
       await ensureModule('MMSoundscape', './js/soundscape.js?v=2.8.2');
-      if (typeof window.MMSoundscape !== 'undefined' && window.MMSoundscape.toggle) {
+      if (typeof window.MMSoundscape !== 'undefined' && !window.MMSoundscape.__isProxy && window.MMSoundscape.toggle) {
         window.MMSoundscape.toggle();
       }
     },
@@ -733,11 +752,12 @@ if (typeof window.MMSoundscape === 'undefined') {
     stop: () => {}
   };
 }
-if (typeof window.MMPortfolio === 'undefined') {
+if (typeof window.MMPortfolio === 'undefined' || window.MMPortfolio.__isProxy) {
   window.MMPortfolio = {
+    __isProxy: true,
     showPortfolioModal: async () => {
       await ensureModule('MMPortfolio', './js/portfolio.js?v=2.8.2');
-      if (typeof window.MMPortfolio !== 'undefined' && window.MMPortfolio.showPortfolioModal) {
+      if (typeof window.MMPortfolio !== 'undefined' && !window.MMPortfolio.__isProxy && window.MMPortfolio.showPortfolioModal) {
         window.MMPortfolio.showPortfolioModal();
       }
     }
