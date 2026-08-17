@@ -3146,13 +3146,44 @@ function stopVoiceCapture(silent = true) {
 
 async function startVoiceCapture(a, st, ui) {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  MMVoice.pause(); // recording a voice note always wins the microphone
-  let stream;
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  } catch {
-    return toast('Microphone access is needed for voice notes — check your permissions 🎤');
+    if (typeof MMVoice !== 'undefined' && typeof MMVoice.pause === 'function') MMVoice.pause();
+    else if (typeof MMVoice !== 'undefined' && typeof MMVoice.stop === 'function') MMVoice.stop();
+  } catch (_) { /* noop */ }
+
+  let stream = null;
+  try {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } else if (navigator.getUserMedia) {
+      stream = await new Promise((res, rej) => navigator.getUserMedia({ audio: true }, res, rej));
+    } else if (navigator.webkitGetUserMedia) {
+      stream = await new Promise((res, rej) => navigator.webkitGetUserMedia({ audio: true }, res, rej));
+    } else {
+      throw new Error('Microphone API not available');
+    }
+  } catch (err) {
+    console.warn('[MojaMind] Microphone access error:', err);
+    modal(`
+      <div style="text-align:left;color:#ffffff">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:24px">🎙️</span>
+          <h3 style="margin:0;font-size:16px;font-weight:800;color:#ffffff">Microphone Access Needed</h3>
+        </div>
+        <p style="font-size:13px;line-height:1.55;color:rgba(255,255,255,0.9);margin:0 0 14px">
+          To record your voice notes, your browser needs microphone permission:
+        </p>
+        <div style="background:rgba(255,255,255,0.08);border-radius:12px;padding:12px;font-size:12.5px;line-height:1.6;margin-bottom:16px">
+          1. Tap the <b>lock icon 🔒</b> or <b>site settings</b> in your browser address bar.<br>
+          2. Change <b>Microphone</b> to <b>Allow</b>.<br>
+          3. Reload the page and tap the record button again.
+        </div>
+        <button class="btn btn-primary btn-block" onclick="closeModal()">Got It 👍</button>
+      </div>
+    `);
+    return null;
   }
+
   const mime = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'].find(t => window.MediaRecorder && MediaRecorder.isTypeSupported(t)) || '';
   const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
   voiceCap = { rec, stream, chunks: [], transcript: '', finalT: '', timer: null, startedAt: Date.now(), recog: null };
@@ -3166,7 +3197,13 @@ async function startVoiceCapture(a, st, ui) {
     const reader = new FileReader();
     reader.onload = () => {
       st.voice = st.voice || [];
-      (st.voice = Array.isArray(st.voice) ? st.voice : []).push({ src: reader.result, transcript: (cap.finalT + ' ' + cap.transcript).replace(/\s+/g, ' ').trim(), dur, at: Date.now() });
+      (st.voice = Array.isArray(st.voice) ? st.voice : []).push({
+        title: `Voice note ${st.voice.length + 1}`,
+        src: reader.result,
+        transcript: (cap.finalT + ' ' + cap.transcript).replace(/\s+/g, ' ').trim(),
+        dur,
+        at: Date.now()
+      });
       save();
       toast('Voice note saved 🎤');
       artDetail(a, 'voice');
@@ -3594,20 +3631,25 @@ function artDetail(a, tab) {
         </div>
       </div>
       ${voice.length ? voice.map((v, i) => `
-        <div class="voice-note">
-          <div class="vn-head">
-            <span class="vn-ic">${I.mic}</span>
-            <b>Voice note ${i + 1}</b>
-            <small>${v.dur ? `${Math.floor(v.dur / 60)}:${String(v.dur % 60).padStart(2, '0')} · ` : ''}${new Date(v.at).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short' })}</small>
-            <button class="del vn-del" data-vdel="${i}" aria-label="Delete voice note">${I.x}</button>
+        <div class="voice-note" style="background:rgba(255,255,255,0.06);border:1.5px solid rgba(51,102,255,0.35);border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:0 4px 14px rgba(0,0,0,0.3)">
+          <div class="vn-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px">
+            <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
+              <span class="vn-ic" style="color:#ffd166">${I.mic}</span>
+              <b class="vn-title" style="font-size:13.5px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(v.title || `Voice note ${i + 1}`)}</b>
+              <button class="btn btn-ghost btn-xs vn-rename" data-vrename="${i}" title="Rename voice note" style="padding:2px 7px;font-size:11px;border-radius:6px;border:1px solid rgba(255,209,102,0.4);color:#ffd166">✏️ Rename</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <small style="font-size:11px;color:rgba(255,255,255,0.7)">${v.dur ? `${Math.floor(v.dur / 60)}:${String(v.dur % 60).padStart(2, '0')} · ` : ''}${new Date(v.at).toLocaleDateString('en-ZA', { day: 'numeric', month: 'short' })}</small>
+              <button class="del vn-del" data-vdel="${i}" aria-label="Delete voice note">${I.x}</button>
+            </div>
           </div>
-          <audio controls preload="metadata" src="${v.src}"></audio>
+          <audio controls preload="metadata" src="${v.src}" style="width:100%;margin-bottom:6px"></audio>
           ${v.transcript ? `
-            <div class="vn-transcript">
-              <small>${I.sparkle} AI transcript (read on this device)</small>
-              <p>${esc(v.transcript)}</p>
-              <button class="btn btn-ghost vn-use" data-vuse="${i}">Use in reflections</button>
-            </div>` : '<p class="vn-none">No transcript was captured for this note.</p>'}
+            <div class="vn-transcript" style="background:rgba(0,0,0,0.25);border-radius:10px;padding:10px;margin-top:6px">
+              <small style="color:#93c5fd;font-weight:700;display:block;margin-bottom:4px">${I.sparkle} AI transcript (read on this device)</small>
+              <p style="margin:0 0 8px;font-size:12.5px;color:rgba(255,255,255,0.9)">${esc(v.transcript)}</p>
+              <button class="btn btn-ghost btn-sm vn-use" data-vuse="${i}">Use in reflections ✍️</button>
+            </div>` : '<p class="vn-none" style="font-size:12px;color:rgba(255,255,255,0.6);margin:4px 0 0">No transcript captured for this note.</p>'}
         </div>`).join('') : `<div class="info-card"><p class="empty-note">No voice notes yet — your voice matters, whenever you’re ready. 🎤</p></div>`}
       <div class="act-foot-btns" style="padding:0">
         <button class="btn btn-primary" data-go="reflections" style="min-width:150px">Reflect</button>
@@ -3733,6 +3775,47 @@ function artDetail(a, tab) {
       if (!voiceCap) { recBtn.classList.remove('rec-on'); recBtn.innerHTML = I.mic; }
     });
   }
+
+  /* Voice note rename wiring */
+  app.querySelectorAll('[data-vrename]').forEach(b => b.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const idx = +b.dataset.vrename;
+    const curr = st.voice[idx]?.title || `Voice note ${idx + 1}`;
+    const m = modal(`
+      <div style="text-align:left;color:#ffffff">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <span style="font-size:22px">✏️</span>
+          <h3 style="margin:0;font-size:16px;font-weight:800;color:#ffffff">Rename Voice Note</h3>
+        </div>
+        <p style="font-size:12.5px;color:rgba(255,255,255,0.85);margin:0 0 12px">
+          Give your voice recording a meaningful title or description:
+        </p>
+        <input type="text" id="rename-vn-input" value="${esc(curr)}" maxlength="60" style="width:100%;box-sizing:border-box;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,0.1);border:1.5px solid #3366FF;color:#fff;font-size:14px;outline:none;margin-bottom:16px" placeholder="e.g. My Morning Reflection" />
+        <div class="modal-btns" style="display:flex;gap:8px">
+          <button class="btn btn-primary" id="save-rename-btn" style="flex:1">Save Title 💾</button>
+          <button class="btn btn-ghost" id="cancel-rename-btn" style="flex:0 0 90px">Cancel</button>
+        </div>
+      </div>
+    `);
+    const input = m?.querySelector('#rename-vn-input');
+    input?.focus();
+    input?.select();
+    const doSave = () => {
+      const val = (input?.value || '').trim();
+      if (val && st.voice[idx]) {
+        st.voice[idx].title = val;
+        save();
+        toast('Voice note renamed ✍️');
+        closeModal();
+        artDetail(a, 'voice');
+      } else {
+        closeModal();
+      }
+    };
+    m?.querySelector('#save-rename-btn')?.addEventListener('click', doSave);
+    m?.querySelector('#cancel-rename-btn')?.addEventListener('click', () => closeModal());
+    input?.addEventListener('keydown', ev => { if (ev.key === 'Enter') doSave(); });
+  }));
 
   app.querySelectorAll('[data-vdel]').forEach(b => b.addEventListener('click', () => {
     st.voice.splice(+b.dataset.vdel, 1); save();

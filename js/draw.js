@@ -118,6 +118,10 @@ const MMDraw = (() => {
               <button class="draw-tool-tab" data-brush="oil" title="3D Viscous Impasto Oil Paint">🎨 Oil</button>
               <button class="draw-tool-tab" data-brush="neon" title="3D Luminous Glowing Laser">⚡ Neon</button>
               <button class="draw-tool-tab" data-brush="rainbow" title="Rainbow Chromatic Trail">🌈 Rainbow</button>
+              <button class="draw-tool-tab" data-brush="marker" title="Translucent Highlighter Marker">🖊️ Marker</button>
+              <button class="draw-tool-tab" data-brush="watercolor" title="Soft Layered Watercolour Wash">🌊 Watercolour</button>
+              <button class="draw-tool-tab" data-brush="chalk" title="Grainy Chalk &amp; Pastel">🖍️ Chalk</button>
+              <button class="draw-tool-tab" data-brush="glitter" title="Sparkly Multi-colour Glitter">🌟 Glitter</button>
               <button class="draw-tool-tab draw-feat-tab" id="draw-add-text-btn" title="Add Custom Typography">🔤 Add Text</button>
               <button class="draw-tool-tab draw-feat-tab" id="draw-add-sticker-btn" title="Add Photo or Themed Sticker">🖼️ Stickers</button>
             </div>
@@ -338,6 +342,82 @@ const MMDraw = (() => {
         return;
       }
 
+      // Marker / Highlighter — translucent flat wash
+      if (item.brushType === 'marker' && !item.erase) {
+        ctx.save();
+        ctx.globalAlpha = 0.3;
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.strokeStyle = item.colour;
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        for (let i = 1; i < item.points.length; i++) {
+          const a = item.points[i - 1], b = item.points[i];
+          ctx.lineWidth = item.size * 1.9;
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        }
+        ctx.restore();
+        return;
+      }
+
+      // Watercolour — soft layered translucent passes that blend
+      if (item.brushType === 'watercolor' && !item.erase) {
+        ctx.save();
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        ctx.strokeStyle = item.colour;
+        for (let pass = 0; pass < 3; pass++) {
+          ctx.globalAlpha = 0.1;
+          for (let i = 1; i < item.points.length; i++) {
+            const a = item.points[i - 1], b = item.points[i];
+            ctx.lineWidth = item.size * (1.1 + pass * 0.6) * (0.6 + (a.p + b.p) / 2);
+            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+          }
+        }
+        ctx.restore();
+        return;
+      }
+
+      // Chalk / Pastel — grainy scattered specks along the path
+      if (item.brushType === 'chalk' && !item.erase) {
+        ctx.save();
+        ctx.fillStyle = item.colour;
+        for (let i = 1; i < item.points.length; i++) {
+          const a = item.points[i - 1], b = item.points[i];
+          const dist = Math.hypot(b.x - a.x, b.y - a.y);
+          const steps = Math.max(1, dist / 2);
+          const spread = item.size * 0.7;
+          for (let s = 0; s <= steps; s++) {
+            const t = s / steps, x = a.x + (b.x - a.x) * t, y = a.y + (b.y - a.y) * t;
+            for (let k = 0; k < 3; k++) {
+              ctx.globalAlpha = 0.1 + Math.random() * 0.22;
+              ctx.beginPath();
+              ctx.arc(x + (Math.random() - 0.5) * spread, y + (Math.random() - 0.5) * spread, Math.max(0.6, item.size * 0.1), 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+        }
+        ctx.restore();
+        return;
+      }
+
+      // Glitter — sparkly multi-colour trail
+      if (item.brushType === 'glitter' && !item.erase) {
+        ctx.save();
+        ctx.lineCap = 'round';
+        for (let i = 1; i < item.points.length; i++) {
+          const a = item.points[i - 1], b = item.points[i];
+          ctx.globalAlpha = 0.45; ctx.strokeStyle = item.colour; ctx.lineWidth = item.size * 0.5;
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+          for (let k = 0; k < 2; k++) {
+            ctx.globalAlpha = 0.7 + Math.random() * 0.3;
+            ctx.fillStyle = `hsl(${(Math.random() * 360) | 0}, 95%, 66%)`;
+            ctx.beginPath();
+            ctx.arc(b.x + (Math.random() - 0.5) * item.size, b.y + (Math.random() - 0.5) * item.size, Math.max(0.7, item.size * 0.16 * Math.random() + 0.5), 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        ctx.restore();
+        return;
+      }
+
       // Standard Smooth Brush & Rainbow
       ctx.save();
       ctx.lineCap = 'round';
@@ -421,6 +501,15 @@ const MMDraw = (() => {
 
     cv.addEventListener('pointerdown', e => {
       e.preventDefault();
+      // Placement mode: tap the canvas to position the pending text/photo,
+      // then press "Stamp Here". Drawing is suspended while placing.
+      if (placementItem) {
+        const p = pointOf(e);
+        placementItem.x = p.x;
+        placementItem.y = p.y;
+        updatePlacementPosition();
+        return;
+      }
       cv.setPointerCapture(e.pointerId);
       isDrawing = true;
       redoStack = [];
@@ -763,6 +852,11 @@ const MMDraw = (() => {
     /* ── Interactive Canvas Placement Mode ───────────────────── */
     function startPlacement(item) {
       placementItem = item;
+      // Position in canvas-CSS space (matches pointOf + paintItem) so the
+      // preview and the final stamp land in exactly the same spot.
+      const cb = cv.getBoundingClientRect();
+      item.x = cb.width / 2;
+      item.y = cb.height / 2;
       placementBox.classList.remove('hidden');
 
       if (item.type === 'text') {
@@ -802,9 +896,9 @@ const MMDraw = (() => {
 
     placementBox.addEventListener('pointermove', e => {
       if (!isDraggingPlacement || !placementItem) return;
-      const stageRect = stage.getBoundingClientRect();
-      placementItem.x = e.clientX - stageRect.left - dragOffset.x;
-      placementItem.y = e.clientY - stageRect.top - dragOffset.y;
+      const cvRect = cv.getBoundingClientRect();
+      placementItem.x = e.clientX - cvRect.left - dragOffset.x;
+      placementItem.y = e.clientY - cvRect.top - dragOffset.y;
       updatePlacementPosition();
     });
 
