@@ -3558,12 +3558,26 @@ function artDetail(a, tab) {
           <p>Lock your milestone into your AES-256 vault.</p>
         </div>
       </div>
-      <div class="info-card">
+      <!-- Step 1: Guided Video Inspiration First -->
+      <div class="info-card" style="background:linear-gradient(135deg,rgba(51,102,255,0.18),rgba(138,46,174,0.24));border:1.5px solid rgba(51,102,255,0.6);box-shadow:0 8px 24px rgba(0,0,0,0.35);padding:16px;border-radius:18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:11px;font-weight:800;letter-spacing:1px;background:linear-gradient(135deg,#3366ff,#f3256b);color:#fff;padding:3px 8px;border-radius:6px">STEP 1 · GUIDED VIDEO</span>
+          <span style="font-size:12px;color:#ffd166;font-weight:700">🎬 432Hz Audio &amp; Visuals</span>
+        </div>
+        <h3 style="margin:0 0 4px;font-size:15px;color:#ffffff;font-weight:800">${esc(a.name)} — Video Inspiration</h3>
+        <p style="font-size:12.5px;color:rgba(255,255,255,0.85);margin:0 0 12px;line-height:1.5">Watch the guided grounding metaphor, music, and inspiration video first before beginning your creation.</p>
+        <button class="video-btn" id="play-video" style="width:100%;margin:0;box-shadow:0 6px 20px rgba(51,102,255,0.45)"><span class="play">${I.play}</span>${videoOpts ? `Play Option ${st.option + 1} Video First ▶` : 'Play Video First ▶'}</button>
+      </div>
+
+      <!-- Step 2: Step-by-Step Written Instructions -->
+      <div class="info-card" style="margin-top:10px">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+          <span style="font-size:11px;font-weight:800;letter-spacing:1px;background:rgba(255,255,255,0.15);color:#fff;padding:3px 8px;border-radius:6px">STEP 2 · INSTRUCTIONS</span>
+        </div>
         <div style="display:flex;flex-direction:column;gap:14px">
           ${a.startHere.map(([b, t]) => `
             <div class="step-li"><span class="pen">${I.pencil}</span><p><b>${esc(b)}</b> ${esc(t)}</p></div>`).join('')}
         </div>
-        <button class="video-btn" id="play-video"><span class="play">${I.play}</span>${videoOpts ? `Watch: Option ${st.option + 1} inspiration video` : 'Play Video'}</button>
       </div>
       ${kind && kind.key === 'write' ? `
       <div class="info-card">
@@ -4145,11 +4159,15 @@ function visionModal(vision) {
   // Wire up audio read aloud
   document.getElementById('vision-read-aloud-btn')?.addEventListener('click', () => {
     const speechText = `${arch.title}. ${arch.headline}. ${vision.feedback.replace(/\n\n/g, ' ')}`;
-    if ('speechSynthesis' in window) {
+    if (typeof MMVoice !== 'undefined' && MMVoice.speak) {
+      MMVoice.speak(speechText, { force: true, persona: 'warmth' });
+      toast('Reading Moja Vision aloud with African voice 🔊', 2000);
+    } else if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(speechText);
-      u.rate = 0.95;
-      u.pitch = 1.0;
+      u.rate = 0.94;
+      u.pitch = 0.98;
+      u.lang = 'en-ZA';
       window.speechSynthesis.speak(u);
       toast('Reading Moja Vision aloud 🔊', 2000);
     } else {
@@ -4926,11 +4944,12 @@ routes.gamemerge = async () => {
 
       <div class="merge-frame">
         <canvas id="merge-canvas" aria-label="Moja Merge Physics Drop Canvas"></canvas>
-        <div class="merge-controls-overlay">
-          <button class="merge-action-btn" id="merge-wind-btn" title="Shake / Nudge the board">🌬️ Wind Gust</button>
-          <button class="merge-action-btn" id="merge-zap-btn" title="Vaporize 1 item">⚡ Spark Zap</button>
-          <button class="merge-action-btn" id="merge-restart-btn" title="Restart Game">🔄 Reset</button>
-        </div>
+      </div>
+
+      <div class="merge-controls-dock">
+        <button class="merge-action-btn" id="merge-wind-btn" title="Shake / Nudge the board">🌬️ Wind Gust</button>
+        <button class="merge-action-btn" id="merge-zap-btn" title="Vaporize 1 item">⚡ Spark Zap</button>
+        <button class="merge-action-btn" id="merge-restart-btn" title="Restart Game">🔄 Reset</button>
       </div>
 
       <div class="merge-actions" style="display:flex;gap:8px;margin-top:8px">

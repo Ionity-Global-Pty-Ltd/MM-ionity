@@ -32,41 +32,39 @@ const MMVoice = (() => {
   let restartTimer = null;
   let onStateChange = null;
   let lastHeard = '';
-  let ac = null;
-
-  // Piper Personas & Acoustic Tuning
+  // African Female Voice Personas & Acoustic Tuning
   const PIPER_PERSONAS = {
     warmth: {
-      name: 'Piper Warmth (Calm & Empathetic)',
+      name: 'Thandi (Warm African Sisterhood & Care)',
       icon: '🌱',
-      rate: 0.94,
+      rate: 0.93,
       pitch: 0.98,
       volume: 1.0,
-      desc: 'Gentle, compassionate cadence tuned for healing and mindfulness.',
+      desc: 'Warm, grounded, compassionate South African cadence tuned for healing and mindfulness.',
     },
     clarity: {
-      name: 'Piper Clarity (Crisp & Articulate)',
+      name: 'Nomsa (Crisp Study Guide & Navigation)',
       icon: '✨',
-      rate: 1.00,
+      rate: 0.98,
       pitch: 1.00,
       volume: 1.0,
-      desc: 'Clear, balanced enunciation for navigation and instructions.',
+      desc: 'Clear, articulate enunciation for survey guidance, activities, and instructions.',
     },
     hope: {
-      name: 'Piper Hope (Bright & Uplifting)',
+      name: 'Leah (Bright & Radiant Affirmation)',
       icon: '🌟',
-      rate: 0.96,
-      pitch: 1.03,
+      rate: 0.95,
+      pitch: 1.02,
       volume: 1.0,
-      desc: 'Radiant, encouraging tone for affirmations and daily sparks.',
+      desc: 'Uplifting, radiant energy for Daily Sparks, constellations, and milestones.',
     },
     soothing: {
-      name: 'Piper Soft (Gentle Reflection)',
+      name: 'Zola (Evening Calm & Reflection)',
       icon: '🌙',
       rate: 0.88,
       pitch: 0.95,
       volume: 0.95,
-      desc: 'Slow, peaceful whisper-soft tempo for evening journaling.',
+      desc: 'Peaceful, grounding whisper-soft tempo for evening journaling and breathing.',
     },
   };
 
@@ -82,8 +80,8 @@ const MMVoice = (() => {
     if (!S.ai.voice) {
       S.ai.voice = {
         persona: 'warmth',
-        speed: 0.95,
-        pitch: 0.99,
+        speed: 0.94,
+        pitch: 0.98,
         whisperModel: 'tiny',
         chime: true,
       };
@@ -115,7 +113,7 @@ const MMVoice = (() => {
     } catch { /* audio safeguard */ }
   }
 
-  /* ── Piper Neural Voice Discovery & Ranking ─────────────── */
+  /* ── African Female Neural Voice Discovery & Ranking ─────── */
   let cachedVoices = [];
   let bestVoice = null;
 
@@ -138,24 +136,29 @@ const MMVoice = (() => {
     if (!cachedVoices.length && synth) cachedVoices = synth.getVoices() || [];
     if (!cachedVoices.length) return null;
 
-    // Preference scoring for natural, high-bitrate neural voices
+    // Preference scoring for natural, high-quality African female voices
     const scoreVoice = v => {
       let score = 0;
       const n = (v.name + ' ' + (v.voiceURI || '')).toLowerCase();
       const lang = (v.lang || '').toLowerCase();
 
-      // Highest priority: Natural / Neural / Online voices
-      if (/natural|neural|online|enhanced|premium|piper/i.test(n)) score += 100;
-      if (/jenny|sonia|aria|libby|ryan|samantha|karen|serena|moira|tessa/i.test(n)) score += 50;
-      if (/google/i.test(n)) score += 40;
+      // Top tier #1: South African English female neural voices (Leah, Google en-ZA, etc.)
+      if (/leah|en-za-leahneural/i.test(n)) score += 600;
+      if (/ezinne|asilia|blessing|thando|ayanda|nomsa|nandi|lerato|zola/i.test(n)) score += 500;
+      if (lang === 'en-za' || lang.startsWith('en-za')) score += 400;
+      if (lang === 'en-ng' || lang === 'en-ke' || lang === 'en-gh') score += 350;
+      if (/south africa|african|nigeria|kenya/i.test(n)) score += 300;
 
-      // Locale matching (South Africa, UK, US natural)
-      if (lang === 'en-za' || lang.startsWith('en-za')) score += 30;
-      else if (lang === 'en-gb' || lang.startsWith('en-gb')) score += 25;
-      else if (lang === 'en-us' || lang.startsWith('en-us')) score += 20;
+      // Female voice indicators
+      if (/female|woman|girl|natural|online|neural|enhanced|premium/i.test(n)) score += 80;
+      if (/google/i.test(n) && (lang === 'en-za' || lang.startsWith('en-za'))) score += 150;
 
-      // Penalize robotic / legacy mono-pitch synths
-      if (/espeak|desktop|microsoft david|microsoft zira|microsoft mark/i.test(n)) score -= 60;
+      // Fallbacks if no en-ZA on device: British / Commonwealth warm female
+      if (lang === 'en-gb' || lang.startsWith('en-gb')) score += 50;
+      if (/sonia|aria|libby|samantha|karen|serena|moira|tessa/i.test(n)) score += 30;
+
+      // Penalize robotic / legacy male mono-pitch synths
+      if (/espeak|desktop|microsoft david|microsoft mark|george|male/i.test(n)) score -= 120;
       return score;
     };
 
@@ -164,12 +167,20 @@ const MMVoice = (() => {
     return bestVoice;
   }
 
-  /* ── Phonetic & Pronunciation Cleaner ───────────────────── */
+  /* ── African Phonetic & Pronunciation Dictionary ────────── */
   function cleanPhonetics(text) {
     if (!text) return '';
     let s = String(text);
 
-    // Expand technical abbreviations into natural spoken English
+    // African names, greetings & study terminology
+    s = s.replace(/\bMojaMind\b/gi, 'Moh-jah Mind');
+    s = s.replace(/\bMojoMind\b/gi, 'Moh-jah Mind');
+    s = s.replace(/\bUbuntu\b/gi, 'Oo-boon-too');
+    s = s.replace(/\bIthemba\b/gi, 'Ee-tem-ba');
+    s = s.replace(/\bSawubona\b/gi, 'Sah-woo-boh-nah');
+    s = s.replace(/\bDumela\b/gi, 'Doo-meh-lah');
+    s = s.replace(/\bStellenbosch\b/gi, 'Stell-en-bosh');
+    s = s.replace(/\bGilead\b/gi, 'Gill-ee-ad');
     s = s.replace(/\bSHOUT-IT-NOW\b/gi, 'Shout It Now');
     s = s.replace(/\bAES-GCM\b/gi, 'A E S G C M');
     s = s.replace(/\bAEDI\b/gi, 'Ay Dee');
@@ -632,6 +643,6 @@ const MMVoice = (() => {
   return {
     supported, configure, start, stop, toggle, pause, resume,
     isOn, isPaused, speak, shush, readAloud, helpList, match,
-    voiceStudioModal, getVoiceSettings, AcousticBio,
+    voiceStudioModal, getVoiceSettings, AcousticBio, findBestNeuralVoice,
   };
 })();

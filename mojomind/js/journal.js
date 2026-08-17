@@ -162,8 +162,12 @@ const MMJournal = (() => {
     // Clean markdown tags or bracketed attachments
     const clean = text.replace(/\[.*?\]/g, '').trim();
     const utter = new SpeechSynthesisUtterance(clean);
-    utter.rate = 0.95;
-    utter.pitch = 1.0;
+    if (typeof MMVoice !== 'undefined' && MMVoice.findBestNeuralVoice) {
+      const v = MMVoice.findBestNeuralVoice();
+      if (v) utter.voice = v;
+    }
+    utter.rate = 0.94;
+    utter.pitch = 0.98;
     utter.lang = 'en-ZA';
 
     utter.onend = () => {
