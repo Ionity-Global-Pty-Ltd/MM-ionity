@@ -994,6 +994,54 @@ const MMVideo = (() => {
     removeFloatingWidget();
     cancelAnimationFrame(animRaf);
 
+    /* ── SAFE LIGHTWEIGHT GUIDE (no canvas / no animation loop) ──────────
+       The old 60fps "motion studio" canvas stalled and crashed budget
+       phones, so we render a calm, static guide instead. If a real video
+       clip exists it plays with plain controls (no autoplay); otherwise we
+       show the written narration. This path has zero requestAnimationFrame
+       and cannot stall the device. */
+    {
+      const narr = Array.isArray(script.narrations) ? script.narrations : [];
+      const guideText = narr.map(n => `<p style="margin:0 0 10px">${esc(n)}</p>`).join('');
+      const realVideo = !!script.videoSrc;
+      const m = modal(`
+        <div class="video-modal-wrap" style="color:#fff;text-align:left">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px">
+            <span style="font-weight:800;font-size:15px">${esc(script.title || 'Guide')}</span>
+            <span style="font-size:11px;font-weight:700;background:linear-gradient(135deg,#3366FF,#8a2eae);color:#fff;padding:3px 8px;border-radius:6px">🎬 Guide</span>
+          </div>
+          ${realVideo ? `
+            <video src="${script.videoSrc}" playsinline controls preload="none"
+              onerror="var f=this.nextElementSibling; if(f)f.style.display='block'; this.style.display='none';"
+              style="width:100%;height:auto;aspect-ratio:16/9;border-radius:14px;background:#000;display:block"></video>
+            <div style="display:none;padding:16px;border-radius:14px;background:rgba(255,255,255,.06);font-size:13px;line-height:1.6;margin-top:2px">
+              <div style="font-size:28px;text-align:center">🎬</div>
+              <p style="margin:6px 0 0;text-align:center">This guide video isn't available offline yet — you can start the activity right away below. 💜</p>
+            </div>
+          ` : `
+            <div style="max-height:46dvh;overflow:auto;padding:16px;border-radius:14px;background:rgba(255,255,255,.06);font-size:13.5px;line-height:1.65">
+              ${guideText || '<p>Take a slow breath, and begin when you feel ready. 💜</p>'}
+            </div>
+          `}
+          <p style="font-size:12px;color:rgba(255,255,255,.72);margin:10px 0 12px">${esc(script.subtitle || '')}</p>
+          <div class="modal-btns" style="display:flex;gap:8px">
+            <button class="btn btn-primary" id="vid-start-btn" style="flex:1;font-weight:800">Start Creating 🎨</button>
+            <button class="btn btn-ghost" id="vid-close-btn" style="flex:0 0 96px">Close</button>
+          </div>
+        </div>
+      `);
+      // Optional gentle narration of the first line (guarded — never fatal).
+      try {
+        if (typeof MMVoice !== 'undefined' && MMVoice.supported() && narr[0]) {
+          MMVoice.speak(narr[0], { persona: 'warmth', force: true });
+        }
+      } catch (_) { /* narration is optional */ }
+      const close = () => { try { stopVideo(); } catch (_) {} closeModal(); };
+      m.querySelector('#vid-start-btn')?.addEventListener('click', () => { close(); try { opts.onStart && opts.onStart(); } catch (_) {} });
+      m.querySelector('#vid-close-btn')?.addEventListener('click', close);
+      return; // never fall through to the heavy motion-studio path
+    }
+
     const hasRealVideo = !!script.videoSrc;
     // Default to the new rich Cinematic Motion Studio
     let useMotionStudio = true;
