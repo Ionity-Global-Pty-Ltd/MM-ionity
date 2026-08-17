@@ -1002,6 +1002,14 @@ document.addEventListener('click', e => {
   if (!vsBtn) return;
   e.preventDefault();
   const act = vsBtn.dataset.vs;
+  if (act === 'gear') {
+    const sb = $('#vertical-sidebar');
+    const open = sb?.classList.toggle('settings-open');
+    vsBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    return;
+  }
+  // Selecting any setting closes the gear group again for a tidy rail
+  $('#vertical-sidebar')?.classList.remove('settings-open');
   if (act === 'soundscape') {
     if (typeof MMSoundscape !== 'undefined' && MMSoundscape.showModal) MMSoundscape.showModal();
   } else if (act === 'voice') {
