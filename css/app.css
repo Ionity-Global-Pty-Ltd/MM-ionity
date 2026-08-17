@@ -1772,6 +1772,24 @@ body::after {
 .vertical-sidebar.settings-open .vs-gear-btn .vs-icon { transform: rotate(90deg); }
 .vs-gear-btn .vs-icon { transition: transform 0.3s ease; }
 
+/* Beat & Rhythm Studio */
+.beat-wrap { display:flex; flex-direction:column; gap:12px; width:100%; max-width:640px; margin:0 auto; padding:14px; color:#fff; }
+.beat-bar { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.beat-title { text-align:center; line-height:1.2; }
+.beat-title b { font-size:15px; } .beat-title small { display:block; font-size:11px; color:rgba(255,255,255,.7); }
+.beat-grid { display:flex; flex-direction:column; gap:8px; }
+.beat-row { display:flex; align-items:center; gap:8px; }
+.beat-lbl { width:60px; flex:0 0 60px; font-size:12px; font-weight:700; color:var(--c); }
+.beat-cells { display:grid; grid-template-columns:repeat(16,1fr); gap:3px; flex:1; }
+.beat-cell { aspect-ratio:1; border-radius:6px; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.05); cursor:pointer; transition:transform .08s, background .12s, box-shadow .12s; padding:0; }
+.beat-cell.beat-accent { border-color:rgba(255,255,255,.28); }
+.beat-cell.on { background:var(--c); box-shadow:0 0 10px var(--c); }
+.beat-cell.playhead { outline:2px solid #fff; outline-offset:1px; transform:scale(1.08); }
+.beat-controls { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+.beat-tempo { font-size:12px; color:rgba(255,255,255,.85); display:flex; align-items:center; gap:8px; }
+.beat-tempo input { accent-color:#43b0a8; }
+.beat-hint { font-size:12.5px; line-height:1.55; color:rgba(255,255,255,.85); text-align:center; margin:0; }
+
 /* Lively brush cursor — a soft glow that trails the pointer while drawing */
 .draw-brush-cursor {
   position: absolute; left: 0; top: 0;

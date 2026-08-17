@@ -1387,11 +1387,9 @@ routes.signin = () => {
         <button class="auth-back" id="f-back" aria-label="Back to welcome screen">${I.back}</button>
         <button class="auth-admin" id="f-admin">🎓 Admin login</button>
       </div>
-      <div class="auth-brand-lockup" style="flex-direction:column;align-items:center;gap:6px;margin-bottom:12px">
+      <div class="auth-brand-lockup" style="flex-direction:column;align-items:center;gap:4px;margin-bottom:12px">
         ${mojoLogoHTML(130)}
-        <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
-          <img src="./assets/branding/shout-it-now-logo.png" alt="SHOUT-IT-NOW" style="height:18px;width:auto" />
-        </div>
+        <p style="font-size:10.5px;letter-spacing:.3px;color:rgba(255,255,255,0.72);text-align:center;margin:4px 0 0;line-height:1.5">Powered by SHOUT-IT-NOW &amp; Stellenbosch University<br/>Made possible by Gilead</p>
       </div>
       <h1 class="auth-title">Mobile Number Sign In</h1>
       <div class="field">${I.phone}<input id="f-phone" type="text" placeholder="Mobile Number (Test ID: 007)" autocomplete="username" /></div>
@@ -3595,6 +3593,16 @@ function artDetail(a, tab) {
           <button class="btn btn-primary btn-block" style="pointer-events:none">Launch Drawing Studio 🎨</button>
         </div>
 
+        <div class="art-choice-card beat-choice" id="beat-btn" role="button" tabindex="0" style="cursor:pointer">
+          <div class="acc-head" style="display:flex;justify-content:space-between;align-items:center">
+            <span class="acc-badge" style="background:linear-gradient(135deg,#43b0a8,#8a2eae);color:#fff;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700">🥁 BEAT &amp; RHYTHM STUDIO</span>
+            <span class="acc-icon" style="font-size:20px">🎶</span>
+          </div>
+          <b style="display:block;margin:6px 0 2px;font-size:14px;color:#fff">Make a Beat — Your Song of Strength</b>
+          <p style="font-size:12px;color:rgba(255,255,255,0.85);margin:0 0 8px">Tap out a rhythm on the drum sequencer, play it back, and get gentle on-device rhythm insight. 100% offline.</p>
+          <button class="btn btn-primary btn-block" style="pointer-events:none;background:linear-gradient(135deg,#43b0a8,#8a2eae)">Open Beat Studio 🥁</button>
+        </div>
+
         <div class="art-choice-card photo-choice" id="upload-btn" role="button" tabindex="0" style="cursor:pointer">
           <div class="acc-head" style="display:flex;justify-content:space-between;align-items:center">
             <span class="acc-badge" style="background:linear-gradient(135deg,#3366ff,#00a651);color:#fff;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700">📷 PHYSICAL ARTWORK</span>
@@ -3721,6 +3729,7 @@ function artDetail(a, tab) {
   // Always active Draw and Upload event listeners
   $('#draw-btn')?.addEventListener('click', () => openDrawPad(a));
   $('#quick-draw-btn')?.addEventListener('click', () => openDrawPad(a));
+  $('#beat-btn')?.addEventListener('click', () => openBeatStudio(a));
   $('#upload-btn')?.addEventListener('click', () => $('#file-in').click());
   $('#file-in')?.addEventListener('change', async e => {
     const files = [...e.target.files].slice(0, 6);
@@ -3882,6 +3891,37 @@ function artDetail(a, tab) {
 }
 
 /* ── Draw on your device ─────────────────────────────────── */
+async function openBeatStudio(a) {
+  try { await ensureModule('MMBeat', './js/beat.js?v=3.4.0'); } catch (e) { return toast('Beat studio could not open — check your connection 💜'); }
+  const st = actState(a.id);
+  if (!st || typeof MMBeat === 'undefined') return;
+  if (typeof MMVoice !== 'undefined' && MMVoice.pause) MMVoice.pause();
+  const host = document.createElement('div');
+  host.className = 'draw-overlay';
+  host.setAttribute('role', 'dialog');
+  host.setAttribute('aria-modal', 'true');
+  host.setAttribute('aria-label', `Beat studio for ${a.name}`);
+  document.body.appendChild(host);
+  let studio;
+  const close = () => { try { studio && studio.stop && studio.stop(); } catch (_) {} host.remove(); if (typeof MMVoice !== 'undefined' && MMVoice.resume) MMVoice.resume(); };
+  studio = MMBeat.open(host, {
+    onClose: close,
+    onSave: (dataUrl, meta) => {
+      (st.uploads = Array.isArray(st.uploads) ? st.uploads : []).push({
+        src: dataUrl, kind: 'beat', at: Date.now(),
+        analysis: { feedback: meta.feedback, tempo: meta.tempo, density: meta.density, groove: meta.groove, analyzedAt: Date.now() },
+        beat: meta.pattern,
+      });
+      save();
+      try { window.MMSync?.record('activity-media', { id: a.id, kind: 'beat', tempo: meta.tempo, density: meta.density }); } catch (_) {}
+      close();
+      confetti();
+      artDetail(a, 'pictures');
+      setTimeout(() => toast('🥁 ' + meta.feedback, 5200), 300);
+    },
+  });
+}
+
 async function openDrawPad(a) {
   await ensureModule('MMDraw', './js/draw.js?v=2.8.2');
   const st = actState(a.id);
