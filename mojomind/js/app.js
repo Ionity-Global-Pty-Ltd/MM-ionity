@@ -358,6 +358,42 @@ function applyA11y() {
 function motionReduced() {
   return LOW_POWER || S.a11y?.reduceMotion || matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
+function languageModal() {
+  if (typeof MMI18n === 'undefined') return;
+  const cur = MMI18n.current();
+  const rows = MMI18n.LANGS.map(l => `
+    <button class="lang-row ${l.code === cur ? 'sel' : ''}" data-lang="${l.code}">
+      <span class="lang-native">${esc(l.native)}</span>
+      <span class="lang-en">${esc(l.en)}${l.draft ? ` · <em>${esc(MMI18n.t('lang.draft'))}</em>` : ''}</span>
+      ${l.code === cur ? '<span class="lang-check">✓</span>' : ''}
+    </button>`).join('');
+  const veil = modal(`
+    <div class="lang-modal">
+      <h3>🌍 ${esc(MMI18n.t('lang.title'))}</h3>
+      <p class="lang-sub">${esc(MMI18n.t('lang.subtitle'))}</p>
+      <div class="lang-list">${rows}</div>
+    </div>`);
+  veil.querySelectorAll('.lang-row').forEach(b => b.addEventListener('click', () => {
+    MMI18n.setLang(b.dataset.lang);
+    closeModal();
+    applySidebarI18n();
+    route();
+    toast(MMI18n.t('lang.saved'));
+  }));
+}
+
+/* Localise the static sidebar tooltips for the active language. */
+function applySidebarI18n() {
+  if (typeof MMI18n === 'undefined') return;
+  const map = { soundscape: 'tip.soundscape', voice: 'tip.voice', a11y: 'tip.a11y', care: 'tip.care', help: 'tip.help', spark: 'tip.spark', pixelthoughts: 'tip.release', language: 'tip.language' };
+  document.querySelectorAll('#vertical-sidebar [data-vs]').forEach(btn => {
+    const k = map[btn.dataset.vs]; if (!k) return;
+    const tip = btn.querySelector('.vs-tooltip'); if (tip) tip.textContent = MMI18n.t(k);
+  });
+  const gearTip = document.querySelector('#vs-gear .vs-tooltip');
+  if (gearTip) gearTip.textContent = MMI18n.t('ui.settings');
+}
+
 function a11yModal() {
   const a = S.a11y;
   const m = modal(`
@@ -731,7 +767,7 @@ if (typeof window.MMVideo === 'undefined' || window.MMVideo.__isProxy) {
     __isProxy: true,
     playVideoModal: async (key, opts = {}) => {
       try {
-        const ok = await ensureModule('MMVideo', './js/video.js?v=3.4.0');
+        const ok = await ensureModule('MMVideo', './js/video.js?v=3.6.0');
         if (ok && typeof window.MMVideo !== 'undefined' && !window.MMVideo.__isProxy && window.MMVideo.playVideoModal) {
           window.MMVideo.playVideoModal(key, opts);
         } else {
@@ -924,15 +960,18 @@ function lockScreen(message = '') {
   };
 }
 
+/* i18n helper — safe if the engine hasn't loaded yet. */
+function T(key, fb) { return (typeof MMI18n !== 'undefined') ? MMI18n.t(key) : (fb != null ? fb : key); }
+
 function buildTabs() {
   const tabs = [
-    { id: 'home', label: 'Home', icon: I.home, route: '#/home' },
-    { id: 'games', label: 'Games', icon: I.gamepad, route: '#/games' },
-    { id: 'journal', label: 'Journal', icon: I.journal, route: '#/journal' },
-    { id: 'support', label: 'Support', icon: I.headset, route: '#/support' },
+    { id: 'home', label: T('nav.home', 'Home'), icon: I.home, route: '#/home' },
+    { id: 'games', label: T('nav.games', 'Games'), icon: I.gamepad, route: '#/games' },
+    { id: 'journal', label: T('nav.journal', 'Journal'), icon: I.journal, route: '#/journal' },
+    { id: 'support', label: T('nav.support', 'Support'), icon: I.headset, route: '#/support' },
   ];
-  if (hasArt()) tabs.push({ id: 'art', label: 'Art', icon: I.palette, route: '#/art', gated: true });
-  if (hasChat() || S.adminMode) tabs.push({ id: 'chat', label: 'Chat', icon: I.chat, route: '#/chat', gated: true });
+  if (hasArt()) tabs.push({ id: 'art', label: T('nav.art', 'Art'), icon: I.palette, route: '#/art', gated: true });
+  if (hasChat() || S.adminMode) tabs.push({ id: 'chat', label: T('nav.chat', 'Chat'), icon: I.chat, route: '#/chat', gated: true });
   return tabs;
 }
 const NAVLESS = ['signin', 'terms', 'welcome', 'demographics'];
@@ -972,7 +1011,7 @@ function updateTabbar(name) {
     bar.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => {
       const t = tabs.find(x => x.id === b.dataset.tab);
       const open = t.id === 'chat' ? chatOpen() : t.id === 'art' ? artOpen() : true;
-      if (t.gated && !open) return toast('Complete your Pre-Survey to unlock this ✨');
+      if (t.gated && !open) return toast(T('toast.preLock', 'Complete your Pre-Survey to unlock this ✨'));
       nav(t.route);
     }));
   }
@@ -1021,6 +1060,8 @@ document.addEventListener('click', e => {
     if (typeof a11yModal === 'function') a11yModal();
   } else if (act === 'care') {
     if (typeof beaconOfHopeModal === 'function') beaconOfHopeModal();
+  } else if (act === 'language') {
+    languageModal();
   } else if (act === 'help') {
     nav('#/help');
   } else if (act === 'spark') {
@@ -1915,7 +1956,7 @@ routes.home = () => {
     </div>
   `);
   app.querySelectorAll('.tile').forEach(t => t.addEventListener('click', () => {
-    if (t.dataset.locked === 'true') { toast('Complete your Pre-Survey to unlock this ✨'); return; }
+    if (t.dataset.locked === 'true') { toast(T('toast.preLock', 'Complete your Pre-Survey to unlock this ✨')); return; }
     nav(t.dataset.route);
   }));
   $('#go-hope')?.addEventListener('click', () => beaconOfHopeModal());
@@ -3976,7 +4017,7 @@ function artDetail(a, tab) {
 
 /* ── Draw on your device ─────────────────────────────────── */
 async function openBeatStudio(a) {
-  try { await ensureModule('MMBeat', './js/beat.js?v=3.5.0'); } catch (e) { return toast('Beat studio could not open — check your connection 💜'); }
+  try { await ensureModule('MMBeat', './js/beat.js?v=3.6.0'); } catch (e) { return toast('Beat studio could not open — check your connection 💜'); }
   const st = actState(a.id);
   if (!st || typeof MMBeat === 'undefined') return;
   if (typeof MMVoice !== 'undefined' && MMVoice.pause) MMVoice.pause();
@@ -4008,7 +4049,7 @@ async function openBeatStudio(a) {
 }
 
 async function openDrawPad(a) {
-  await ensureModule('MMDraw', './js/draw.js?v=2.8.2');
+  await ensureModule('MMDraw', './js/draw.js?v=3.6.0');
   const st = actState(a.id);
   if (!st) return;
 
@@ -5057,7 +5098,7 @@ routes.gamebubble = async () => {
 /* ── Writer / Note Space & Journal 📖✍️ ─────────────────────── */
 routes.journal = async (args = []) => {
   try {
-    await ensureModule('MMJournal', './js/journal.js?v=2.8.2');
+    await ensureModule('MMJournal', './js/journal.js?v=3.6.0');
   } catch (e) {
     console.warn('[MojaMind] journal module failed to load:', e);
     return render(`${header('Writer & Journal', { backTo: '#/home' })}<div class="body-pad"><div class="info-card"><p class="empty-note">Couldn’t open the journal just now. Please check your connection and try again. 💜</p><button class="btn btn-primary btn-block" onclick="nav('#/home')" style="margin-top:10px">Back to Home</button></div></div>`, { theme: 'theme-purple' });
@@ -5460,7 +5501,7 @@ routes.journal = async (args = []) => {
 
     // Draw / Paint Studio in Journal
     $('#j-draw-btn')?.addEventListener('click', async () => {
-      await ensureModule('MMDraw', './js/draw.js?v=2.8.2');
+      await ensureModule('MMDraw', './js/draw.js?v=3.6.0');
       const host = document.createElement('div');
       host.className = 'draw-overlay';
       document.body.appendChild(host);
@@ -5730,6 +5771,14 @@ window.closeModal = closeModal;
   if (S.ai?.voiceNav && MMVoice.supported()) MMVoice.start();
 
   route();
+
+  // Apply any saved UI language to the sidebar tooltips, and keep them in sync.
+  try {
+    if (typeof MMI18n !== 'undefined') {
+      applySidebarI18n();
+      MMI18n.onChange(() => applySidebarI18n());
+    }
+  } catch (_) {}
 
   // Restore the optional transformer in the background, from cache.
   if (S.ai?.transformer) {

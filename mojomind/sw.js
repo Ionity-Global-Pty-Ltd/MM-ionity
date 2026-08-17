@@ -10,7 +10,7 @@
    ============================================================ */
 'use strict';
 
-const CACHE_VERSION = 'mojamind-v3.5.0';
+const CACHE_VERSION = 'mojamind-v3.6.0';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const MAX_RUNTIME_ITEMS = 60;
@@ -28,6 +28,7 @@ const CORE_ASSETS = [
   './manifest.webmanifest',
   './css/app.css',
   './js/data.js',
+  './js/i18n.js',
   './js/vault.js',
   './js/sync.js',
   './js/nlp.js',
