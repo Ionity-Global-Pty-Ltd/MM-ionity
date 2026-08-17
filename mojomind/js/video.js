@@ -992,14 +992,14 @@ const MMVideo = (() => {
     isMuted = false;
 
     removeFloatingWidget();
-    cancelAnimationFrame(animRaf);
+    try { cancelAnimationFrame(animRaf); } catch (_) {}
 
     /* ── SAFE LIGHTWEIGHT GUIDE (no canvas / no animation loop) ──────────
-       The old 60fps "motion studio" canvas stalled and crashed budget
-       phones, so we render a calm, static guide instead. If a real video
-       clip exists it plays with plain controls (no autoplay); otherwise we
-       show the written narration. This path has zero requestAnimationFrame
-       and cannot stall the device. */
+       The 60fps "motion studio" canvas stalled & crashed budget phones, so
+       this path renders a calm static guide instead — written narration, or
+       a plain-controls clip that falls back gracefully if it isn't there.
+       Zero requestAnimationFrame: it cannot stall the device. Returns before
+       any of the heavy motion-studio code below can run. */
     {
       const narr = Array.isArray(script.narrations) ? script.narrations : [];
       const guideText = narr.map(n => `<p style="margin:0 0 10px">${esc(n)}</p>`).join('');
@@ -1030,20 +1030,19 @@ const MMVideo = (() => {
           </div>
         </div>
       `);
-      // Optional gentle narration of the first line (guarded — never fatal).
       try {
         if (typeof MMVoice !== 'undefined' && MMVoice.supported() && narr[0]) {
           MMVoice.speak(narr[0], { persona: 'warmth', force: true });
         }
-      } catch (_) { /* narration is optional */ }
-      const close = () => { try { stopVideo(); } catch (_) {} closeModal(); };
-      m.querySelector('#vid-start-btn')?.addEventListener('click', () => { close(); try { opts.onStart && opts.onStart(); } catch (_) {} });
-      m.querySelector('#vid-close-btn')?.addEventListener('click', close);
+      } catch (_) { /* narration optional */ }
+      const closeSafe = () => { try { stopVideo(); } catch (_) {} closeModal(); };
+      m.querySelector('#vid-start-btn')?.addEventListener('click', () => { closeSafe(); try { opts.onStart && opts.onStart(); } catch (_) {} });
+      m.querySelector('#vid-close-btn')?.addEventListener('click', closeSafe);
       return; // never fall through to the heavy motion-studio path
     }
 
     const hasRealVideo = !!script.videoSrc;
-    // Default to the new rich Cinematic Motion Studio
+    // Default to the rich Cinematic Motion Studio with full animations
     let useMotionStudio = true;
 
     const m = modal(`

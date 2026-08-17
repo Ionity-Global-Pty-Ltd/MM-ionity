@@ -4080,46 +4080,87 @@ function pendingHandover(scope, actId) {
 
 function chatChannels(scope, isBack) {
   const pendingCount = Object.values(S.agentQueue).filter(q => q && !q.resolvedAt).length;
-  render(`
-    ${header('Chat', { backTo: '#/home' })}
-    <div class="body-pad">
-      ${S.adminMode ? `
+  const adminBand = S.adminMode ? `
         <div class="admin-band">
           <span>🎓 <b>Facilitator mode</b>${pendingCount ? ` · ${pendingCount} handover${pendingCount > 1 ? 's' : ''} waiting` : ' · all caught up'}</span>
           <span style="display:flex;gap:10px">
             <button class="link" id="adm-inbox">📥 All messages</button>
             <button class="link" id="adm-exit">Exit</button>
           </span>
-        </div>` : ''}
+        </div>` : '';
+  const tabs = `
       <div class="seg" role="tablist">
         <button class="${scope === 'group' ? 'active' : ''}" data-scope="group" role="tab">Group</button>
         <button class="${scope === 'individual' ? 'active' : ''}" data-scope="individual" role="tab">Individual</button>
-      </div>
-      <p style="color:rgba(255,255,255,.85);font-size:12.4px;margin:0 2px;line-height:1.55">
-        ${scope === 'group'
-          ? 'Announcements and encouragement from your facilitator — one room per activity. Only facilitators can post here; reply privately on the Individual tab.'
-          : 'A private line between you and your facilitator for each activity.'}</p>
+      </div>`;
+
+  let body;
+  if (scope === 'group') {
+    /* GROUP = one broadcast/announcements channel. Only the facilitator (admin)
+       can post events & encouragement; participants read only. */
+    if (!S.chat.group || Array.isArray(S.chat.group)) S.chat.group = {};
+    const msgs = Array.isArray(S.chat.group.broadcast) ? S.chat.group.broadcast : [];
+    S.chatRead['group:broadcast'] = Date.now(); save();
+    const fmt = ts => new Date(ts).toLocaleString('en-ZA', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    const feed = msgs.length
+      ? msgs.map(m => `<div class="bubble them" style="max-width:100%"><p>${esc(m.text)}</p><span class="meta"><b>📣 Facilitator</b> | ${fmt(m.at)}</span></div>`).join('')
+      : `<div class="info-card"><p class="empty-note">No announcements yet. Your facilitator will post study events, reminders and encouragement here. 📣</p></div>`;
+    body = `
+      <p style="color:rgba(255,255,255,.85);font-size:12.4px;margin:0 2px 8px;line-height:1.55">📣 Announcements &amp; events from your facilitator. This is a broadcast channel — only facilitators can post. For questions, use the <b>Individual</b> tab.</p>
+      <div class="chat-scroll" id="grp-feed" style="max-height:52dvh">${feed}</div>
+      ${S.adminMode
+        ? `<div class="chat-input-bar"><input id="grp-in" placeholder="Post an announcement to the whole group…" autocomplete="off" maxlength="600" /><button class="send adm" id="grp-send" aria-label="Broadcast to group">${I.send}</button></div>`
+        : `<div class="chat-readonly-note">📣 Only your facilitator can post here. Use the <a href="#/chat/individual">Individual</a> tab to reply privately.</div>`}`;
+  } else {
+    body = `
+      <p style="color:rgba(255,255,255,.85);font-size:12.4px;margin:0 2px;line-height:1.55">A private line between you and your facilitator for each activity.</p>
       ${MM.ACTIVITIES.map((a, i) => {
-        const msgs = S.chat[scope][a.id] || [];
+        const msgs = S.chat.individual[a.id] || [];
         const last = msgs[msgs.length - 1];
-        const readKey = `${scope}:${a.id}`;
+        const readKey = `individual:${a.id}`;
         const unread = msgs.filter(m2 => m2.who !== 'me' && m2.at > (S.chatRead[readKey] || 0)).length;
-        const handover = pendingHandover(scope, a.id);
+        const handover = pendingHandover('individual', a.id);
         const [c1, c2] = MM.ACT_COLORS[i % MM.ACT_COLORS.length];
         return `<div class="chan-card" data-open="${a.id}" style="animation-delay:${i * .05}s" role="button" tabindex="0">
           <span class="ch-ic" style="background:linear-gradient(140deg, ${c1}, ${c2})">${a.id}</span>
           <h4>${esc(a.name)}${handover && S.adminMode ? '<span class="handover-flag">🙋 handover requested</span>' : ''}${last ? `<span class="last">${esc(last.who === 'me' ? 'You: ' : last.who === 'guide' ? 'Moja Guide: ' : last.who === 'sys' ? '' : 'Facilitator: ')}${esc(last.text)}</span>` : `<span class="last">Say hello 👋</span>`}</h4>
           ${unread ? `<span class="unread">${unread}</span>` : ''}
         </div>`;
-      }).join('')}
+      }).join('')}`;
+  }
+
+  render(`
+    ${header('Chat', { backTo: '#/home' })}
+    <div class="body-pad">
+      ${adminBand}
+      ${tabs}
+      ${body}
       ${S.adminMode ? '' : `<button class="fac-link" id="fac-access">🎓 Facilitator access</button>`}
     </div>
   `, { theme: 'theme-purple', backAnim: isBack });
+
   app.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => chatChannels(b.dataset.scope, false)));
-  app.querySelectorAll('.chan-card').forEach(c => c.addEventListener('click', () => nav(`#/chat/${scope}/${c.dataset.open}`)));
+  app.querySelectorAll('.chan-card').forEach(c => c.addEventListener('click', () => nav(`#/chat/individual/${c.dataset.open}`)));
   $('#fac-access')?.addEventListener('click', adminLoginModal);
   $('#adm-inbox')?.addEventListener('click', () => nav('#/inbox'));
   $('#adm-exit')?.addEventListener('click', () => { S.adminMode = false; save(); toast('Facilitator mode off'); route(); });
+
+  // Group broadcast composer (facilitator only)
+  const grpSend = $('#grp-send');
+  if (grpSend) {
+    const doSend = () => {
+      const inp = $('#grp-in'); const text = inp.value.trim(); if (!text) return;
+      if (!S.chat.group || Array.isArray(S.chat.group)) S.chat.group = {};
+      if (!Array.isArray(S.chat.group.broadcast)) S.chat.group.broadcast = [];
+      S.chat.group.broadcast.push({ who: 'fac', text, at: Date.now() });
+      S.chatRead['group:broadcast'] = Date.now(); save();
+      try { window.MMSync?.sendMessage('group', 'broadcast', text, 'facilitator'); } catch (_) {}
+      inp.value = '';
+      chatChannels('group', false);
+    };
+    grpSend.onclick = doSend;
+    $('#grp-in')?.addEventListener('keydown', e => { if (e.key === 'Enter') doSend(); });
+  }
 }
 
 /* ── Admin Inbox — all participants' messages (facilitator only) ─
