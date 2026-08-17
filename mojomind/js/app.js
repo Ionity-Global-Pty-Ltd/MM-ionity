@@ -3125,20 +3125,26 @@ function artOptions(a) {
     if (sel == null) return toast('Choose the option that feels right for you 🎨');
     S.activities[a.id] = Object.assign({ uploads: [], voice: [], reflections: {} }, S.activities[a.id], { option: sel, startedAt: actState(a.id)?.startedAt || Date.now() });
     save();
-    // Route by the option's KIND (not a magic index) so every activity —
-    // including 7 & 8 — always opens the correct tool for the chosen option.
     const kind = MM.ART_OPTION_KINDS[sel]?.key;
-    if (kind === 'draw') {
-      nav(`#/art/${a.id}/detail/pictures`);
-      setTimeout(() => openDrawPad(a), 350);
-    } else if (kind === 'music') {
-      nav(`#/art/${a.id}/detail/pictures`);
-      setTimeout(() => openBeatStudio(a), 350);
-    } else if (kind === 'speak') {
-      nav(`#/art/${a.id}/detail/voice`);
-    } else {
-      nav(`#/art/${a.id}/detail/start`);
-    }
+    const proceedToModality = () => {
+      if (kind === 'draw') {
+        nav(`#/art/${a.id}/detail/pictures`);
+        setTimeout(() => openDrawPad(a), 350);
+      } else if (kind === 'music') {
+        nav(`#/art/${a.id}/detail/pictures`);
+        setTimeout(() => openBeatStudio(a), 350);
+      } else if (kind === 'speak') {
+        nav(`#/art/${a.id}/detail/voice`);
+      } else {
+        nav(`#/art/${a.id}/detail/start`);
+      }
+    };
+    // Play video FIRST, then navigate to instructions / modality
+    MMVideo.playVideoModal(a.id, {
+      option: sel,
+      actId: a.id,
+      onStart: proceedToModality,
+    });
   };
 }
 
