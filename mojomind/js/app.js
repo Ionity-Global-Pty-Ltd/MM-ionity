@@ -3846,6 +3846,14 @@ function artDetail(a, tab) {
 
   $('#submit-refl')?.addEventListener('click', () => {
     const filled = a.reflections.filter((_, i) => (st.reflections[i] || '').trim()).length;
+    // Require the actual creation for the chosen option — no empty submissions.
+    const kind = MM.ART_OPTION_KINDS[st.option]?.key;
+    const uploads = (st.uploads || []).length, voice = (st.voice || []).length;
+    let hasWork, need;
+    if (kind === 'speak') { hasWork = voice > 0; need = 'record a voice note'; }
+    else if (kind === 'write') { hasWork = filled > 0; need = 'write your words in the reflections'; }
+    else { hasWork = uploads > 0; need = 'add your artwork or a photo'; }
+    if (!hasWork) return toast(`Please ${need} before submitting 💜`, 3200);
     if (!filled) return toast('Share at least one reflection before submitting 💭');
     const m = modal(`
       <h3>Submit ${esc(a.name)}?</h3>
