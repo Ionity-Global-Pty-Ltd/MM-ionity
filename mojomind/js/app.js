@@ -107,11 +107,11 @@ function flowerSVG(size = 34, opts = {}) {
 
 /* Official MojaMind logo mark — Smooth transparent brand lockup */
 function knotSVG(size = 130) {
-  return `<img src="./assets/branding/mojomind-logo.png" alt="MojaMind" class="auth-logo mm-brand-logo" style="width:${size}px;height:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 10px 28px rgba(51,102,255,0.5));display:inline-block;background:transparent;border:none;box-shadow:none" />`;
+  return `<img src="./assets/branding/mojomind-logo.png?v=3.4.0" alt="MojaMind" class="auth-logo mm-brand-logo" style="width:${size}px;height:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 10px 28px rgba(51,102,255,0.5));display:inline-block;background:transparent;border:none;box-shadow:none" />`;
 }
 
 function mojoLogoHTML(size = 140, extraClass = '') {
-  return `<img src="./assets/branding/mojomind-logo.png" alt="MojaMind" class="auth-logo mm-brand-logo ${extraClass}" style="width:${size}px;height:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 10px 28px rgba(51,102,255,0.5));display:inline-block;background:transparent;border:none;box-shadow:none" />`;
+  return `<img src="./assets/branding/mojomind-logo.png?v=3.4.0" alt="MojaMind" class="auth-logo mm-brand-logo ${extraClass}" style="width:${size}px;height:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 10px 28px rgba(51,102,255,0.5));display:inline-block;background:transparent;border:none;box-shadow:none" />`;
 }
 
 function faceSVG(kind, color, size = 62) {
@@ -543,7 +543,7 @@ function bootSplash() {
             <img src="./assets/branding/shout-it-now-logo.png" alt="SHOUT-IT-NOW" class="splash-shout" />
             <span class="splash-amp">&amp;</span>
             <span class="splash-partner-mark su has-img">
-              <img src="./assets/partners/stellenbosch-transparent.svg" alt="Stellenbosch University" class="su-trans-logo" />
+              <img src="./assets/partners/stellenbosch-transparent.svg?v=3.4.0" alt="Stellenbosch University" class="su-trans-logo" />
             </span>
           </div>
         </div>
@@ -709,9 +709,14 @@ function teardownActiveEngines() {
 if (typeof window.MMVideo === 'undefined') {
   window.MMVideo = {
     playVideoModal: async (key, opts = {}) => {
-      await ensureModule('MMVideo', './js/video.js?v=2.8.2');
-      if (typeof window.MMVideo !== 'undefined' && window.MMVideo.playVideoModal) {
-        window.MMVideo.playVideoModal(key, opts);
+      try {
+        await ensureModule('MMVideo', './js/video.js?v=3.4.0');
+        if (typeof window.MMVideo !== 'undefined' && window.MMVideo.playVideoModal) {
+          window.MMVideo.playVideoModal(key, opts);
+        }
+      } catch (e) {
+        console.warn('[MojaMind] video failed to open:', e);
+        try { toast('The guide video could not open — you can start the activity directly 💜'); } catch (_) {}
       }
     }
   };
@@ -1419,6 +1424,7 @@ routes.signin = () => {
     S.group = group;
     if (!S.startedAt) S.startedAt = Date.now();
     save();
+    try { window.MMSync?.record('login', { phone, group, at: Date.now() }); } catch (_) {}
     nav(S.consented ? '#/home' : '#/terms');
   };
 };

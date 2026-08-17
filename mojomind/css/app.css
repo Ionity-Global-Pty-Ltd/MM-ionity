@@ -140,8 +140,17 @@ body::after {
   overscroll-behavior: contain;
   scroll-behavior: smooth;
   display: flex; flex-direction: column;
+  scrollbar-width: none;         /* Firefox */
+  -ms-overflow-style: none;      /* old Edge/IE */
 }
-#app::-webkit-scrollbar { width: 0; }
+/* Hide scrollbar chrome everywhere it can appear (keeps scrolling functional).
+   The auth/splash screen scrolls inside .auth-wrap, so hide it there too — that
+   was the stray scrollbar on the first screen. */
+#app::-webkit-scrollbar,
+.auth-wrap::-webkit-scrollbar,
+.body-pad::-webkit-scrollbar,
+.modal-card::-webkit-scrollbar { width: 0; height: 0; display: none; }
+.auth-wrap { scrollbar-width: none; -ms-overflow-style: none; }
 
 .screen { display: flex; flex-direction: column; flex: 1 0 auto; min-height: 100%; animation: screen-in .34s cubic-bezier(.22,.9,.36,1) both; padding-bottom: calc(var(--nav-h) + 26px + env(safe-area-inset-bottom)); }
 #app.no-nav .screen { padding-bottom: env(safe-area-inset-bottom); }
