@@ -252,16 +252,27 @@ function hydrate(loaded) {
   return s;
 }
 
+/* Storage full (large artwork / photos). Warn the participant so work is
+   never silently lost — they can download art to device. Vault writes are
+   debounced, so most failures surface asynchronously via Vault.onError
+   rather than by throwing out of save(). Repeats are throttled so a full
+   device does not bury the screen in toasts. */
+let lastSaveWarnAt = 0;
+function reportSaveFailure(e) {
+  console.warn('[MojaMind] save failed:', e);
+  if (Date.now() - lastSaveWarnAt < 8000) return;
+  lastSaveWarnAt = Date.now();
+  const quota = e && (e.name === 'QuotaExceededError' || /quota|exceeded/i.test(e.message || ''));
+  try { toast(quota ? 'Device storage is full — use ⬇️ Save to Device to keep your artwork 📥' : 'Could not save — please try again', 4200); } catch (_) {}
+}
+
 function save() {
   globalThis.S = S;
   try {
-    Vault.write(S);
+    const p = Vault.write(S);
+    if (p && typeof p.catch === 'function') p.catch(reportSaveFailure);
   } catch (e) {
-    // Storage full (large artwork / photos). Warn the participant so
-    // work is never silently lost — they can download art to device.
-    const quota = e && (e.name === 'QuotaExceededError' || /quota/i.test(e.message || ''));
-    try { toast(quota ? 'Device storage is full — use ⬇️ Save to Device to keep your artwork 📥' : 'Could not save — please try again', 4200); } catch (_) {}
-    console.warn('[MojaMind] save failed:', e);
+    reportSaveFailure(e);
   }
 }
 
@@ -3881,23 +3892,40 @@ function artDetail(a, tab) {
   $('#upload-btn')?.addEventListener('click', () => $('#file-in').click());
   $('#file-in')?.addEventListener('change', async e => {
     const files = [...e.target.files].slice(0, 6);
+    if (!files.length) return;
     toast(`Moja Vision is looking at your picture${files.length > 1 ? 's' : ''}…`, 1800);
+    // Moja Vision lives in draw.js, which is lazy-loaded. The Pictures tab is
+    // reachable without ever opening the drawing pad, so load it here or the
+    // whole handler throws and the participant's photo is silently lost.
+    try { await ensureModule('MMDraw', './js/draw.js?v=3.6.3'); } catch (_) { /* fall back to colour-only */ }
     let last = null;
+    let added = 0;
     for (const f of files) {
-      const url = await shrinkImage(f);
-      const vision = await MMVision.read(url);
-      last = vision;
+      let url;
+      try { url = await shrinkImage(f); } catch (err) { console.warn('[MojaMind] could not read picture:', err); continue; }
+      // The picture itself must be kept even if analysis fails — never lose a
+      // participant's work to a broken or unavailable vision engine.
+      let analysis = null;
+      try {
+        const vision = typeof MMVision !== 'undefined' ? await MMVision.read(url) : null;
+        if (vision) {
+          last = vision;
+          analysis = {
+            feedback: vision.feedback, palette: vision.palette,
+            dominant: vision.colour?.dominant, brightness: vision.colour?.brightness,
+            contrast: vision.colour?.contrast, words: vision.words || null,
+            faces: vision.faces || 0, analyzedAt: Date.now(),
+          };
+        }
+      } catch (err) { console.warn('[MojaMind] Moja Vision could not read this picture:', err); }
+      if (!analysis) { try { analysis = await analyzeArtwork(url); } catch (_) { analysis = null; } }
       (st.uploads = Array.isArray(st.uploads) ? st.uploads : []).push({
-        src: url, kind: 'photo', at: Date.now(),
-        analysis: {
-          feedback: vision.feedback, palette: vision.palette,
-          dominant: vision.colour?.dominant, brightness: vision.colour?.brightness,
-          contrast: vision.colour?.contrast, words: vision.words || null,
-          faces: vision.faces || 0, analyzedAt: Date.now(),
-        },
+        src: url, kind: 'photo', at: Date.now(), analysis,
       });
+      added++;
     }
-    save(); toast(`${files.length} picture${files.length > 1 ? 's' : ''} added 📸`);
+    if (!added) { toast('Could not add that picture — please try another one 💜', 3200); return; }
+    save(); toast(`${added} picture${added > 1 ? 's' : ''} added 📸`);
     artDetail(a, 'pictures');
     if (last) setTimeout(() => visionModal(last), 240);
   });
@@ -5195,13 +5223,13 @@ routes.journal = async (args = []) => {
             <div class="j-select-group" style="display:flex;flex-direction:column;gap:5px">
               <label for="j-mood-select" style="font-size:11px;font-weight:800;letter-spacing:0.5px;color:#ffd166;text-transform:uppercase">🎭 Current Mood</label>
               <select id="j-mood-select" class="j-glass-select">
-                <option value="🌟 Hopeful" ${selectedMood === '🌟 Hopeful' ? 'selected' : ''}>🌟 Hopeful</option>
-                <option value="😌 Peaceful" ${selectedMood === '😌 Peaceful' ? 'selected' : ''}>😌 Peaceful</option>
-                <option value="😊 Joyful" ${selectedMood === '😊 Joyful' ? 'selected' : ''}>😊 Joyful</option>
-                <option value="😐 Neutral" ${selectedMood === '😐 Neutral' ? 'selected' : ''}>😐 Neutral</option>
-                <option value="🌱 Reflective" ${selectedMood === '🌱 Reflective' ? 'selected' : ''}>🌱 Reflective</option>
-                <option value="🌧️ Tough Day" ${selectedMood === '🌧️ Tough Day' ? 'selected' : ''}>🌧️ Tough Day</option>
-                <option value="🔥 Determined" ${selectedMood === '🔥 Determined' ? 'selected' : ''}>🔥 Determined</option>
+                <option value="🌟 Hopeful" ${draft.mood === '🌟 Hopeful' ? 'selected' : ''}>🌟 Hopeful</option>
+                <option value="😌 Peaceful" ${draft.mood === '😌 Peaceful' ? 'selected' : ''}>😌 Peaceful</option>
+                <option value="😊 Joyful" ${draft.mood === '😊 Joyful' ? 'selected' : ''}>😊 Joyful</option>
+                <option value="😐 Neutral" ${draft.mood === '😐 Neutral' ? 'selected' : ''}>😐 Neutral</option>
+                <option value="🌱 Reflective" ${draft.mood === '🌱 Reflective' ? 'selected' : ''}>🌱 Reflective</option>
+                <option value="🌧️ Tough Day" ${draft.mood === '🌧️ Tough Day' ? 'selected' : ''}>🌧️ Tough Day</option>
+                <option value="🔥 Determined" ${draft.mood === '🔥 Determined' ? 'selected' : ''}>🔥 Determined</option>
               </select>
             </div>
           </div>
@@ -5775,6 +5803,7 @@ window.closeModal = closeModal;
   catch { opened = { state: null, locked: false, mode: 'plain' }; }
 
   Vault.onLock(() => lockScreen('Locked after a few quiet minutes. Enter your PIN to continue.'));
+  Vault.onError(reportSaveFailure);
 
   if (opened.locked) { lockScreen(); return; }
 
