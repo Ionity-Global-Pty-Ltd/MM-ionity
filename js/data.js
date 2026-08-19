@@ -84,22 +84,22 @@ MM.DEMOGRAPHICS = {
   theme: 'demo',
   optClass: 'opt-demo',
   questions: [
-    { id: 'age',       text: 'What is your Age?', options: ['18', '19', '20', '21', '22', '23', '24'] },
-    { id: 'gender',    text: 'What is your Gender?', options: ['Female', 'Male', 'Non-binary/ Genderqueer', 'Prefer not to say', 'Other (please specify)'], other: 'Other (please specify)' },
-    { id: 'region',    text: 'Which region are you from?', options: ['Rural', 'Urban'] },
-    { id: 'province',  text: 'Which province do you live in? (Please tick one)', options: ['Gauteng', 'North West', 'Western Cape'] },
-    { id: 'livewith',  text: 'Who do you live with?', options: ['Alone', 'Family', 'Spouse/Partner', 'Friends/Housemate', 'Other (please specify)'], other: 'Other (please specify)' },
-    { id: 'water',     text: 'Do you have access to clean water?', options: ['Yes', 'No', 'Sometimes'] },
-    { id: 'power',     text: 'Do you have reliable electricity at home?', options: ['Yes', 'No', 'Sometimes'] },
-    { id: 'grade',     text: 'What is the highest grade you passed?', options: ['No formal education', 'Grade R', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12 / Matric', 'Some college/university', 'Completed college/university'] },
-    { id: 'work',      text: 'What is your employment status?', options: ['Unemployed', 'Part-time', 'Full-time', 'Student', 'Self-employed'] },
-    { id: 'income',    text: 'What is your household income (per month)?', options: ['Less than R1 000', 'R1 000 – R4 999', 'R5 000 – R9 999', 'R10 000+', 'Prefer not to say'] },
-    { id: 'relation',  text: 'What is your relationship status?', options: ['Single', 'In a relationship', 'Married', 'Separated/ Divorced'] },
-    { id: 'support',   text: 'Do you have someone who supports you emotionally?', options: ['Yes', 'No', 'Sometimes'] },
-    { id: 'healthapp', text: 'Do you attend healthcare appointments regularly?', options: ['Regularly', 'Occasionally', 'Rarely', 'Never'] },
-    { id: 'mwb',       text: 'How would you rate your mental well-being?', options: ['Excellent', 'Good', 'Fair', 'Poor'] },
-    { id: 'hiv',       text: 'Are you living with HIV?', options: ['Yes', 'No'] },
-    { id: 'art',       text: 'Are you on Antiretroviral Therapy (ART)?', options: ['Yes', 'No'] },
+    { id: 'age',       label: 'Age',                text: 'What is your Age?', options: ['18', '19', '20', '21', '22', '23', '24'] },
+    { id: 'gender',    label: 'Gender',              text: 'What is your Gender?', options: ['Female', 'Male', 'Non-binary/ Genderqueer', 'Prefer not to say', 'Other (please specify)'], other: 'Other (please specify)' },
+    { id: 'region',    label: 'Region',              text: 'Which region are you from?', options: ['Rural', 'Urban'] },
+    { id: 'province',  label: 'Province',            text: 'Which province do you live in? (Please tick one)', options: ['Gauteng', 'North West', 'Western Cape'] },
+    { id: 'livewith',  label: 'Household',           text: 'Who do you live with?', options: ['Alone', 'Family', 'Spouse/Partner', 'Friends/Housemate', 'Other (please specify)'], other: 'Other (please specify)' },
+    { id: 'water',     label: 'Water Access',        text: 'Do you have access to clean water?', options: ['Yes', 'No', 'Sometimes'] },
+    { id: 'power',     label: 'Electricity Access',  text: 'Do you have reliable electricity at home?', options: ['Yes', 'No', 'Sometimes'] },
+    { id: 'grade',     label: 'Education',           text: 'What is the highest grade you passed?', options: ['No formal education', 'Grade R', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12 / Matric', 'Some college/university', 'Completed college/university'] },
+    { id: 'work',      label: 'Employment',          text: 'What is your employment status?', options: ['Unemployed', 'Part-time', 'Full-time', 'Student', 'Self-employed'] },
+    { id: 'income',    label: 'Household Income',    text: 'What is your household income (per month)?', options: ['Less than R1 000', 'R1 000 – R4 999', 'R5 000 – R9 999', 'R10 000+', 'Prefer not to say'] },
+    { id: 'relation',  label: 'Relationship Status', text: 'What is your relationship status?', options: ['Single', 'In a relationship', 'Married', 'Separated/ Divorced'] },
+    { id: 'support',   label: 'Emotional Support',   text: 'Do you have someone who supports you emotionally?', options: ['Yes', 'No', 'Sometimes'] },
+    { id: 'healthapp', label: 'Healthcare Visits',   text: 'Do you attend healthcare appointments regularly?', options: ['Regularly', 'Occasionally', 'Rarely', 'Never'] },
+    { id: 'mwb',       label: 'Mental Well-Being',   text: 'How would you rate your mental well-being?', options: ['Excellent', 'Good', 'Fair', 'Poor'] },
+    { id: 'hiv',       label: 'HIV Status',          text: 'Are you living with HIV?', options: ['Yes', 'No'] },
+    { id: 'art',       label: 'ART Treatment',       text: 'Are you on Antiretroviral Therapy (ART)?', options: ['Yes', 'No'] },
   ],
 };
 
@@ -118,7 +118,7 @@ MM.SURVEYS = {
     blurb: 'Please take a moment to answer the following questions. Remember, all your answers will remain confidential and your identity will remain anonymous. We would like to better understand how you have been feeling over the past two weeks.',
     sections: [
       {
-        title: 'Question 1',
+        title: 'Mood & Depression',
         scaleName: 'Patient Health Questionnaire (PHQ-9)',
         intro: 'Over the last 2 weeks, how often have you been bothered by any of the following problems?',
         scale: 'freq4',
@@ -135,7 +135,7 @@ MM.SURVEYS = {
         ],
       },
       {
-        title: 'Question 2',
+        title: 'Anxiety & Worry',
         scaleName: 'Generalised Anxiety Disorder Scale (GAD-7)',
         intro: 'Over the last 2 weeks, how often have you been bothered by the following problems?',
         scale: 'freq4',
@@ -161,7 +161,7 @@ MM.SURVEYS = {
     blurb: 'In this survey, we would like to explore your lifestyle habits, including your daily routines and health-related behaviours.',
     sections: [
       {
-        title: 'Question 1',
+        title: 'Medication Habits',
         scaleName: 'Medication Adherence Report Scale (MARS-5)',
         intro: 'Many people find a way of using their medicines which suits them. This may differ from the instructions on the label. How often do the following apply to you?',
         scale: 'mars',
@@ -174,7 +174,7 @@ MM.SURVEYS = {
         ],
       },
       {
-        title: 'Question 2',
+        title: 'Experiences of Stigma',
         scaleName: '5-Question Stigma Indicator-Affected Person',
         intro: 'In the past year:',
         scale: 'stigma',
@@ -198,7 +198,7 @@ MM.SURVEYS = {
     blurb: 'In this survey, we would like to ask you about your personal wellbeing, including coping strategies and general psychological health.',
     sections: [
       {
-        title: 'Question 1',
+        title: 'Bouncing Back',
         scaleName: 'Brief Resilience Scale',
         intro: 'Please respond to each item by selecting one answer per statement.',
         scale: 'agree5',
@@ -212,7 +212,7 @@ MM.SURVEYS = {
         ],
       },
       {
-        title: 'Question 2',
+        title: 'Alcohol & Substance Use',
         scaleName: 'CAGE-AID Questionnaire',
         intro: 'When thinking about drug use, include illegal drug use and the use of prescription drugs other than prescribed.',
         scale: 'yesno',
@@ -236,7 +236,7 @@ MM.SURVEYS = {
     blurb: 'In this survey, we would like to better understand what your experiences were of using the MojaMind application.',
     sections: [
       {
-        title: 'Question 1',
+        title: 'Your App Experience',
         scaleName: 'mHealth Usability Questionnaire (MAUQ)',
         intro: 'We would love to hear about your experience! Your feedback helps us improve the app’s usability and effectiveness. Let’s get started! Please rate each statement on a scale from 1 (Strongly Agree) to 7 (Strongly Disagree).',
         scale: 'agree7',
@@ -392,14 +392,39 @@ MM.ART_ABOUT = {
 };
 
 /* ── Art activities (8 weeks) ────────────────────────────── */
+/* Bespoke line-icons for each art modality — unique to MojaMind, not
+   generic platform emoji. Each carries its own brand-colour chip so
+   options read distinctly at a glance (Item: "make all the icons
+   unique" fix, 2026-08-19). */
 MM.ART_OPTION_KINDS = [
-  { key: 'art',     emoji: '🎨', name: 'Physical Art & Paper' },
-  { key: 'draw',    emoji: '🖌️', name: 'Draw on Device (Digital Studio)' },
-  { key: 'write',   emoji: '✍️', name: 'Write It Out' },
-  { key: 'speak',   emoji: '🎤', name: 'Speak Up (Voice Note)' },
-  { key: 'nature',  emoji: '🌿', name: 'Use Nature' },
-  { key: 'digital', emoji: '📱', name: 'Get Digital (Photo & Collage)' },
-  { key: 'music',   emoji: '🥁', name: 'Make Music (Beat Studio)' },
+  {
+    key: 'art', emoji: '🎨', name: 'Physical Art & Paper', chip: '#e07a3f',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20 19 5"/><path d="M4 20l1.6-5.2L15 5.4l4.6 4.6-9.4 9.4z" fill="currentColor" fill-opacity=".18"/><path d="M13 7.4l3.6 3.6"/><circle cx="6.4" cy="18.6" r="1.15" fill="currentColor" stroke="none"/></svg>',
+  },
+  {
+    key: 'draw', emoji: '🖌️', name: 'Draw on Device (Digital Studio)', chip: '#3366ff',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="13" rx="2.2"/><path d="M8 20.5h8"/><path d="M12 17v3.5"/><path d="M7 13.2c2-3.6 3.6-5.6 5-5.9 1.1-.2 1.8.7 1.2 1.7-.7 1.2-2.8 2.5-6.2 4.2z" fill="currentColor" fill-opacity=".22"/></svg>',
+  },
+  {
+    key: 'write', emoji: '✍️', name: 'Write It Out', chip: '#8a2eae',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h9l3 3v14H6z"/><path d="M15 3.5V7h3"/><path d="M9 12h6M9 15h6M9 9h3"/></svg>',
+  },
+  {
+    key: 'speak', emoji: '🎤', name: 'Speak Up (Voice Note)', chip: '#f3256b',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15c0-5.8 3.6-10.5 8-10.5S20 9.2 20 15"/><path d="M20 15a3 3 0 0 1-3 3H8.5L4 21v-3a3 3 0 0 1 0-3"/><path d="M8.5 12.6v1.8M12 11v3.6M15.5 12.6v1.8" stroke-linecap="round"/></svg>',
+  },
+  {
+    key: 'nature', emoji: '🌿', name: 'Use Nature', chip: '#34c759',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c0-7 1-11 7-14-1 6.5-3 10-7 11" fill="currentColor" fill-opacity=".18"/><path d="M12 21c0-6.4-1.3-9.8-6-12 .6 5.4 2.2 8.6 6 9.8"/><path d="M12 21v-6"/></svg>',
+  },
+  {
+    key: 'digital', emoji: '📱', name: 'Get Digital (Photo & Collage)', chip: '#00c2d1',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5 8 4h8l1.5 2.5H20a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 20 18.5H4A1.5 1.5 0 0 1 2.5 17V8A1.5 1.5 0 0 1 4 6.5z"/><circle cx="12" cy="12" r="3.6"/><circle cx="17.4" cy="9.3" r=".6" fill="currentColor" stroke="none"/></svg>',
+  },
+  {
+    key: 'music', emoji: '🥁', name: 'Make Music (Beat Studio)', chip: '#ffd166',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5.2l11-2.2v13"/><circle cx="7" cy="18" r="2.4"/><circle cx="18" cy="16.8" r="2.4"/></svg>',
+  },
 ];
 
 /* Activities with published inspiration videos (id → options with video files
@@ -534,7 +559,7 @@ MM.ACTIVITIES = [
   },
   {
     id: 5, name: 'My Homestead', week: 5,
-    about: 'Home, community, and belonging—celebrate the places and people that ground you.',
+    about: 'Belonging is part of resilience. This week, map the home, people or community that ground you — and notice the quiet strength they give you to keep going.',
     options: [
       'Physical Artwork: Draw or paint your home, village, or neighbourhood on paper.',
       'Draw on Device: Paint your homestead, favorite room, or community scene on your phone screen.',
@@ -563,7 +588,7 @@ MM.ACTIVITIES = [
   },
   {
     id: 6, name: 'Vision Board', week: 6,
-    about: 'Dream forward! Build a picture of the future you’re growing towards.',
+    about: 'Hope is a skill you can practise. This week, picture the future you’re building toward, so it can pull you forward on the harder days too.',
     options: [
       'Physical Artwork: Draw or paint symbols of your dreams and goals on paper.',
       'Draw on Device: Paint your future vision board directly on your screen with glowing colours and stamps.',

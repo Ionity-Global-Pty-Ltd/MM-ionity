@@ -23,12 +23,13 @@
   <meta property="og:image" content="https://www.ionity.co.za/assets/icons/icon-512.png" />
   <meta name="author" content="Johan Wilhelm van Antwerp — Solutionist of Antwerp Designs &amp; Ecosystems Engineer · Ionity (Pty) Ltd (www.ionity.co.za)" />
   <link rel="manifest" href="./manifest.webmanifest" />
-  <link rel="icon" type="image/png" href="./assets/branding/mojomind-logo.png" />
-  <link rel="apple-touch-icon" href="./assets/branding/mojomind-logo.png" />
+  <link rel="icon" type="image/png" href="./icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" />
-  <link rel="stylesheet" href="./css/app.css?v=3.6.1" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" /></noscript>
+  <link rel="stylesheet" href="./css/app.css?v=3.6.3" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -59,6 +60,8 @@
   <div id="stars" aria-hidden="true"></div>
   <div id="phone">
     <main id="app" aria-live="polite"></main>
+    <!-- Floating Glassmorphic Bottom Navigation (restored v3.6.3) -->
+    <nav id="tabbar" class="hidden" aria-label="Primary navigation"></nav>
     <!-- Unified Vertical Right-Side Sidebar: Topline Settings & Quick Creative Tabs -->
     <aside id="vertical-sidebar" class="vertical-sidebar hidden" aria-label="Quick Settings and Exploration Sidebar">
       <button class="vs-toggle" id="vs-toggle" aria-label="Toggle Sidebar" title="Collapse / Expand Sidebar">
@@ -128,14 +131,12 @@
   <div id="toast-root" aria-live="assertive"></div>
   <canvas id="fx" aria-hidden="true"></canvas>
   <!-- Core Shell (Deferred for instantaneous initial paint) -->
-  <script src="./js/data.js?v=3.6.1" defer></script>
-  <script src="./js/i18n.js?v=3.6.1" defer></script>
-  <script src="./js/vault.js?v=3.6.1" defer></script>
-  <script src="./js/sync.js?v=3.6.1" defer></script>
-  <script src="./js/nlp.js?v=3.6.1" defer></script>
-  <script src="./js/llm.js?v=3.6.1" defer></script>
-  <script src="./js/voice.js?v=3.6.1" defer></script>
-  <script src="./js/video.js?v=3.6.1" defer></script>
-  <script src="./js/app.js?v=3.6.1" defer></script>
+  <script src="./js/data.js?v=3.6.3" defer></script>
+  <script src="./js/i18n.js?v=3.6.3" defer></script>
+  <script src="./js/vault.js?v=3.6.3" defer></script>
+  <script src="./js/sync.js?v=3.6.3" defer></script>
+  <script src="./js/nlp.js?v=3.6.3" defer></script>
+  <script src="./js/voice.js?v=3.6.3" defer></script>
+  <script src="./js/app.js?v=3.6.3" defer></script>
 </body>
 </html>

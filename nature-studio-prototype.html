@@ -1,0 +1,834 @@
+<!--
+  ============================================================
+  MojaMind — NATURE STUDIO  ·  Gather · Grow · Release
+  Standalone, offline, zero-bandwidth prototype (Option 5 "Use Nature")
+  A living creative-resilience tool: colour from the earth, a generative
+  living canvas grown with the breath, a soundtrack of the land, and a
+  ritual of release. 100% on-device. No uploads. No trackers.
+
+  Author: Johan Wilhelm van Antwerp
+  © 2018-2026 Ionity (Pty) Ltd | Antwerp Designs — Policy 986 AED — TM²
+  Building Tomorrow, Today.  ·  Anything is Possible with God.
+  ============================================================
+-->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>MojaMind · Nature Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#140424; --bg2:#0b1f1a;
+    --ink:#ffffff; --ink-sub:rgba(255,255,255,.75); --ink-soft:rgba(255,255,255,.92);
+    --pink:#f3256b; --purple:#8a2eae; --magenta:#c04ac4; --blue:#3366ff;
+    --gold:#ffd166; --green:#34c759; --leaf:#4ade80;
+    --card:rgba(255,255,255,.06); --card-2:rgba(255,255,255,.09);
+    --line:rgba(255,255,255,.14); --radius:18px;
+    --grad:linear-gradient(135deg,var(--pink),var(--purple));
+    --font:'Poppins','Segoe UI',system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;min-height:100%}
+  body{
+    font-family:var(--font); color:var(--ink);
+    background:
+      radial-gradient(1100px 600px at 80% -10%, rgba(138,46,174,.35), transparent 60%),
+      radial-gradient(900px 700px at -10% 110%, rgba(52,199,89,.16), transparent 55%),
+      linear-gradient(160deg,var(--bg) 0%, #10112b 45%, var(--bg2) 100%);
+    background-attachment:fixed;
+    padding:16px 14px 40px; max-width:640px; margin:0 auto;
+  }
+  h1,h2,h3{margin:0;font-weight:800;letter-spacing:.2px}
+  .sub{color:var(--ink-sub);font-size:12.5px}
+  .brandbar{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .logo{width:44px;height:44px;border-radius:13px;background:var(--grad);
+    display:grid;place-items:center;font-size:24px;box-shadow:0 6px 20px rgba(243,37,107,.45)}
+  .brandbar h1{font-size:19px;line-height:1}
+  .brandbar .tag{font-size:11px;color:var(--ink-sub);margin-top:3px}
+
+  /* stage stepper */
+  .steps{display:flex;gap:6px;margin:14px 0 12px;overflow-x:auto;padding-bottom:2px}
+  .step{flex:0 0 auto;border:1.4px solid var(--line);background:var(--card);
+    color:var(--ink-soft);border-radius:999px;padding:8px 13px;font-size:12.5px;
+    font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;white-space:nowrap;
+    transition:.2s}
+  .step .n{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.12);
+    display:grid;place-items:center;font-size:11px}
+  .step.active{background:var(--grad);border-color:transparent;box-shadow:0 6px 18px rgba(138,46,174,.4)}
+  .step.done .n{background:var(--green)}
+
+  .panel{display:none;animation:rise .35s ease both}
+  .panel.show{display:block}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  .card{background:var(--card);border:1.4px solid var(--line);border-radius:var(--radius);
+    padding:16px;margin-bottom:14px;backdrop-filter:blur(6px)}
+  .card h2{font-size:16px;margin-bottom:4px}
+  .hint{font-size:12.5px;color:var(--ink-sub);line-height:1.55;margin:6px 0 0}
+
+  .btn{border:0;border-radius:13px;padding:13px 16px;font-family:var(--font);font-weight:800;
+    font-size:14px;color:#fff;cursor:pointer;background:var(--grad);
+    box-shadow:0 6px 18px rgba(243,37,107,.35);transition:transform .12s,filter .2s}
+  .btn:active{transform:scale(.97)}
+  .btn.ghost{background:var(--card-2);border:1.4px solid var(--line);box-shadow:none}
+  .btn.gold{background:linear-gradient(135deg,#ffd166,#f0813c);color:#241;box-shadow:0 6px 18px rgba(240,129,60,.4)}
+  .btn.leaf{background:linear-gradient(135deg,#4ade80,#16a34a);box-shadow:0 6px 18px rgba(34,197,94,.4)}
+  .btn.sm{padding:9px 13px;font-size:12.5px;border-radius:11px}
+  .row{display:flex;gap:9px;flex-wrap:wrap}
+  .row.end{justify-content:flex-end}
+  .grow{flex:1}
+
+  input[type=file]{display:none}
+
+  /* palette */
+  .swatches{display:flex;gap:8px;margin:12px 0 6px;flex-wrap:wrap}
+  .sw{width:46px;height:46px;border-radius:12px;border:2px solid rgba(255,255,255,.25);
+    box-shadow:inset 0 0 0 2px rgba(0,0,0,.15)}
+  .palname{font-size:15px;font-weight:800;background:var(--grad);-webkit-background-clip:text;
+    background-clip:text;color:transparent;margin-top:4px}
+  .thumb{width:100%;max-height:210px;object-fit:cover;border-radius:14px;border:1.4px solid var(--line)}
+
+  /* canvas */
+  .stage-wrap{position:relative;border-radius:16px;overflow:hidden;border:1.4px solid var(--line);
+    background:radial-gradient(120% 120% at 50% 0%, #1a0b2e, #07110f)}
+  canvas#art{display:block;width:100%;height:58vh;max-height:520px;touch-action:none}
+  .breath{position:absolute;inset:0;display:none;pointer-events:none;place-items:center}
+  .breath.on{display:grid}
+  .breath .ring{width:120px;height:120px;border-radius:50%;border:3px solid rgba(255,255,255,.5);
+    box-shadow:0 0 40px rgba(255,209,102,.5),inset 0 0 40px rgba(255,209,102,.25);
+    animation:breathe 14s ease-in-out infinite}
+  .breath .word{position:absolute;font-weight:800;font-size:16px;color:#fff;text-shadow:0 2px 12px #000}
+  @keyframes breathe{
+    0%{transform:scale(.65);opacity:.55}          /* inhale start */
+    28%{transform:scale(1.15);opacity:1}          /* inhaled */
+    50%{transform:scale(1.15);opacity:1}          /* hold */
+    92%{transform:scale(.65);opacity:.55}         /* exhale */
+    100%{transform:scale(.65);opacity:.55}
+  }
+  .spirits{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+  .spirit{border:1.4px solid var(--line);background:var(--card);border-radius:13px;padding:10px 4px;
+    text-align:center;cursor:pointer;transition:.2s}
+  .spirit.sel{border-color:var(--gold);background:rgba(255,209,102,.14);box-shadow:0 6px 16px rgba(255,209,102,.2)}
+  .spirit .e{font-size:22px}
+  .spirit .l{font-size:10.5px;font-weight:700;margin-top:3px;color:var(--ink-soft)}
+  .spirit .d{font-size:9px;color:var(--ink-sub)}
+
+  .sounds{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+  .sound{border:1.4px solid var(--line);background:var(--card);border-radius:13px;padding:12px;
+    display:flex;align-items:center;gap:11px;cursor:pointer;transition:.2s}
+  .sound.on{border-color:var(--gold);background:rgba(51,102,255,.2)}
+  .sound .e{font-size:22px}
+  .sound b{font-size:13px;display:block}
+  .sound small{font-size:10.5px;color:var(--ink-sub)}
+
+  select{width:100%;font-family:var(--font);font-size:13.5px;color:#fff;background:var(--card-2);
+    border:1.4px solid var(--line);border-radius:11px;padding:11px}
+  select option{color:#111}
+
+  .caption{font-size:14px;line-height:1.6;font-style:italic;color:var(--ink-soft);
+    border-left:3px solid var(--gold);padding:2px 0 2px 12px;margin:10px 0}
+  .affirm{font-weight:800;font-size:15px;background:var(--grad);-webkit-background-clip:text;
+    background-clip:text;color:transparent}
+  .toggle{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--ink-sub);
+    margin-top:10px;cursor:pointer}
+  .toggle .box{width:40px;height:23px;border-radius:999px;background:rgba(255,255,255,.18);
+    position:relative;transition:.2s;flex:0 0 auto}
+  .toggle .box::after{content:"";position:absolute;top:2.5px;left:2.5px;width:18px;height:18px;
+    border-radius:50%;background:#fff;transition:.2s}
+  .toggle.on .box{background:var(--green)}
+  .toggle.on .box::after{left:19px}
+  footer{margin-top:22px;text-align:center;font-size:10.5px;color:rgba(255,255,255,.45);line-height:1.7}
+  .pill{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;
+    background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--ink-sub)}
+  #exportPreview{width:100%;border-radius:14px;border:1.4px solid var(--line);margin-top:12px;display:none}
+</style>
+
+<div class="brandbar">
+  <div class="logo">🌿</div>
+  <div>
+    <h1>Nature Studio</h1>
+    <div class="tag">MojaMind · Gather → Grow → Release &nbsp;<span class="pill">Option 5</span></div>
+  </div>
+</div>
+
+<div class="steps" id="steps">
+  <div class="step active" data-go="gather"><span class="n">1</span>Gather</div>
+  <div class="step" data-go="grow"><span class="n">2</span>Grow</div>
+  <div class="step" data-go="sound"><span class="n">3</span>Sound</div>
+  <div class="step" data-go="release"><span class="n">4</span>Release</div>
+  <div class="step" data-go="keep"><span class="n">5</span>Keep</div>
+</div>
+
+<!-- 1 · GATHER -->
+<section class="panel show" id="p-gather">
+  <div class="card">
+    <h2>Gather from the earth 🍃</h2>
+    <p class="hint">Find something natural near you — a leaf, a stone, bark, a flower, soil, the sky. Take a photo or choose one. The studio reads the <b>real colours</b> out of it and gives you a living palette to create with. Nothing leaves your device.</p>
+    <div class="row" style="margin-top:14px">
+      <button class="btn grow" id="pickBtn">📷 Take / choose a photo</button>
+      <button class="btn ghost sm" id="skipBtn" title="No camera? Use an earthy palette">Use earth palette</button>
+    </div>
+    <input type="file" id="file" accept="image/*" capture="environment" />
+    <img id="thumb" class="thumb" style="display:none;margin-top:14px" alt="what you gathered" />
+    <div id="paletteBox" style="display:none">
+      <div class="palname" id="palName"></div>
+      <div class="swatches" id="swatches"></div>
+      <p class="hint" id="grounding"></p>
+      <div class="row end"><button class="btn leaf" id="toGrow">Grow with this →</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · GROW -->
+<section class="panel" id="p-grow">
+  <div class="card">
+    <h2>Grow something alive 🌱</h2>
+    <p class="hint">Choose a growth spirit, then <b>tap the canvas to plant seeds</b>. Your palette grows across the dark. Turn on <b>Breathe &amp; Grow</b> to make it bloom with your breath — in for four, hold, out for six.</p>
+
+    <div class="spirits" id="spirits">
+      <div class="spirit sel" data-spirit="roots"><div class="e">🪵</div><div class="l">Roots</div><div class="d">grounding</div></div>
+      <div class="spirit" data-spirit="vine"><div class="e">🌿</div><div class="l">Vine</div><div class="d">reaching</div></div>
+      <div class="spirit" data-spirit="myco"><div class="e">🕸️</div><div class="l">Mycelium</div><div class="d">connection</div></div>
+      <div class="spirit" data-spirit="bloom"><div class="e">🌸</div><div class="l">Bloom</div><div class="d">hope</div></div>
+    </div>
+
+    <div class="stage-wrap">
+      <canvas id="art"></canvas>
+      <div class="breath" id="breath"><div class="ring"></div><div class="word" id="breathWord">Breathe in…</div></div>
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <button class="btn gold sm" id="seedBtn">✨ Plant seeds</button>
+      <button class="btn ghost sm" id="clearBtn">Clear</button>
+      <div class="grow"></div>
+      <button class="btn leaf sm" id="toSound">Add sound →</button>
+    </div>
+    <div class="toggle" id="breathToggle"><span class="box"></span><span>Breathe &amp; Grow (regulation mode)</span></div>
+    <div class="toggle" id="motionToggle"><span class="box"></span><span>Reduce motion (calmer / low-power)</span></div>
+  </div>
+</section>
+
+<!-- 3 · SOUND -->
+<section class="panel" id="p-sound">
+  <div class="card">
+    <h2>A soundtrack of the land 🎧</h2>
+    <p class="hint">Give your creation a living sound. 100% generated on your device at healing 432&nbsp;Hz — or record ten seconds of where you actually are.</p>
+    <div class="sounds" id="sounds" style="margin-top:12px">
+      <div class="sound" data-preset="432hz"><span class="e">✨</span><span><b>432Hz Harmony</b><small>focus &amp; deep peace</small></span></div>
+      <div class="sound" data-preset="meadow"><span class="e">🍃</span><span><b>Meadow Breeze</b><small>wind in the grass</small></span></div>
+      <div class="sound" data-preset="stream"><span class="e">🌊</span><span><b>River &amp; Rain</b><small>water &amp; soft shower</small></span></div>
+      <div class="sound" data-preset="bowl"><span class="e">🧘</span><span><b>Singing Bowl</b><small>warm overtones</small></span></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn ghost sm" id="stopSound">◼ Stop sound</button>
+      <button class="btn ghost sm" id="recBtn">🎙️ Record 10s of here</button>
+      <div class="grow"></div>
+      <button class="btn leaf sm" id="toRelease">Continue →</button>
+    </div>
+    <p class="hint" id="recNote" style="margin-top:8px"></p>
+  </div>
+</section>
+
+<!-- 4 · RELEASE -->
+<section class="panel" id="p-release">
+  <div class="card">
+    <h2>The art of letting go 🕊️</h2>
+    <p class="hint">Real nature art doesn't last — and that's the gift. Keep a memory of what you grew, then let the wind take it. What you made still mattered.</p>
+    <div class="row" style="margin-top:14px">
+      <button class="btn gold" id="keepFirst">📸 Keep a memory first</button>
+      <button class="btn grow" id="releaseBtn">🌬️ Let it go</button>
+    </div>
+    <p class="hint" id="releaseMsg" style="margin-top:12px"></p>
+    <div class="row end" style="margin-top:8px"><button class="btn leaf sm" id="toKeep">Finish →</button></div>
+  </div>
+</section>
+
+<!-- 5 · KEEP -->
+<section class="panel" id="p-keep">
+  <div class="card">
+    <h2>Keep your creation 🌟</h2>
+    <p class="hint">Tie it to this week's activity (optional) and the studio writes a gentle line about what you made. Save it to your portfolio.</p>
+    <select id="activitySel" style="margin:12px 0">
+      <option value="">— Which activity is this for? —</option>
+      <option>Self-Portrait</option><option>My Safe Space</option><option>My Family</option>
+      <option>My Journey</option><option>My Homestead</option><option>Vision Board</option>
+      <option>Letter to Myself</option><option>My Song of Strength</option>
+    </select>
+    <select id="langSel">
+      <option value="en">Affirmation in English</option>
+      <option value="af">Bevestiging in Afrikaans</option>
+      <option value="xh">Isiqinisekiso ngesiXhosa</option>
+    </select>
+    <div class="caption" id="caption"></div>
+    <div class="affirm" id="affirm"></div>
+    <img id="exportPreview" alt="your saved creation" />
+    <div class="row" style="margin-top:14px">
+      <button class="btn gold grow" id="composeBtn">🎴 Create keepsake card</button>
+      <button class="btn leaf grow" id="saveBtn">💾 Save to portfolio</button>
+    </div>
+    <p class="hint" id="saveNote" style="margin-top:8px"></p>
+  </div>
+</section>
+
+<footer>
+  MojaMind · Nature Studio prototype — 100% on-device, zero-bandwidth<br/>
+  © 2018–2026 Ionity (Pty) Ltd | Antwerp Designs — Policy 986 AED — TM²<br/>
+  Building Tomorrow, Today. · Anything is Possible with God.
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(s){ return document.querySelector(s); };
+  var $$ = function(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); };
+
+  /* ---------- state ---------- */
+  var S = {
+    palette: ["#8a5a3c","#c9a35b","#5a7d4b","#2e4a34","#d9c9a3"],
+    palName: "Earth & Ember",
+    spirit: "roots",
+    reduceMotion: false,
+    breathe: false,
+    beforeImg: null,      // dataURL kept before release
+    released: false,
+    sound: null,
+    activity: "",
+    lang: "en"
+  };
+
+  /* ---------- stage nav ---------- */
+  function go(name){
+    $$(".panel").forEach(function(p){ p.classList.remove("show"); });
+    $("#p-"+name).classList.add("show");
+    $$(".step").forEach(function(s){
+      s.classList.toggle("active", s.getAttribute("data-go")===name);
+    });
+    if(name==="grow"){ fitCanvas(); }
+    if(name==="keep"){ refreshCaption(); }
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+  $$(".step").forEach(function(s){ s.addEventListener("click", function(){ go(s.getAttribute("data-go")); }); });
+  function markDone(name){ $$(".step").forEach(function(s){ if(s.getAttribute("data-go")===name) s.classList.add("done"); }); }
+
+  /* ============================================================
+     1 · GATHER — palette extraction from a real photo
+     ============================================================ */
+  var HUEWORDS = {
+    warm:["Bark","Ember","Clay","Amber","Rust","Honey"],
+    green:["Moss","Leaf","Fern","Sage","Meadow","Forest"],
+    cool:["River","Sky","Dusk","Slate","Rain","Mist"],
+    light:["Sand","Bone","Dawn","Cloud","Pearl","Chalk"],
+    dark:["Soil","Shadow","Night","Coal","Root","Storm"]
+  };
+  function pick(arr,seed){ return arr[Math.abs(seed)%arr.length]; }
+
+  function rgbToHsl(r,g,b){
+    r/=255; g/=255; b/=255;
+    var mx=Math.max(r,g,b), mn=Math.min(r,g,b), h=0, s=0, l=(mx+mn)/2;
+    if(mx!==mn){
+      var d=mx-mn;
+      s = l>0.5 ? d/(2-mx-mn) : d/(mx+mn);
+      if(mx===r) h=(g-b)/d+(g<b?6:0);
+      else if(mx===g) h=(b-r)/d+2;
+      else h=(r-g)/d+4;
+      h/=6;
+    }
+    return [h*360,s,l];
+  }
+  function hex(r,g,b){
+    return "#"+[r,g,b].map(function(v){ var h=Math.max(0,Math.min(255,Math.round(v))).toString(16); return h.length<2?"0"+h:h; }).join("");
+  }
+
+  function extractPalette(img){
+    var c=document.createElement("canvas"), n=72;
+    var scale=Math.min(1, n/Math.max(img.width,img.height));
+    c.width=Math.max(1,Math.round(img.width*scale));
+    c.height=Math.max(1,Math.round(img.height*scale));
+    var ctx=c.getContext("2d");
+    ctx.drawImage(img,0,0,c.width,c.height);
+    var data;
+    try{ data=ctx.getImageData(0,0,c.width,c.height).data; }
+    catch(e){ return null; }
+    // bucket colours into a coarse cube, count frequency
+    var buckets={};
+    for(var i=0;i<data.length;i+=4){
+      var a=data[i+3]; if(a<125) continue;
+      var r=data[i], g=data[i+1], b=data[i+2];
+      var key=(r>>5)+"-"+(g>>5)+"-"+(b>>5);
+      if(!buckets[key]) buckets[key]={r:0,g:0,b:0,n:0};
+      var o=buckets[key]; o.r+=r; o.g+=g; o.b+=b; o.n++;
+    }
+    var list=Object.keys(buckets).map(function(k){
+      var o=buckets[k]; return {r:o.r/o.n,g:o.g/o.n,b:o.b/o.n,n:o.n};
+    }).sort(function(x,y){ return y.n-x.n; });
+    // greedily pick distinct colours
+    var chosen=[];
+    for(var j=0;j<list.length && chosen.length<5;j++){
+      var col=list[j], ok=true;
+      for(var m=0;m<chosen.length;m++){
+        var dr=col.r-chosen[m].r, dg=col.g-chosen[m].g, db=col.b-chosen[m].b;
+        if(dr*dr+dg*dg+db*db < 1400){ ok=false; break; }
+      }
+      if(ok) chosen.push(col);
+    }
+    if(!chosen.length) return null;
+    return chosen.map(function(c){ return hex(c.r,c.g,c.b); });
+  }
+
+  function namePalette(hexes){
+    // average hue/lightness → a two-word poetic name
+    var H=0,Ssum=0,L=0,cnt=0;
+    hexes.forEach(function(h){
+      var r=parseInt(h.substr(1,2),16),g=parseInt(h.substr(3,2),16),b=parseInt(h.substr(5,2),16);
+      var hsl=rgbToHsl(r,g,b); H+=hsl[0]; Ssum+=hsl[1]; L+=hsl[2]; cnt++;
+    });
+    H/=cnt; L/=cnt; Ssum/=cnt;
+    var seed=Math.round(H+L*100+hexes.length);
+    var a, b;
+    if(L>0.72) a=pick(HUEWORDS.light,seed);
+    else if(L<0.28) a=pick(HUEWORDS.dark,seed+1);
+    else if(Ssum<0.12) a=pick(HUEWORDS.cool,seed+2);
+    else if(H>=70 && H<=165) a=pick(HUEWORDS.green,seed+3);
+    else if(H>=165 && H<=265) a=pick(HUEWORDS.cool,seed+4);
+    else a=pick(HUEWORDS.warm,seed+5);
+    // second word — complementary vibe
+    var pools=[HUEWORDS.warm,HUEWORDS.green,HUEWORDS.cool,HUEWORDS.light,HUEWORDS.dark];
+    b=pick(pools[(seed+2)%pools.length], seed+9);
+    if(b===a) b=pick(HUEWORDS.warm,seed+13);
+    return a+" & "+b;
+  }
+
+  function paintPalette(){
+    var box=$("#swatches"); box.innerHTML="";
+    S.palette.forEach(function(c){
+      var d=document.createElement("div"); d.className="sw"; d.style.background=c; box.appendChild(d);
+    });
+    $("#palName").textContent = S.palName;
+    $("#grounding").innerHTML = "Before you grow, ground yourself with what you gathered: <b>name one thing you can see, one you can feel, and one you can hear</b> around you right now. 🌍";
+    $("#paletteBox").style.display="block";
+    markDone("gather");
+  }
+
+  $("#pickBtn").addEventListener("click", function(){ $("#file").click(); });
+  $("#file").addEventListener("change", function(e){
+    var f=e.target.files && e.target.files[0]; if(!f) return;
+    var url=URL.createObjectURL(f);
+    var img=new Image();
+    img.onload=function(){
+      $("#thumb").src=url; $("#thumb").style.display="block";
+      var pal=extractPalette(img);
+      if(pal && pal.length){ S.palette=pal; S.palName=namePalette(pal); }
+      paintPalette();
+    };
+    img.onerror=function(){ paintPalette(); };
+    img.src=url;
+  });
+  $("#skipBtn").addEventListener("click", function(){
+    S.palette=["#7c5533","#c9a35b","#5a7d4b","#2e4a34","#e7d8b5"];
+    S.palName="Earth & Ember";
+    $("#thumb").style.display="none";
+    paintPalette();
+  });
+  $("#toGrow").addEventListener("click", function(){ go("grow"); });
+
+  /* ============================================================
+     2 · GROW — generative living canvas
+     ============================================================ */
+  var cv=$("#art"), ctx=cv.getContext("2d");
+  var W=0,H=0,DPR=Math.min(2, window.devicePixelRatio||1);
+  var tips=[], particles=[], raf=null, tGlobal=0;
+
+  function fitCanvas(){
+    var r=cv.getBoundingClientRect();
+    W=Math.max(300, r.width); H=Math.max(320, r.height);
+    cv.width=Math.round(W*DPR); cv.height=Math.round(H*DPR);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    background();
+    if(!tips.length) seedInitial();
+    if(!raf) loop();
+  }
+  function background(){
+    var g=ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,"#190a2e"); g.addColorStop(1,"#07120f");
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  }
+  function palAt(i){ return S.palette[(i%S.palette.length+S.palette.length)%S.palette.length]; }
+
+  function newTip(x,y,ang,depth){
+    return {x:x,y:y,ang:ang,depth:depth==null?0:depth,life:60+Math.random()*70,
+            w:Math.max(1,4-(depth||0)*0.6), ci:Math.floor(Math.random()*S.palette.length),
+            wob:(Math.random()-0.5)*0.06};
+  }
+  function seedInitial(){
+    tips=[]; particles=[];
+    plantSeeds(true);
+  }
+  function plantSeeds(initial){
+    var n = S.spirit==="myco" ? 5 : (S.spirit==="bloom"?1:3);
+    for(var i=0;i<n;i++){
+      var x,y,ang;
+      if(S.spirit==="roots"){ x=W*(0.2+0.6*Math.random()); y=H*0.12; ang=Math.PI/2; }
+      else if(S.spirit==="vine"){ x=W*(0.2+0.6*Math.random()); y=H*0.94; ang=-Math.PI/2; }
+      else if(S.spirit==="bloom"){ x=W/2; y=H/2; ang=Math.random()*Math.PI*2; }
+      else { x=W*Math.random(); y=H*Math.random(); ang=Math.random()*Math.PI*2; }
+      if(S.spirit==="bloom"){
+        var petals=8;
+        for(var p=0;p<petals;p++) tips.push(newTip(x,y,(p/petals)*Math.PI*2,0));
+      } else {
+        tips.push(newTip(x,y,ang,0));
+      }
+    }
+    if(initial){ /* nothing */ }
+  }
+
+  function stepGrowth(active){
+    var next=[], grew=active;
+    for(var i=0;i<tips.length;i++){
+      var t=tips[i];
+      if(t.life<=0){ continue; }
+      if(grew){
+        var speed = S.spirit==="myco"?3.2:2.6;
+        // spirit-specific steering
+        if(S.spirit==="roots"){ t.ang += t.wob + 0.02*Math.sin(tGlobal*0.02+t.x); }
+        else if(S.spirit==="vine"){ t.ang += Math.sin(tGlobal*0.05+t.x*0.05)*0.10; }
+        else if(S.spirit==="bloom"){ t.ang += t.wob*0.5; }
+        else { t.ang += (Math.random()-0.5)*0.5; }
+        var nx=t.x+Math.cos(t.ang)*speed, ny=t.y+Math.sin(t.ang)*speed;
+        ctx.strokeStyle=palAt(t.ci); ctx.lineWidth=t.w; ctx.lineCap="round";
+        ctx.globalAlpha=0.9;
+        ctx.beginPath(); ctx.moveTo(t.x,t.y); ctx.lineTo(nx,ny); ctx.stroke();
+        ctx.globalAlpha=1;
+        t.x=nx; t.y=ny; t.life--;
+        // node glow + pollen
+        if(Math.random()<0.05){ glow(nx,ny,palAt(t.ci)); }
+        if(Math.random()<0.03) particles.push({x:nx,y:ny,vx:(Math.random()-0.5)*0.3,vy:-0.2-Math.random()*0.3,life:120,c:S.palette[0]});
+        // branch
+        var branchP = S.spirit==="myco"?0.10:0.045;
+        if(Math.random()<branchP && t.depth<5 && tips.length+next.length<520){
+          var spread = S.spirit==="bloom"?0.3:0.6;
+          next.push(newTip(t.x,t.y,t.ang+(Math.random()-0.5)*2*spread,t.depth+1));
+        }
+        // out of bounds → retire
+        if(t.x<-20||t.x>W+20||t.y<-20||t.y>H+20) t.life=0;
+      }
+      if(t.life>0) next.push(t);
+    }
+    tips=next;
+  }
+  function glow(x,y,c){
+    var r=6+Math.random()*8;
+    var g=ctx.createRadialGradient(x,y,0,x,y,r);
+    g.addColorStop(0,c); g.addColorStop(1,"rgba(0,0,0,0)");
+    ctx.globalAlpha=0.5; ctx.fillStyle=g;
+    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill(); ctx.globalAlpha=1;
+  }
+  function stepParticles(){
+    for(var i=particles.length-1;i>=0;i--){
+      var p=particles[i]; p.x+=p.vx; p.y+=p.vy; p.vy-=0.002; p.life--;
+      if(p.life<=0){ particles.splice(i,1); continue; }
+      ctx.globalAlpha=Math.max(0,p.life/120)*0.8;
+      ctx.fillStyle=p.c||"#ffd166";
+      ctx.beginPath(); ctx.arc(p.x,p.y,1.5,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+  }
+
+  /* breathing cycle: in 4s, hold 2s, out 6s, rest 2s (14s loop) */
+  function breathPhase(){
+    var t=(tGlobal*16.6)%14000; // approx ms
+    if(t<4000) return {grow:true,word:"Breathe in…"};
+    if(t<6000) return {grow:true,word:"Hold…"};
+    if(t<12000) return {grow:false,word:"Breathe out…"};
+    return {grow:false,word:"Rest…"};
+  }
+
+  function loop(){
+    tGlobal++;
+    var active=true;
+    if(S.reduceMotion){
+      // grow in gentle discrete bursts, no continuous animation feel
+      active = (tGlobal%3===0);
+    }
+    if(S.breathe){
+      var ph=breathPhase();
+      active = ph.grow;
+      $("#breathWord").textContent=ph.word;
+    }
+    stepGrowth(active);
+    stepParticles();
+    raf=requestAnimationFrame(loop);
+  }
+
+  $$("#spirits .spirit").forEach(function(el){
+    el.addEventListener("click", function(){
+      $$("#spirits .spirit").forEach(function(x){ x.classList.remove("sel"); });
+      el.classList.add("sel");
+      S.spirit=el.getAttribute("data-spirit");
+      background(); tips=[]; particles=[]; plantSeeds(true);
+      markDone("grow");
+    });
+  });
+  cv.addEventListener("pointerdown", function(e){
+    var r=cv.getBoundingClientRect();
+    var x=e.clientX-r.left, y=e.clientY-r.top;
+    var n = S.spirit==="bloom"?6:3;
+    for(var i=0;i<n;i++){
+      tips.push(newTip(x,y, S.spirit==="roots"?Math.PI/2 : S.spirit==="vine"?-Math.PI/2 : Math.random()*Math.PI*2, 0));
+    }
+    glow(x,y,"#ffd166");
+    markDone("grow");
+  });
+  $("#seedBtn").addEventListener("click", function(){ plantSeeds(false); });
+  $("#clearBtn").addEventListener("click", function(){ background(); tips=[]; particles=[]; S.released=false; S.beforeImg=null; });
+  $("#toSound").addEventListener("click", function(){ go("sound"); });
+
+  function toggle(el,key,after){
+    el.addEventListener("click", function(){
+      el.classList.toggle("on");
+      S[key]=el.classList.contains("on");
+      if(after) after();
+    });
+  }
+  toggle($("#breathToggle"),"breathe",function(){ $("#breath").classList.toggle("on",S.breathe); });
+  toggle($("#motionToggle"),"reduceMotion");
+
+  /* ============================================================
+     3 · SOUND — compact 432Hz WebAudio engine (from soundscape.js)
+     ============================================================ */
+  var SND=(function(){
+    var ac=null, master=null, nodes=[], iv=null, playing=false, cur=null;
+    var PRESETS={
+      "432hz":{freqs:[432,486,540,648,720]},
+      "meadow":{freqs:[216,324,432]},
+      "stream":{freqs:[288,384,576]},
+      "bowl":{freqs:[108,216,432,864]}
+    };
+    function ctxx(){
+      var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return null;
+      if(!ac){ ac=new AC(); master=ac.createGain(); master.gain.value=0.2;
+        var f=ac.createBiquadFilter(); f.type="lowpass"; f.frequency.value=1900; f.Q.value=0.7;
+        master.connect(f); f.connect(ac.destination); }
+      if(ac.state==="suspended") ac.resume();
+      return ac;
+    }
+    function noise(c,dur){
+      var n=c.sampleRate*(dur||3), buf=c.createBuffer(1,n,c.sampleRate), o=buf.getChannelData(0);
+      var b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+      for(var i=0;i<n;i++){ var w=Math.random()*2-1;
+        b0=0.99886*b0+w*0.0555179; b1=0.99332*b1+w*0.0750759; b2=0.969*b2+w*0.153852;
+        b3=0.8665*b3+w*0.3104856; b4=0.55*b4+w*0.5329522; b5=-0.7616*b5-w*0.016898;
+        o[i]=(b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.11; b6=w*0.115926; }
+      return buf;
+    }
+    function stop(){
+      playing=false; if(iv){ clearInterval(iv); iv=null; }
+      nodes.forEach(function(n){ try{ n.stop&&n.stop(); }catch(e){} try{ n.disconnect&&n.disconnect(); }catch(e){} });
+      nodes=[]; cur=null;
+    }
+    function start(key){
+      var c=ctxx(); if(!c) return false;
+      stop(); playing=true; cur=key;
+      var pr=PRESETS[key]||PRESETS["432hz"];
+      if(key==="meadow"||key==="stream"){
+        var src=c.createBufferSource(); src.buffer=noise(c); src.loop=true;
+        var flt=c.createBiquadFilter(); flt.type=key==="stream"?"bandpass":"lowpass";
+        flt.frequency.value=key==="stream"?450:260;
+        var lfo=c.createOscillator(), lg=c.createGain(); lfo.frequency.value=0.18; lg.gain.value=140;
+        lfo.connect(lg); lg.connect(flt.frequency);
+        var ng=c.createGain(); ng.gain.value=0.0; ng.gain.exponentialRampToValueAtTime(key==="stream"?0.16:0.12,c.currentTime+2.5);
+        src.connect(flt); flt.connect(ng); ng.connect(master); src.start(); lfo.start();
+        nodes.push(src,lfo,flt,ng);
+      }
+      var idx=0;
+      function chord(){
+        if(!playing) return;
+        var base=pr.freqs[idx%pr.freqs.length], harm=pr.freqs[(idx+2)%pr.freqs.length]||base*1.5;
+        [base/2,base,harm].forEach(function(f,k){
+          var osc=c.createOscillator(), g=c.createGain();
+          osc.type=k===0?"sine":"triangle"; osc.frequency.value=f;
+          g.gain.value=0; g.gain.linearRampToValueAtTime(0.12/(k+1),c.currentTime+1.2);
+          g.gain.linearRampToValueAtTime(0.0001,c.currentTime+3.6);
+          osc.connect(g); g.connect(master); osc.start();
+          osc.stop(c.currentTime+3.8); nodes.push(osc);
+        });
+        idx++;
+      }
+      chord(); iv=setInterval(chord,3200);
+      return true;
+    }
+    return {start:start,stop:stop,isPlaying:function(){return playing;},current:function(){return cur;}};
+  })();
+
+  $$("#sounds .sound").forEach(function(el){
+    el.addEventListener("click", function(){
+      var key=el.getAttribute("data-preset");
+      if(SND.isPlaying() && SND.current()===key){ SND.stop(); el.classList.remove("on"); S.sound=null; return; }
+      $$("#sounds .sound").forEach(function(x){ x.classList.remove("on"); });
+      SND.start(key); el.classList.add("on"); S.sound=key; markDone("sound");
+    });
+  });
+  $("#stopSound").addEventListener("click", function(){ SND.stop(); $$("#sounds .sound").forEach(function(x){x.classList.remove("on");}); S.sound=null; });
+  var recorder=null, chunks=[];
+  $("#recBtn").addEventListener("click", function(){
+    if(recorder && recorder.state==="recording"){ recorder.stop(); return; }
+    if(!navigator.mediaDevices || !window.MediaRecorder){ $("#recNote").textContent="Recording isn't supported on this browser — the 432Hz soundscapes work everywhere though. 🎧"; return; }
+    navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+      recorder=new MediaRecorder(stream); chunks=[];
+      recorder.ondataavailable=function(e){ chunks.push(e.data); };
+      recorder.onstop=function(){ stream.getTracks().forEach(function(t){t.stop();}); $("#recNote").textContent="Captured the sound of where you are. 🌍 (kept on your device)"; S.sound="field-recording"; markDone("sound"); };
+      recorder.start(); $("#recNote").textContent="Listening… tap again to stop (auto-stops in 10s). 🎙️";
+      setTimeout(function(){ if(recorder && recorder.state==="recording") recorder.stop(); }, 10000);
+    }).catch(function(){ $("#recNote").textContent="Microphone permission was declined — no problem, try a 432Hz soundscape instead. 🎧"; });
+  });
+  $("#toRelease").addEventListener("click", function(){ go("release"); });
+
+  /* ============================================================
+     4 · RELEASE — keep a memory, then scatter to the wind
+     ============================================================ */
+  function snapshot(){ try{ return cv.toDataURL("image/png"); }catch(e){ return null; } }
+  $("#keepFirst").addEventListener("click", function(){
+    S.beforeImg=snapshot();
+    $("#releaseMsg").innerHTML="Memory kept. 💛 Whatever happens now, this moment is saved.";
+  });
+  $("#releaseBtn").addEventListener("click", function(){
+    if(!S.beforeImg) S.beforeImg=snapshot();
+    scatter();
+    S.released=true;
+    markDone("release");
+    $("#releaseMsg").innerHTML="<b>Gone with the wind.</b> 🕊️ It didn't need to last to be real. Neither do the hard days.";
+  });
+  function scatter(){
+    // sample current canvas into drifting particles, then fade to background
+    var grid=[]; var step=10;
+    var img; try{ img=ctx.getImageData(0,0,cv.width,cv.height); }catch(e){ img=null; }
+    if(img){
+      for(var y=0;y<H;y+=step){ for(var x=0;x<W;x+=step){
+        var idx=((Math.floor(y*DPR)*cv.width)+Math.floor(x*DPR))*4;
+        var a=img.data[idx+3];
+        var r=img.data[idx],g=img.data[idx+1],b=img.data[idx+2];
+        // skip near-background pixels
+        if(r+g+b<60) continue;
+        grid.push({x:x,y:y,vx:1+Math.random()*2.4,vy:-0.5-Math.random()*1.6,c:"rgb("+r+","+g+","+b+")",life:60+Math.random()*40});
+      }}
+    }
+    var frame=0;
+    function anim(){
+      frame++;
+      background();
+      var alive=false;
+      for(var i=0;i<grid.length;i++){
+        var p=grid[i]; if(p.life<=0) continue; alive=true;
+        p.x+=p.vx; p.y+=p.vy; p.vx*=1.01; p.vy+=0.01; p.life--;
+        ctx.globalAlpha=Math.max(0,p.life/90);
+        ctx.fillStyle=p.c; ctx.fillRect(p.x,p.y,3,3);
+      }
+      ctx.globalAlpha=1;
+      if(alive && frame<160) requestAnimationFrame(anim);
+      else { background(); tips=[]; particles=[]; }
+    }
+    // pause the growth loop visuals during scatter by clearing tips
+    tips=[]; particles=[];
+    anim();
+  }
+  $("#toKeep").addEventListener("click", function(){ go("keep"); });
+
+  /* ============================================================
+     5 · KEEP — poetic caption, affirmation, keepsake card, save
+     ============================================================ */
+  var SPIRIT_WORDS={roots:"roots that hold you steady",vine:"a vine reaching for the light",
+    myco:"a web of quiet connections",bloom:"a bloom of pure hope"};
+  var AFFIRM={
+    en:["You grew something only you could grow.","What you make matters — even when it doesn't last.","You are allowed to begin again, softly.","Ithemba — hope — grows in you."],
+    af:["Jy het iets laat groei wat net jy kon laat groei.","Wat jy skep, maak saak — selfs as dit nie bly nie.","Jy mag saggies weer begin.","Hoop groei in jou."],
+    xh:["Ukhulise into obunokuyikhulisa wena kuphela.","Into oyenzayo ibalulekile — noba ayihlali.","Uvumelekile ukuqala kwakhona, ngothando.","Ithemba likhula kuwe."]
+  };
+  function refreshCaption(){
+    S.activity=$("#activitySel").value; S.lang=$("#langSel").value;
+    var act=S.activity?(" for <b>"+S.activity+"</b>"):"";
+    var cap="You gathered the "+S.palName.toLowerCase()+" of the earth and grew "+
+      (SPIRIT_WORDS[S.spirit]||"something alive")+ act +
+      (S.released?", then let it go on the wind.":".");
+    $("#caption").innerHTML="“"+cap+"”";
+    var list=AFFIRM[S.lang]||AFFIRM.en;
+    $("#affirm").textContent=list[Math.floor(Math.random()*list.length)];
+  }
+  $("#activitySel").addEventListener("change", refreshCaption);
+  $("#langSel").addEventListener("change", refreshCaption);
+
+  function composeCard(){
+    var W2=1080,H2=1350, c=document.createElement("canvas"); c.width=W2; c.height=H2;
+    var x=c.getContext("2d");
+    var g=x.createLinearGradient(0,0,W2,H2); g.addColorStop(0,"#190a2e"); g.addColorStop(1,"#07120f");
+    x.fillStyle=g; x.fillRect(0,0,W2,H2);
+    // artwork (use the kept snapshot if released, else live canvas)
+    var art=new Image();
+    function draw(){
+      var pad=70, aw=W2-pad*2, ah=760, ay=150;
+      x.save(); x.beginPath(); roundRect(x,pad,ay,aw,ah,28); x.clip();
+      try{ x.drawImage(art,pad,ay,aw,ah); }catch(e){ x.fillStyle="#0c1a16"; x.fillRect(pad,ay,aw,ah); }
+      x.restore();
+      x.strokeStyle="rgba(255,255,255,.18)"; x.lineWidth=2; roundRect(x,pad,ay,aw,ah,28); x.stroke();
+      // palette bar
+      var sw=(aw)/S.palette.length, by=ay+ah+24;
+      S.palette.forEach(function(col,i){ x.fillStyle=col; x.fillRect(pad+i*sw,by,sw,26); });
+      // header
+      x.fillStyle="#fff"; x.textAlign="left"; x.font="800 46px Poppins,sans-serif";
+      x.fillText("🌿 Nature Studio", pad, 100);
+      x.font="600 24px Poppins,sans-serif"; x.fillStyle="rgba(255,255,255,.65)";
+      x.fillText(S.palName + (S.activity?("  ·  "+S.activity):""), pad, 132);
+      // caption
+      x.fillStyle="rgba(255,255,255,.92)"; x.font="italic 30px Poppins,sans-serif";
+      wrap(x, $("#caption").textContent, pad, by+80, aw, 40);
+      // affirmation
+      x.fillStyle="#ffd166"; x.font="800 34px Poppins,sans-serif";
+      wrap(x, $("#affirm").textContent, pad, by+230, aw, 44);
+      // footer
+      x.fillStyle="rgba(255,255,255,.5)"; x.font="600 20px Poppins,sans-serif";
+      x.fillText("MojaMind · Building Tomorrow, Today · © Ionity (Pty) Ltd", pad, H2-50);
+      var url=c.toDataURL("image/png");
+      $("#exportPreview").src=url; $("#exportPreview").style.display="block";
+      S.cardUrl=url;
+    }
+    art.onload=draw; art.onerror=draw;
+    art.src = (S.released && S.beforeImg) ? S.beforeImg : (snapshot()||"");
+  }
+  function roundRect(x,ax,ay,w,h,r){ x.beginPath(); x.moveTo(ax+r,ay); x.arcTo(ax+w,ay,ax+w,ay+h,r);
+    x.arcTo(ax+w,ay+h,ax,ay+h,r); x.arcTo(ax,ay+h,ax,ay,r); x.arcTo(ax,ay,ax+w,ay,r); x.closePath(); }
+  function wrap(x,text,ax,ay,maxw,lh){
+    var words=(text||"").split(" "), line="", yy=ay;
+    for(var i=0;i<words.length;i++){
+      var test=line+words[i]+" ";
+      if(x.measureText(test).width>maxw && i>0){ x.fillText(line,ax,yy); line=words[i]+" "; yy+=lh; }
+      else line=test;
+    }
+    x.fillText(line,ax,yy);
+  }
+  $("#composeBtn").addEventListener("click", function(){ refreshCaption(); composeCard();
+    setTimeout(function(){
+      if(!S.cardUrl) return;
+      var a=document.createElement("a"); a.href=S.cardUrl; a.download="mojomind-nature-"+Date.now()+".png"; a.click();
+    },350);
+  });
+  $("#saveBtn").addEventListener("click", function(){
+    refreshCaption();
+    var payload={
+      kind:"nature",
+      at:Date.now(),
+      palette:S.palette, palName:S.palName, spirit:S.spirit,
+      sound:S.sound, activity:S.activity, released:S.released,
+      caption:$("#caption").textContent, affirmation:$("#affirm").textContent,
+      src:(S.released && S.beforeImg)?S.beforeImg:snapshot()
+    };
+    // In the real app this becomes: st.uploads.push(payload); save();
+    try{
+      if(window.parent && window.parent.MMNatureSave){ window.parent.MMNatureSave(payload); }
+      $("#saveNote").innerHTML="Saved to your portfolio. 🌟 <span class='sub'>("+ (payload.src?"artwork + ":"") +"palette, spirit, sound & reflection captured)</span>";
+    }catch(e){ $("#saveNote").textContent="Saved locally. 🌟"; }
+    markDone("keep");
+  });
+
+  /* init */
+  window.addEventListener("resize", function(){ if($("#p-grow").classList.contains("show")) fitCanvas(); });
+  paintPalette();
+})();
+</script>

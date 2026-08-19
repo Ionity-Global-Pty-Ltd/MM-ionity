@@ -995,8 +995,10 @@ const MMVideo = (() => {
     try { cancelAnimationFrame(animRaf); } catch (_) {}
 
     const hasRealVideo = !!script.videoSrc;
-    // Default to the rich Cinematic Motion Studio with full animations
-    let useMotionStudio = true;
+    // Video-first: when a real MP4 clip exists we play it FIRST, then auto-advance
+    // into the 432Hz Motion Studio explanation when it ends. With no clip
+    // (pre/post/general guides) we open straight into the Studio.
+    let useMotionStudio = !hasRealVideo;
 
     const m = modal(`
       <div class="video-modal-wrap" style="color:#ffffff">
@@ -1008,7 +1010,7 @@ const MMVideo = (() => {
           <div style="display:flex;gap:6px;align-items:center">
             ${hasRealVideo ? `
               <button class="btn btn-ghost btn-xs" id="vid-mode-toggle" style="font-size:11px;border:1px solid rgba(51,102,255,0.6);padding:3px 8px;border-radius:6px">
-                🔄 Switch to Clip
+                🔄 Switch to Studio
               </button>
             ` : ''}
             <span style="font-size:11px;font-weight:700;background:linear-gradient(135deg,#3366FF,#8a2eae);color:#fff;padding:3px 8px;border-radius:6px">
@@ -1023,8 +1025,8 @@ const MMVideo = (() => {
           </div>
 
           <div id="vid-container" style="width:100%;height:auto;aspect-ratio:16/9;position:relative">
-            <canvas id="motion-video-canvas" width="640" height="360" style="width:100%;height:auto;aspect-ratio:16/9;display:block"></canvas>
-            <video id="hd-video-player" src="${script.videoSrc || ''}" playsinline controls preload="none" onerror="var c=document.getElementById('motion-video-canvas'); if(c)c.style.display='block'; this.style.display='none'; var t=document.getElementById('vid-mode-toggle'); if(t)t.textContent='🔄 Switch to Clip';" style="width:100%;height:auto;aspect-ratio:16/9;display:none;background:#000"></video>
+            <canvas id="motion-video-canvas" width="640" height="360" style="width:100%;height:auto;aspect-ratio:16/9;display:${hasRealVideo ? 'none' : 'block'}"></canvas>
+            <video id="hd-video-player" src="${script.videoSrc || ''}" playsinline controls preload="${hasRealVideo ? 'auto' : 'none'}" style="width:100%;height:auto;aspect-ratio:16/9;display:${hasRealVideo ? 'block' : 'none'};background:#000"></video>
           </div>
 
           <div class="video-overlay-controls" style="position:absolute;bottom:0;left:0;right:0;padding:8px 14px;background:linear-gradient(0deg,rgba(0,0,0,0.92),transparent);display:flex;align-items:center;gap:10px;z-index:10">
@@ -1070,21 +1072,49 @@ const MMVideo = (() => {
     const stageFrame = m.querySelector('#vid-stage-frame');
     const modeToggle = m.querySelector('#vid-mode-toggle');
 
-    modeToggle?.addEventListener('click', () => {
-      useMotionStudio = !useMotionStudio;
-      if (useMotionStudio) {
-        if (activeCanvas) activeCanvas.style.display = 'block';
-        if (activeVideoEl) { activeVideoEl.style.display = 'none'; activeVideoEl.pause(); }
-        modeToggle.textContent = '🔄 Switch to Clip';
-        isPlaying = true;
-      } else {
-        if (activeCanvas) activeCanvas.style.display = 'none';
-        if (activeVideoEl) { activeVideoEl.style.display = 'block'; activeVideoEl.play().catch(() => {}); }
-        modeToggle.textContent = '🔄 Switch to Studio';
+    // ── Video-first flow helpers ─────────────────────────────────
+    // Show the animated 432Hz explanation studio (optionally restart it).
+    function showStudio(restart = true) {
+      useMotionStudio = true;
+      if (activeCanvas) activeCanvas.style.display = 'block';
+      if (activeVideoEl) { try { activeVideoEl.pause(); } catch (_) {} activeVideoEl.style.display = 'none'; }
+      if (modeToggle) modeToggle.textContent = '🔄 Switch to Clip';
+      if (restart) { currentMs = 0; lastSpokenChapter = -1; }
+      isPlaying = true;
+      if (playBtn) playBtn.textContent = '⏸';
+    }
+    // Show the real MP4 clip and play it from the start.
+    function showClip() {
+      useMotionStudio = false;
+      if (typeof MMVoice !== 'undefined' && MMVoice.stop) { try { MMVoice.stop(); } catch (_) {} }
+      if (activeCanvas) activeCanvas.style.display = 'none';
+      if (activeVideoEl) {
+        activeVideoEl.style.display = 'block';
+        try { activeVideoEl.currentTime = 0; } catch (_) {}
+        activeVideoEl.play().catch(() => {});
       }
+      if (modeToggle) modeToggle.textContent = '🔄 Switch to Studio';
+      isPlaying = false; // studio timeline is paused while the real clip plays
+      if (playBtn) playBtn.textContent = '⏸';
+    }
+
+    modeToggle?.addEventListener('click', () => {
+      if (useMotionStudio) showClip();
+      else showStudio(true);
     });
 
+    // When the real clip finishes, roll straight into the explanation studio.
+    activeVideoEl?.addEventListener('ended', () => { if (!useMotionStudio) showStudio(true); });
+    // If the clip cannot load or play, fall back to the studio explanation.
+    activeVideoEl?.addEventListener('error', () => { if (!useMotionStudio) showStudio(true); });
+
     playBtn?.addEventListener('click', () => {
+      // In clip mode the play button controls the real <video> element.
+      if (!useMotionStudio && activeVideoEl) {
+        if (activeVideoEl.paused) { activeVideoEl.play().catch(() => {}); playBtn.textContent = '⏸'; }
+        else { activeVideoEl.pause(); playBtn.textContent = '▶'; }
+        return;
+      }
       isPlaying = !isPlaying;
       playBtn.textContent = isPlaying ? '⏸' : '▶';
       if (!isPlaying && typeof MMVoice !== 'undefined' && MMVoice.stop) MMVoice.stop();
@@ -1113,6 +1143,7 @@ const MMVideo = (() => {
     m.querySelectorAll('.btn-ch-dot').forEach(btn => {
       btn.addEventListener('click', () => {
         const ch = parseInt(btn.dataset.ch, 10) || 0;
+        if (!useMotionStudio) showStudio(false); // leave the clip, jump into the explanation
         currentMs = ch * (TOTAL_DURATION_MS / 5);
         lastSpokenChapter = -1;
         isPlaying = true;
@@ -1138,6 +1169,15 @@ const MMVideo = (() => {
       stopVideo();
       closeModal();
     });
+
+    // Kick off the experience: real clip first (it auto-advances to the studio
+    // when it ends). With no clip, the motion-studio timeline is already running.
+    if (hasRealVideo && activeVideoEl) {
+      try { activeVideoEl.currentTime = 0; } catch (_) {}
+      activeVideoEl.play().catch(() => {});
+      isPlaying = false; // studio timeline stays paused behind the clip
+      if (playBtn) playBtn.textContent = '⏸';
+    }
 
     if (activeCanvas) {
       // Budget phones: throttle frame-rate and shrink the backing buffer so the

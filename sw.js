@@ -10,7 +10,7 @@
    ============================================================ */
 'use strict';
 
-const CACHE_VERSION = 'mojamind-v3.6.1';
+const CACHE_VERSION = 'mojamind-v3.6.4';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const MAX_RUNTIME_ITEMS = 60;
@@ -32,7 +32,6 @@ const CORE_ASSETS = [
   './js/vault.js',
   './js/sync.js',
   './js/nlp.js',
-  './js/llm.js',
   './js/voice.js',
   './js/app.js',
   './icons/favicon.svg',
@@ -41,15 +40,15 @@ const CORE_ASSETS = [
   './icons/maskable-512.png',
   './icons/apple-touch-icon.png',
   './assets/branding/ionity-logo.svg',
+  './assets/branding/mojamind-logo-360.webp',
   './assets/branding/mojomind-flower.svg',
   './assets/branding/ionity-global.png',
   './assets/branding/ionity-global-white.png',
   './assets/branding/shout-colour-cloud.png',
   './assets/branding/shout-it-now-logo.png',
-  './assets/partners/stellenbosch-transparent.svg',
-  './assets/partners/stellenbosch-transparent.png',
   './assets/partners/stellenbosch.png',
   './assets/partners/stellenbosch.webp',
+  './assets/partners/stellenbosch-badge.webp',
   './assets/partners/gilead.svg',
   './assets/partners/gilead.png',
 ];

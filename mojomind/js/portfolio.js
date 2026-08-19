@@ -244,3 +244,6 @@ const MMPortfolio = (() => {
     showPortfolioModal,
   };
 })();
+
+/* Expose on globalThis so lazy proxy bridges (app.js ensureModule) can hand over. */
+globalThis.MMPortfolio = MMPortfolio;

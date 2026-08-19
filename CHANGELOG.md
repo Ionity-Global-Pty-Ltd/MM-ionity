@@ -1,3 +1,9 @@
+## v3.6.3 — 2026-08-19
+- **Fixed the broken floating bottom nav (#tabbar)** — element was missing from index.html; restored, re-styled to the glassmorphic `.nav-tab` spec and made clearly more visible (stronger border/glow, brighter labels, safe-area aware).
+- **Fixed Writer & Journal** — lazy MMSoundscape proxy lacked `soundscapeBarHTML`/`wireEvents`, crashing the whole journal render; proxy completed + guards added. Attached photos are now downscaled (quota/lag fix), media thumbs no longer duplicate or lose their remove buttons.
+- **Fixed lock screen crash** — `$('#tabbar').classList` null reference blocked PIN unlock.
+- **Lag / per-page loading** — `video.js` and `llm.js` no longer load at boot (lazy proxies per page); `llm.js`/`soundscape.js`/`portfolio.js` now expose `globalThis` handles so proxy hand-over works (previously infinite self-call). Brand logo swapped from 890 KB PNG to 34 KB WebP on every screen; splash SU logo 254 KB SVG → 32 KB WebP; favicon no longer the 890 KB PNG; Google Fonts made non-render-blocking; tabbar blur reduced 24→12 px for GPU relief; SW cache bumped to v3.6.3.
+
 <!-- markdownlint-disable MD024 -->
 # Changelog
 

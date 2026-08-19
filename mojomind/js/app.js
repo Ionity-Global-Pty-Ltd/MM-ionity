@@ -107,11 +107,11 @@ function flowerSVG(size = 34, opts = {}) {
 
 /* Official MojaMind logo mark — Smooth transparent brand lockup */
 function knotSVG(size = 130) {
-  return `<img src="./assets/branding/mojomind-logo.png?v=3.4.0" alt="MojaMind" class="auth-logo mm-brand-logo" style="width:${size}px;height:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 10px 28px rgba(51,102,255,0.5));display:inline-block;background:transparent;border:none;box-shadow:none" />`;
+  return `<img src="./assets/branding/mojamind-logo-360.webp?v=3.6.3" alt="MojaMind" class="auth-logo mm-brand-logo" style="width:${size}px;height:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 10px 28px rgba(51,102,255,0.5));display:inline-block;background:transparent;border:none;box-shadow:none" />`;
 }
 
 function mojoLogoHTML(size = 140, extraClass = '') {
-  return `<img src="./assets/branding/mojomind-logo.png?v=3.4.0" alt="MojaMind" class="auth-logo mm-brand-logo ${extraClass}" style="width:${size}px;height:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 10px 28px rgba(51,102,255,0.5));display:inline-block;background:transparent;border:none;box-shadow:none" />`;
+  return `<img src="./assets/branding/mojamind-logo-360.webp?v=3.6.3" alt="MojaMind" class="auth-logo mm-brand-logo ${extraClass}" style="width:${size}px;height:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 10px 28px rgba(51,102,255,0.5));display:inline-block;background:transparent;border:none;box-shadow:none" />`;
 }
 
 function faceSVG(kind, color, size = 62) {
@@ -585,7 +585,7 @@ function bootSplash() {
             <img src="./assets/branding/shout-it-now-logo.png" alt="SHOUT-IT-NOW" class="splash-shout" />
             <span class="splash-amp">&amp;</span>
             <span class="splash-partner-mark su has-img">
-              <img src="./assets/partners/stellenbosch-transparent.svg?v=3.4.0" alt="Stellenbosch University" class="su-trans-logo" />
+              <img src="./assets/partners/stellenbosch-badge.webp?v=3.6.4" alt="Stellenbosch University" class="su-trans-logo" />
             </span>
           </div>
         </div>
@@ -767,7 +767,7 @@ if (typeof window.MMVideo === 'undefined' || window.MMVideo.__isProxy) {
     __isProxy: true,
     playVideoModal: async (key, opts = {}) => {
       try {
-        const ok = await ensureModule('MMVideo', './js/video.js?v=3.6.0');
+        const ok = await ensureModule('MMVideo', './js/video.js?v=3.6.3');
         if (ok && typeof window.MMVideo !== 'undefined' && !window.MMVideo.__isProxy && window.MMVideo.playVideoModal) {
           window.MMVideo.playVideoModal(key, opts);
         } else {
@@ -781,6 +781,20 @@ if (typeof window.MMVideo === 'undefined' || window.MMVideo.__isProxy) {
     stop: () => {}
   };
 }
+if (typeof window.MMLLM === 'undefined' || window.MMLLM.__isProxy) {
+  window.MMLLM = {
+    __isProxy: true,
+    openQuickCoachModal: async (name) => {
+      await ensureModule('MMLLM', './js/llm.js?v=3.6.3');
+      if (window.MMLLM && !window.MMLLM.__isProxy && window.MMLLM.openQuickCoachModal) window.MMLLM.openQuickCoachModal(name);
+    },
+    generateResponse: async (text, ctx, onChunk) => {
+      await ensureModule('MMLLM', './js/llm.js?v=3.6.3');
+      if (window.MMLLM && !window.MMLLM.__isProxy && window.MMLLM.generateResponse) return window.MMLLM.generateResponse(text, ctx, onChunk);
+      return null;
+    },
+  };
+}
 if (typeof window.MMSoundscape === 'undefined' || window.MMSoundscape.__isProxy) {
   window.MMSoundscape = {
     __isProxy: true,
@@ -790,6 +804,12 @@ if (typeof window.MMSoundscape === 'undefined' || window.MMSoundscape.__isProxy)
         window.MMSoundscape.toggle();
       }
     },
+    showModal: async () => {
+      await ensureModule('MMSoundscape', './js/soundscape.js?v=2.8.2');
+      if (window.MMSoundscape && !window.MMSoundscape.__isProxy && window.MMSoundscape.showModal) window.MMSoundscape.showModal();
+    },
+    soundscapeBarHTML: () => '',  // real bar appears once the module loads
+    wireEvents: () => {},
     isPlaying: () => false,
     stop: () => {}
   };
@@ -871,7 +891,7 @@ function lockScreen(message = '') {
       <p class="auth-foot" style="color:#ffffff !important">AES-GCM 256 · your PIN never leaves this phone<br/>MojaMind · IONITY GLOBAL (PTY) LTD · <a href="https://www.ionity.co.za" target="_blank" style="color:#6ec1ff !important">www.ionity.co.za</a></p>
     </div>
   </div>`;
-  $('#tabbar').classList.add('hidden');
+  $('#tabbar')?.classList.add('hidden');
   app.classList.add('no-nav');
   const input = $('#lock-pin');
   input.focus();
@@ -1003,12 +1023,13 @@ function updateTabbar(name) {
   if (bar) {
     bar.innerHTML = tabs.map(t => {
       const locked = t.gated && !(t.id === 'chat' ? chatOpen() : artOpen());
-      return `<button class="tab ${active === t.id ? 'active' : ''} ${locked ? 'locked' : ''}" data-tab="${t.id}" aria-label="${t.label}">
-        ${t.icon}${locked ? `<svg class="mini-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>` : ''}
-        <span>${t.label}</span>
+      return `<button class="nav-tab ${active === t.id ? 'active' : ''} ${locked ? 'is-locked' : ''}" data-tab="${t.id}" aria-label="${t.label}${locked ? ' (locked)' : ''}" ${active === t.id ? 'aria-current="page"' : ''}>
+        <span class="nav-icon">${t.icon}</span>
+        <span class="nav-lbl">${t.label}</span>
+        ${locked ? '<span class="nav-lock" aria-hidden="true">🔒</span>' : ''}
       </button>`;
     }).join('');
-    bar.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => {
+    bar.querySelectorAll('.nav-tab').forEach(b => b.addEventListener('click', () => {
       const t = tabs.find(x => x.id === b.dataset.tab);
       const open = t.id === 'chat' ? chatOpen() : t.id === 'art' ? artOpen() : true;
       if (t.gated && !open) return toast(T('toast.preLock', 'Complete your Pre-Survey to unlock this ✨'));
@@ -4019,7 +4040,7 @@ function artDetail(a, tab) {
 
 /* ── Draw on your device ─────────────────────────────────── */
 async function openBeatStudio(a) {
-  try { await ensureModule('MMBeat', './js/beat.js?v=3.6.0'); } catch (e) { return toast('Beat studio could not open — check your connection 💜'); }
+  try { await ensureModule('MMBeat', './js/beat.js?v=3.6.3'); } catch (e) { return toast('Beat studio could not open — check your connection 💜'); }
   const st = actState(a.id);
   if (!st || typeof MMBeat === 'undefined') return;
   if (typeof MMVoice !== 'undefined' && MMVoice.pause) MMVoice.pause();
@@ -4051,7 +4072,7 @@ async function openBeatStudio(a) {
 }
 
 async function openDrawPad(a) {
-  await ensureModule('MMDraw', './js/draw.js?v=3.6.0');
+  await ensureModule('MMDraw', './js/draw.js?v=3.6.3');
   const st = actState(a.id);
   if (!st) return;
 
@@ -5100,7 +5121,8 @@ routes.gamebubble = async () => {
 /* ── Writer / Note Space & Journal 📖✍️ ─────────────────────── */
 routes.journal = async (args = []) => {
   try {
-    await ensureModule('MMJournal', './js/journal.js?v=3.6.0');
+    await ensureModule('MMJournal', './js/journal.js?v=3.6.3');
+    try { await ensureModule('MMSoundscape', './js/soundscape.js?v=2.8.2'); } catch (_) { /* bar is optional */ }
   } catch (e) {
     console.warn('[MojaMind] journal module failed to load:', e);
     return render(`${header('Writer & Journal', { backTo: '#/home' })}<div class="body-pad"><div class="info-card"><p class="empty-note">Couldn’t open the journal just now. Please check your connection and try again. 💜</p><button class="btn btn-primary btn-block" onclick="nav('#/home')" style="margin-top:10px">Back to Home</button></div></div>`, { theme: 'theme-purple' });
@@ -5135,7 +5157,7 @@ routes.journal = async (args = []) => {
 
       ${subview === 'write' || subview === 'edit' ? `
         <!-- Procedural 432Hz & Nature Soundscape Bar -->
-        ${typeof MMSoundscape !== 'undefined' ? MMSoundscape.soundscapeBarHTML() : ''}
+        ${(typeof MMSoundscape !== 'undefined' && typeof MMSoundscape.soundscapeBarHTML === 'function') ? MMSoundscape.soundscapeBarHTML() : ''}
 
         <!-- Note Writer Card -->
         <div class="card journal-card" style="text-align:left;display:flex;flex-direction:column;gap:16px;padding:20px;background:rgba(255,255,255,0.08);backdrop-filter:blur(16px);border:1.6px solid rgba(51,102,255,0.45);border-radius:22px;box-shadow:0 10px 32px rgba(0,0,0,0.45)">
@@ -5337,7 +5359,7 @@ routes.journal = async (args = []) => {
   $('#j-tab-entries')?.addEventListener('click', () => nav('#/journal/entries'));
 
   if (subview === 'write' || subview === 'edit') {
-    if (typeof MMSoundscape !== 'undefined') MMSoundscape.wireEvents(app);
+    if (typeof MMSoundscape !== 'undefined' && typeof MMSoundscape.wireEvents === 'function') MMSoundscape.wireEvents(app);
     let selectedMood = draft.mood || '🌟 Hopeful';
     let currentArtImg = draft.artImg || null;
     let currentPhotoImg = draft.photoImg || null;
@@ -5501,9 +5523,31 @@ routes.journal = async (args = []) => {
       }
     });
 
+    /* Attach / replace a media thumbnail without wiping sibling
+       listeners (innerHTML += used to drop them) or duplicating IDs. */
+    const attachThumb = (kind, src, onRemove) => {
+      const mediaWrap = $('#j-attached-media');
+      if (!mediaWrap) return;
+      mediaWrap.style.display = 'flex';
+      document.getElementById(`j-thumb-${kind}`)?.remove(); // replace, never duplicate
+      const color = kind === 'art' ? '#3366ff' : '#00a651';
+      const wrap = document.createElement('div');
+      wrap.className = 'j-media-thumb';
+      wrap.id = `j-thumb-${kind}`;
+      wrap.style.cssText = `position:relative;width:80px;height:80px;border-radius:10px;overflow:hidden;border:1.5px solid ${color}`;
+      wrap.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover" alt="Attached ${kind === 'art' ? 'Drawing' : 'Photo'}" />
+        <button style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.7);border:0;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer" aria-label="Remove attachment">✕</button>`;
+      wrap.querySelector('button').addEventListener('click', () => {
+        onRemove && onRemove();
+        wrap.remove();
+        updateCounts();
+      });
+      mediaWrap.appendChild(wrap);
+    };
+
     // Draw / Paint Studio in Journal
     $('#j-draw-btn')?.addEventListener('click', async () => {
-      await ensureModule('MMDraw', './js/draw.js?v=3.6.0');
+      await ensureModule('MMDraw', './js/draw.js?v=3.6.3');
       const host = document.createElement('div');
       host.className = 'draw-overlay';
       document.body.appendChild(host);
@@ -5514,21 +5558,7 @@ routes.journal = async (args = []) => {
           if (!dataUrl) return toast('Make a mark or two first 🖍');
           close();
           currentArtImg = dataUrl;
-          const mediaWrap = $('#j-attached-media');
-          if (mediaWrap) {
-            mediaWrap.style.display = 'flex';
-            mediaWrap.innerHTML += `
-              <div class="j-media-thumb" id="j-thumb-art" style="position:relative;width:80px;height:80px;border-radius:10px;overflow:hidden;border:1.5px solid #3366ff">
-                <img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover" alt="Attached Drawing" />
-                <button id="j-del-art" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.7);border:0;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer">✕</button>
-              </div>
-            `;
-            $('#j-del-art')?.addEventListener('click', () => {
-              currentArtImg = null;
-              $('#j-thumb-art')?.remove();
-              updateCounts();
-            });
-          }
+          attachThumb('art', dataUrl, () => { currentArtImg = null; });
           updateCounts();
           toast('Drawing attached to note 🎨✨');
           confetti();
@@ -5537,31 +5567,15 @@ routes.journal = async (args = []) => {
     });
 
     // Add Photo File
-    $('#j-photo-file')?.addEventListener('change', e => {
+    $('#j-photo-file')?.addEventListener('change', async e => {
       const file = e.target.files?.[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        currentPhotoImg = ev.target.result;
-        const mediaWrap = $('#j-attached-media');
-        if (mediaWrap) {
-          mediaWrap.style.display = 'flex';
-          mediaWrap.innerHTML += `
-            <div class="j-media-thumb" id="j-thumb-photo" style="position:relative;width:80px;height:80px;border-radius:10px;overflow:hidden;border:1.5px solid #00a651">
-              <img src="${currentPhotoImg}" style="width:100%;height:100%;object-fit:cover" alt="Attached Photo" />
-              <button id="j-del-photo" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.7);border:0;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer">✕</button>
-            </div>
-          `;
-          $('#j-del-photo')?.addEventListener('click', () => {
-            currentPhotoImg = null;
-            $('#j-thumb-photo')?.remove();
-            updateCounts();
-          });
-        }
-        updateCounts();
-        toast('Photo attached to note 📸✨');
-      };
-      reader.readAsDataURL(file);
+      // Downscale before storing — full-resolution photos overflow the
+      // encrypted vault (QuotaExceeded) and slow every save afterwards.
+      currentPhotoImg = await shrinkImage(file);
+      attachThumb('photo', currentPhotoImg, () => { currentPhotoImg = null; });
+      updateCounts();
+      toast('Photo attached to note 📸✨');
     });
 
     // Tiny OCR

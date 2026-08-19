@@ -349,3 +349,6 @@ const MMSoundscape = (() => {
     showModal,
   };
 })();
+
+/* Expose on globalThis so lazy proxy bridges (app.js ensureModule) can hand over. */
+globalThis.MMSoundscape = MMSoundscape;
