@@ -67,7 +67,11 @@ const MMNLP = (() => {
     sawubona: .5, molo: .5, dumela: .5, howzit: .5, heita: .5, unjani: .3,
     ngiyabonga: 2, enkosi: 2, dankie: 2, baie: 0, lekker: 2, jammer: -1.2,
     hartseer: -2.2, bang: -2, moeg: -1.5, sterk: 2, dankbaar: 2.4, bly: 1.8,
-    kwaai: 1.5, hayibo: -.5, eish: -1, shame: -.8, sharp: 1, yebo: .5,
+    // NOTE: SA-colloquial 'ag shame' (sympathy) is milder than clinical
+    // 'shame', but the key is already defined above at -2. Re-declaring it
+    // here silently overrode the clinical weight and weakened riskOf()'s
+    // 'elevated'/'watch' escalation, so the stronger value is kept.
+    kwaai: 1.5, hayibo: -.5, eish: -1, sharp: 1, yebo: .5,
     ithemba: 2.5, temba: 2.4, tsholofelo: 2.5, tsepiso: 2.2, hoop: 2.4,
     // Recovery / adherence context
     adherence: .5, medication: 0, treatment: 0, clinic: 0, viral: 0,

@@ -90,11 +90,14 @@ const MMVoice = (() => {
   }
 
   /* ── Web Audio Chime & Acoustic Softener ────────────────── */
+  let ac = null;
   function getAudioCtx() {
     const AC = globalThis.AudioContext || globalThis.webkitAudioContext;
     if (!AC) return null;
-    if (!ac) ac = new AC();
-    if (ac.state === 'suspended') ac.resume();
+    try {
+      if (!ac) ac = new AC();
+      if (ac.state === 'suspended') ac.resume();
+    } catch (_) { return null; }
     return ac;
   }
 

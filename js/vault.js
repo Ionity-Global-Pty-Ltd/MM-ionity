@@ -243,12 +243,23 @@ const Vault = (() => {
   const onLock = fn => listeners.lock.push(fn);
   function touch() { lastTouch = Date.now(); }
 
+  /* Writes are debounced, so the real localStorage put happens inside a
+     timer — long after any try/catch around write() has returned. A full
+     device would therefore fail silently and lose the participant's work.
+     Failures are reported through this hook instead. */
+  let onWriteError = null;
+  function onError(cb) { onWriteError = cb; }
+  function reportWriteError(e) {
+    console.warn('[MojaMind] vault write failed:', e);
+    try { onWriteError && onWriteError(e); } catch (_) { /* never mask the original failure */ }
+  }
+
   /** Persist state. Debounced; safe to call on every keystroke. */
   function write(state, immediate = false) {
     pending = state;
     if (immediate) return flush();
     clearTimeout(writeTimer);
-    writeTimer = setTimeout(flush, 220);
+    writeTimer = setTimeout(() => { flush(); }, 220);
     return Promise.resolve();
   }
 
@@ -257,12 +268,16 @@ const Vault = (() => {
     const state = pending;
     if (!state) return;
     pending = null;
-    if (!subtle) {
-      localStorage.setItem(STORE_KEY, JSON.stringify({ v: 2, mode: 'plain', plain: state }));
-      return;
+    try {
+      if (!subtle) {
+        localStorage.setItem(STORE_KEY, JSON.stringify({ v: 2, mode: 'plain', plain: state }));
+        return;
+      }
+      if (locked || !key || !currentSalt) return; // never write with a key we no longer hold
+      await encryptTo(state, key, currentSalt, mode);
+    } catch (e) {
+      reportWriteError(e);
     }
-    if (locked || !key || !currentSalt) return; // never write with a key we no longer hold
-    await encryptTo(state, key, currentSalt, mode);
   }
 
   /** A decrypted copy of everything, for the participant to keep. */
@@ -290,7 +305,7 @@ const Vault = (() => {
 
   return {
     open, unlock, setPin, clearPin, lock, isLocked, hasPin, currentMode,
-    encrypted, onLock, write, flush, exportBundle, wipe, touch,
+    encrypted, onLock, onError, write, flush, exportBundle, wipe, touch,
     ITERATIONS,
   };
 })();
